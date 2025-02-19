@@ -81,7 +81,7 @@ export default function About() {
               </div>
               <div className="relative w-full h-64 md:h-auto">
                 <Image
-                  src="https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f"
+                  src="https://aust.edu/storage/files/ibbyeVYm4Y2AuAsxvPrRbEhUNBsTVilYoHUFzi6f.png"
                   alt="Environmental Action"
                   layout="fill"
                   objectFit="cover"
