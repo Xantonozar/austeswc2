@@ -52,7 +52,7 @@ export function InteractiveGridPatternDemo() {
         <BackgroundBeams/>
         <div className="whitespace-pre-wrap text-center tracking-tighter text-black dark:text-white">
           <div className="relative w-full h-screen max-h-[800px] bg-cover justify-center items-center bg-center flex flex-col md:flex-row">
-            <div className={`w-full ${isMobileOrTablet ? 'ml-2 mt-8 mb-4 ' : 'ml-4 md:mt-1 md:ml-36'} md:w-1/2 flex flex-col text-left gap-2 text-green-700 px-4`}>
+            <div className={`w-full ${isMobileOrTablet ? 'ml-2 mt-8 mb-4 ' : 'ml-4 md:mt-1 md:ml-6 '} md:w-1/2 flex flex-col text-left gap-2 text-green-700 px-4`}>
               <h1 className="text-6xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[75px] pt-10 sm:mb-2 font-bold md:mb-4" style={{ letterSpacing: "2px", lineHeight: "1.2", color: "#023015" }}>
                 WELCOME!!
               </h1>
@@ -78,7 +78,7 @@ export function InteractiveGridPatternDemo() {
                 alt="Hero Image"
                 layout="fill"
                 objectFit="contain"
-                className="absolute inset-0 z-30"
+                className="absolute inset-0 md:pb-20 z-30"
               />
             </div>
           </div>
