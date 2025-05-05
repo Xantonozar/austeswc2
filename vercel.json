@@ -1,8 +1,11 @@
 {
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    },
-    "installCommand": "pnpm install --no-frozen-lockfile"
-  }
+  // ← top‑level, not inside "build"
+  "installCommand": "pnpm install --no-frozen-lockfile",
+
+  // optional: explicitly set your build dev commands
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  
+  // if you want to control where the output goes:
+  "outputDirectory": ".next"
 }
