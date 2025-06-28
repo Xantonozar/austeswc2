@@ -1,9 +1,9 @@
 export async function POST(req) {
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbzJ4_zQzKxrS2SLtN7jqxhjP1iL5ZxgvvWXnBqI_xnskRE4HHkHFHe322H-fjEfS3RB3Q/exec";
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwv2GlMBvOv6Vdj33x-L_cqAF7hayOf2iU1nJKrFzm_WT3w1uJ_3HVfcubQPAqEhYCGdw/exec";
 
   try {
     const body = await req.json();  // now includes imageBase64, imageName, imageType
-    console.log('Received submission for student ID:', body.studentId, 'email:', body.email);
+    console.log('Received submission for student ID:', body.studentId, 'email:', body.email, "phone",body.phone);
 
     // Check for duplicate entries with proper error handling
     try {
@@ -54,7 +54,7 @@ export async function POST(req) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    
+    console.log(body)
     console.log('Google Sheets response status:', response.status);
     
     if (!response.ok) {

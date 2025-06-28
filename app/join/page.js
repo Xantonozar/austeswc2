@@ -17,7 +17,7 @@ export default function JoinPage() {
     bkashId: '',
     reference: '',
     imageBase64: '',  // New
-    imageName: '',    // New
+    imageName: '',    // Newac
     imageType: '',    // New
     agreeToTerms: false  // New checkbox field
   });
@@ -40,10 +40,18 @@ export default function JoinPage() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
-    }));
+    
+    if (name === 'phone') {
+      // Only allow 11 digits, remove any non-digit characters
+      const digitsOnly = value.replace(/\D/g, '');
+      const phoneValue = digitsOnly.slice(0, 11); // Limit to 11 digits
+      setForm(prev => ({ ...prev, [name]: phoneValue }));
+    } else {
+      setForm(prev => ({ 
+        ...prev, 
+        [name]: type === 'checkbox' ? checked : value 
+      }));
+    }
 
     if (name === 'department' && value !== 'Architecture') {
       if (['5-1', '5-2'].includes(form.yearSemester)) {
@@ -192,7 +200,7 @@ export default function JoinPage() {
       ...form,
       name: form.name.trim(),
       email: form.email.trim().toLowerCase(),
-      phone: form.phone.trim(),
+      phone: "'" + form.phone.trim(), // Add single quote to force text format in Google Sheets
       studentId: form.studentId.trim().toUpperCase(), // Normalize student ID to uppercase
       bkashId: form.bkashId.trim(),
       reference: form.reference.trim()
@@ -331,7 +339,7 @@ export default function JoinPage() {
                     className="w-full bg-emerald-50 p-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 border border-emerald-100 transition-all duration-300 text-sm"
                     required />
                 </div>
-                <p className="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                <p className="text-xs text-green-700 mt-2  p-2 rounded-lg ">
                   Use @aust.edu email. 1-1 students can use renowned emails like Gmail, Yahoo, Outlook.
                 </p>
               </div>
@@ -351,8 +359,8 @@ export default function JoinPage() {
                     className="w-full bg-emerald-50 p-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 border border-emerald-100 transition-all duration-300 text-sm"
                     required />
                 </div>
-                <p className="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded-lg border border-amber-100">
-                  Must start with 01 and be 11 digits
+                <p className="text-xs text-green-700 mt-2  p-2 rounded-lg ">
+                  Enter your 11-digit phone number (e.g., 01712345678)
                 </p>
               </div>
             </motion.div>
@@ -393,7 +401,7 @@ export default function JoinPage() {
                     onFocus={() => handleFocus('yearSemester')} onBlur={handleBlur}
                     className="w-full bg-emerald-50 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-emerald-100 transition-all duration-300 appearance-none text-sm cursor-pointer hover:bg-emerald-100"
                     required>
-                    <option value="">Select your year & semester</option>
+                    <option value="">Select Your Year & Semester</option>
                     {yearOptions.map(opt => (
                       <option key={opt} value={opt} disabled={['5-1','5-2'].includes(opt) && form.department !== 'Architecture'}>
                         {opt}
@@ -406,7 +414,7 @@ export default function JoinPage() {
                     </svg>
                   </div>
                 </div>
-                <p className="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                <p className="text-xs text-green-700 mt-2  p-2 rounded-lg ">
                   5-1 and 5-2 only for Architecture students
                 </p>
               </div>
@@ -426,7 +434,7 @@ export default function JoinPage() {
                     className="w-full bg-emerald-50 p-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 border border-emerald-100 transition-all duration-300 text-sm"
                     required />
                 </div>
-                <p className="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                <p className="text-xs text-green-700 mt-2  p-2 rounded-lg ">
                   Each student ID can only register once
                 </p>
               </div>
