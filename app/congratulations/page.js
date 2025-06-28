@@ -1,18 +1,35 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { SparklesCore } from '@/components/ui/sparkles';
-import { ArrowLeft, Leaf, Check } from 'lucide-react';
+import { ArrowLeft, Leaf, Check, ArrowRight } from 'lucide-react';
 
 export default function CongratulationsPage() {
   const [mounted, setMounted] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(true);
 
   useEffect(() => {
     setMounted(true);
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
+    
+    // Hide animation after 5 seconds
+    const timer = setTimeout(() => {
+      setShowAnimation(false);
+    }, 5000);
+
+    // Hide celebration animation after 4 seconds
+    const celebrationTimer = setTimeout(() => {
+      setShowCelebration(false);
+    }, 4000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(celebrationTimer);
+    };
   }, []);
 
   // Animation variants
@@ -148,16 +165,30 @@ export default function CongratulationsPage() {
             We'll review your application and get back to you soon. Meanwhile, explore our website to learn more about our activities.
           </motion.p>
 
-          {/* Return to home button */}
-          <motion.div variants={itemVariants}>
-            <Link href="/">
+          {/* Buttons */}
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-row gap-2 md:gap-4 justify-center items-center px-2 md:px-4"
+          >
+            <Link href="/join">
               <motion.button
-                className="bg-green-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors duration-300"
+                className="bg-green-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors duration-300 text-sm md:text-base font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Return to Home</span>
+                <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
+                <span>Go Back</span>
+              </motion.button>
+            </Link>
+            
+            <Link href="/">
+              <motion.button
+                className="bg-green-600 text-white px-4 py-3 md:px-6 md:py-3 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors duration-300 text-sm md:text-base font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span>Home</span>
+                <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
               </motion.button>
             </Link>
           </motion.div>
@@ -199,6 +230,132 @@ export default function CongratulationsPage() {
           </svg>
         </motion.div>
       </div>
+
+      {/* Congratulations Animation Overlay */}
+      <AnimatePresence>
+        {showAnimation && (
+          <motion.div
+            className="fixed inset-0 z-50 pointer-events-none"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Falling colorful confetti papers */}
+            {[...Array(80)].map((_, i) => {
+              const colors = ['#10b981', '#059669', '#047857', '#fbbf24', '#f59e0b', '#d97706', '#ef4444', '#dc2626', '#7c3aed', '#6366f1', '#3b82f6', '#06b6d4'];
+              const shapes = ['w-2 h-2', 'w-3 h-1', 'w-1 h-3', 'w-2 h-3', 'w-3 h-2'];
+              const selectedColor = colors[Math.floor(Math.random() * colors.length)];
+              const selectedShape = shapes[Math.floor(Math.random() * shapes.length)];
+              const isCircle = Math.random() > 0.7;
+              
+              // Generate random path points for smoother, more natural movement
+              const pathPoints = [];
+              const startX = Math.random() * 100;
+              let currentX = startX;
+              
+              for (let j = 0; j <= 20; j++) {
+                const y = j * 50; // 50px intervals
+                currentX += (Math.random() - 0.5) * 30; // Random X movement
+                pathPoints.push({ x: currentX, y });
+              }
+              
+              return (
+                <motion.div
+                  key={i}
+                  className={`absolute ${selectedShape} ${isCircle ? 'rounded-full' : 'rounded-sm'} shadow-sm`}
+                  style={{
+                    left: `${startX}%`,
+                    backgroundColor: selectedColor,
+                    transform: `rotate(${Math.random() * 360}deg)`,
+                  }}
+                  initial={{ 
+                    y: -20, 
+                    x: 0, 
+                    rotate: Math.random() * 360,
+                    opacity: 0 
+                  }}
+                  animate={{
+                    y: pathPoints.map(p => p.y),
+                    x: pathPoints.map(p => p.x - startX),
+                    rotate: Array.from({ length: 21 }, (_, j) => j * 45 + Math.random() * 90),
+                    opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.8, 0.6, 0.4, 0.2, 0.1, 0],
+                  }}
+                  transition={{
+                    duration: 2 + Math.random() * 1.5,
+                    delay: i * 0.02,
+                    ease: "easeInOut",
+                    times: Array.from({ length: 21 }, (_, j) => j / 20)
+                  }}
+                />
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Celebration Papers Animation Overlay */}
+      <AnimatePresence>
+        {showCelebration && (
+          <motion.div
+            className="fixed inset-0 z-40 pointer-events-none"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Celebration papers falling from top */}
+            {[...Array(60)].map((_, i) => {
+              const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43', '#10ac84', '#ee5a24'];
+              const shapes = ['w-3 h-4', 'w-4 h-3', 'w-3 h-3', 'w-4 h-4', 'w-2 h-5', 'w-5 h-2'];
+              const selectedColor = colors[Math.floor(Math.random() * colors.length)];
+              const selectedShape = shapes[Math.floor(Math.random() * shapes.length)];
+              const isCircle = Math.random() > 0.8;
+              
+              // Generate celebration path with more dramatic movement
+              const pathPoints = [];
+              const startX = Math.random() * 100;
+              let currentX = startX;
+              
+              for (let j = 0; j <= 15; j++) {
+                const y = j * 60; // 60px intervals for faster fall
+                currentX += (Math.random() - 0.5) * 40; // More dramatic X movement
+                pathPoints.push({ x: currentX, y });
+              }
+              
+              return (
+                <motion.div
+                  key={`celebration-${i}`}
+                  className={`absolute ${selectedShape} ${isCircle ? 'rounded-full' : 'rounded-md'} shadow-md`}
+                  style={{
+                    left: `${startX}%`,
+                    backgroundColor: selectedColor,
+                    transform: `rotate(${Math.random() * 360}deg)`,
+                  }}
+                  initial={{ 
+                    y: -50, 
+                    x: 0, 
+                    rotate: Math.random() * 360,
+                    opacity: 0,
+                    scale: 0
+                  }}
+                  animate={{
+                    y: pathPoints.map(p => p.y),
+                    x: pathPoints.map(p => p.x - startX),
+                    rotate: Array.from({ length: 16 }, (_, j) => j * 60 + Math.random() * 120),
+                    opacity: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0.8, 0.6, 0.4, 0.2, 0.1, 0],
+                    scale: [0, 1, 1, 1, 1, 1, 1, 1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4],
+                  }}
+                  transition={{
+                    duration: 1.5 + Math.random() * 1,
+                    delay: i * 0.03,
+                    ease: "easeInOut",
+                    times: Array.from({ length: 16 }, (_, j) => j / 15)
+                  }}
+                />
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
