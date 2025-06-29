@@ -157,7 +157,7 @@ function Navbar() {
                     <Link href="/research" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Research
                     </Link>
-                    <Link href="/coming" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
+                    <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Sponsors
                     </Link>
                     <Link href="/coming" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
