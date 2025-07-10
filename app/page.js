@@ -8,12 +8,13 @@ import LowSection from "@/components/lower-section";
 import Testimonial from "@/components/testimonial";
 import Environmental from "@/components/environmental";
 import PanelMembers from "@/components/panel";
-
+import July from "@/components/july";
 import { Cards } from "@/components/card";
 import { InteractiveGridPatternDemo } from "@/components/grid";
 export default function Home() {
   return (
     <div className="w-full relative flex flex-col">
+      <July />
       <InteractiveGridPatternDemo />
       <br />
       {/* <HeroSection /> */}
