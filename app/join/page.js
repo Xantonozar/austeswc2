@@ -540,7 +540,7 @@ export default function JoinPage() {
             </motion.div>
 
             {/* Submit */}
-            <motion.button type="submit" disabled={true}
+            <motion.button type="submit" disabled={loading}
               className="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white py-3 px-5 rounded-lg hover:from-green-700 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg border border-emerald-400 font-medium text-base relative overflow-hidden group"
               whileHover={{ scale: loading ? 1 : 1.01 }} 
               whileTap={{ scale: loading ? 1 : 0.98 }} 
