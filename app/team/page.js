@@ -12,6 +12,7 @@ export default function PanelMembers() {
     { designation: "Executive", image: "https://www.aust.edu/storage/files/6SRt4xyEi0qMsTllJKpo4fA1EmD5BtC70jgDihDk.jpg" },
     { designation: "Executive", image: "https://www.aust.edu/storage/files/qaqU769v64uHxIXRm7KEGPih0ROfa747WDxr8LEQ.jpg" },
     { designation: "Executive", image: "https://www.aust.edu/storage/files/PPwj7H8MpVrOuE25E8iofp5qdgbPyEptIrpB00GU.jpg" },
+     { designation: "Executive", image: "https://res.cloudinary.com/chirkut/image/upload/v1753294275/jui_b3nszw.jpg" },
   ];
 
   // Group members by designation
