@@ -95,9 +95,9 @@ const July = () => {
          <div className="absolute bottom-2 left-2 w-8 h-8 border-l-4 border-b-4 border-emerald-600 rounded-bl-lg"></div>
          <div className="absolute bottom-2 right-2 w-8 h-8 border-r-4 border-b-4 border-emerald-600 rounded-br-lg"></div>
 
-                 {/* Floating Paper Notes */}
+               {/* Floating Paper Notes */}
          <motion.div 
-           className="absolute top-1/4 right-2 md:right-4 w-12 h-16 md:w-16 md:h-20 bg-emerald-100 border-2 border-emerald-300 rounded shadow-lg transform rotate-12 z-10"
+           className="hidden md:block absolute top-1/4 right-2 md:right-4 w-12 h-16 md:w-16 md:h-20 bg-emerald-100 border-2 border-emerald-300 rounded shadow-lg transform rotate-12 z-10"
            animate={{ 
              rotate: [12, -12, 12],
              y: [0, -5, 0]
@@ -112,7 +112,7 @@ const July = () => {
          </motion.div>
 
          <motion.div 
-           className="absolute bottom-1/4 left-2 md:left-4 w-12 h-16 md:w-16 md:h-20 bg-green-100 border-2 border-green-300 rounded shadow-lg transform -rotate-12 z-10"
+           className="hidden md:block absolute bottom-1/4 left-2 md:left-4 w-12 h-16 md:w-16 md:h-20 bg-green-100 border-2 border-green-300 rounded shadow-lg transform -rotate-12 z-10"
            animate={{ 
              rotate: [-12, 12, -12],
              y: [0, -3, 0]
@@ -125,7 +125,6 @@ const July = () => {
          >
            <div className="p-1 text-xs text-green-800 font-bold text-center">ECO!</div>
          </motion.div>
-      </motion.div>
     </div>
   );
 };
