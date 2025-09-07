@@ -4,7 +4,8 @@ const nextConfig = {
     domains: [
       "images.unsplash.com", 
       "res.cloudinary.com", 
-      "aust.edu" // Added aust.edu for loading images
+      "aust.edu",
+      "www.aibl.com.bd" // Added aust.edu for loading images
     ],
   },
 };
