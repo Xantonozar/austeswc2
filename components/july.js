@@ -125,6 +125,7 @@ const July = () => {
          >
            <div className="p-1 text-xs text-green-800 font-bold text-center">ECO!</div>
          </motion.div>*/}
+ </motion.div>
     </div>
   );
 };
