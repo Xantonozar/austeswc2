@@ -75,6 +75,9 @@ function Navbar() {
                     <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                       Competetion
                     </Link>
+                    <Link href="/annual-report" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                      Annual Report
+                    </Link>
                   </div>
                 )}
               </li>
@@ -88,6 +91,9 @@ function Navbar() {
               </Link>
               <Link href="/join" className="bg-sky-200 hover:bg-blue-400 text-gray-800 font-bold py-2 px-4 rounded-full">
                 Join Us
+              </Link>
+              <Link href="/login" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-full transition-colors">
+                Login
               </Link>
             </div>
           </div>
@@ -157,7 +163,7 @@ function Navbar() {
                     <Link href="/research" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Research
                     </Link>
-                    <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
+                    <Link href="/sponsors" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Sponsors
                     </Link>
                     <Link href="/coming" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
@@ -165,6 +171,9 @@ function Navbar() {
                     </Link>
                     <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Competetion
+                    </Link>
+                    <Link href="/annual-report" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
+                      Annual Report
                     </Link>
                   </div>
                 )}
@@ -182,6 +191,13 @@ function Navbar() {
                   <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 8a1 1 0 112 0v4a1 1 0 11-2 0V8zm1 8a1 1 0 110-2 1 1 0 010 2z" />
                 </svg>
                 <span>Join Us</span>
+              </Link>
+              <Link href="/login" className="bg-emerald-600 w-full hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center space-x-2" onClick={toggleMenu}>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                  <path d="M4 5a2 2 0 00-2 2v1a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 012-2h6a2 2 0 012 2v1a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H4z" />
+                </svg>
+                <span>Login</span>
               </Link>
             </div>
           </div>
