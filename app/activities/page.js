@@ -225,7 +225,11 @@ export default function Activities() {
                         style={{ backgroundImage: `url(${event.image})` }}
                       />
                       <CardHeader>
-                        <CardTitle>{event.title}</CardTitle>
+                        <CardTitle className="cursor-pointer hover:text-green-600 transition-colors">
+                          <Link href={`/activities/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}>
+                            {event.title}
+                          </Link>
+                        </CardTitle>
                         <CardDescription>{event.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -263,19 +267,21 @@ export default function Activities() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: index * 0.2 }}
-                    className="relative group"
+                    className="relative group cursor-pointer"
                   >
-                    <div
-                      className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
-                      style={{ backgroundImage: `url(${activity.image})` }}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {activity.title}
-                      </h3>
-                      <p className="text-sm opacity-90 mb-1">{activity.date}</p>
-                      <p className="text-sm opacity-90">{activity.impact}</p>
-                    </div>
+                    <Link href={`/activities/${activity.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}>
+                      <div
+                        className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
+                        style={{ backgroundImage: `url(${activity.image})` }}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
+                        <h3 className="text-xl font-semibold mb-2">
+                          {activity.title}
+                        </h3>
+                        <p className="text-sm opacity-90 mb-1">{activity.date}</p>
+                        <p className="text-sm opacity-90">{activity.impact}</p>
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
@@ -315,7 +321,11 @@ export default function Activities() {
                         style={{ backgroundImage: `url(${event.image})` }}
                       />
                       <CardHeader>
-                        <CardTitle>{event.title}</CardTitle>
+                        <CardTitle className="cursor-pointer hover:text-blue-600 transition-colors">
+                          <Link href={`/activities/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}>
+                            {event.title}
+                          </Link>
+                        </CardTitle>
                         <CardDescription>{event.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -353,19 +363,21 @@ export default function Activities() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: index * 0.2 }}
-                    className="relative group"
+                    className="relative group cursor-pointer"
                   >
-                    <div
-                      className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
-                      style={{ backgroundImage: `url(${activity.image})` }}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {activity.title}
-                      </h3>
-                      <p className="text-sm opacity-90 mb-1">{activity.date}</p>
-                      <p className="text-sm opacity-90">{activity.impact}</p>
-                    </div>
+                    <Link href={`/activities/${activity.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}>
+                      <div
+                        className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
+                        style={{ backgroundImage: `url(${activity.image})` }}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
+                        <h3 className="text-xl font-semibold mb-2">
+                          {activity.title}
+                        </h3>
+                        <p className="text-sm opacity-90 mb-1">{activity.date}</p>
+                        <p className="text-sm opacity-90">{activity.impact}</p>
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
@@ -405,7 +417,11 @@ export default function Activities() {
                         style={{ backgroundImage: `url(${event.image})` }}
                       />
                       <CardHeader>
-                        <CardTitle>{event.title}</CardTitle>
+                        <CardTitle className="cursor-pointer hover:text-emerald-600 transition-colors">
+                          <Link href={`/activities/${event.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}>
+                            {event.title}
+                          </Link>
+                        </CardTitle>
                         <CardDescription>{event.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -443,19 +459,21 @@ export default function Activities() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: index * 0.2 }}
-                    className="relative group"
+                    className="relative group cursor-pointer"
                   >
-                    <div
-                      className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
-                      style={{ backgroundImage: `url(${activity.image})` }}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {activity.title}
-                      </h3>
-                      <p className="text-sm opacity-90 mb-1">{activity.date}</p>
-                      <p className="text-sm opacity-90">{activity.impact}</p>
-                    </div>
+                    <Link href={`/activities/${activity.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}>
+                      <div
+                        className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
+                        style={{ backgroundImage: `url(${activity.image})` }}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
+                        <h3 className="text-xl font-semibold mb-2">
+                          {activity.title}
+                        </h3>
+                        <p className="text-sm opacity-90 mb-1">{activity.date}</p>
+                        <p className="text-sm opacity-90">{activity.impact}</p>
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
@@ -489,5 +507,4 @@ export default function Activities() {
     </div>
   );
 }
-
 
