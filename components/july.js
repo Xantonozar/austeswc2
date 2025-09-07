@@ -96,7 +96,7 @@ const July = () => {
          <div className="absolute bottom-2 right-2 w-8 h-8 border-r-4 border-b-4 border-emerald-600 rounded-br-lg"></div>
 
                {/* Floating Paper Notes */}
-         <motion.div 
+{/*<motion.div 
            className="hidden md:block absolute top-1/4 right-2 md:right-4 w-12 h-16 md:w-16 md:h-20 bg-emerald-100 border-2 border-emerald-300 rounded shadow-lg transform rotate-12 z-10"
            animate={{ 
              rotate: [12, -12, 12],
@@ -124,7 +124,7 @@ const July = () => {
            }}
          >
            <div className="p-1 text-xs text-green-800 font-bold text-center">ECO!</div>
-         </motion.div>
+         </motion.div>*/}
     </div>
   );
 };
