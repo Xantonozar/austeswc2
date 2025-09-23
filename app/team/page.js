@@ -175,7 +175,7 @@ export default function PanelMembers() {
       }
     },
                         {
-              fullName: "A.K. Saidur Rahman",
+              fullName: "A.K.M. Saidur Rahman",
       designation: "Oparational Secratory",
       department: "Event Management",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137807/WhatsApp_Image_2025-09-06_at_11.47.27_ef9d681c_oguaka.jpg",
