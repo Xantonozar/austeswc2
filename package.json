@@ -26,6 +26,7 @@
     "animejs": "^3.2.2",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.39.3",
@@ -36,11 +37,13 @@
     "mini-svg-data-uri": "^1.4.4",
     "mongoose": "^8.18.0",
     "motion": "^12.4.3",
-    "next": "^15.1.6",
+    "next": "^16.1.1",
     "nookies": "^2.5.2",
-    "react": "^19.0.0",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0",
+    "react": "^19.2.3",
     "react-day-picker": "^9.5.1",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.2.3",
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^5.4.0",
@@ -50,7 +53,11 @@
     "three": "^0.173.0",
     "typed-js": "^0.2.3",
     "typed.js": "^2.1.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.2"
+  },
+  "overrides": {
+    "cookie": "0.7.0"
   },
   "devDependencies": {
     "postcss": "^8",

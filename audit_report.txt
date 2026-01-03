@@ -1,0 +1,14 @@
+# npm audit report
+
+cookie  <0.7.0
+cookie accepts cookie name, path, and domain with out of bounds characters - https://github.com/advisories/GHSA-pxg6-pf52-xh8x
+No fix available
+node_modules/cookie
+  nookies  *
+  Depends on vulnerable versions of cookie
+  node_modules/nookies
+
+2 low severity vulnerabilities
+
+Some issues need review, and may require choosing
+a different dependency.

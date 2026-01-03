@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation'; // for next 13 App Router
+import { usePathname, useRouter } from 'next/navigation';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Unused router can be removed if not needed, but keeping as per original code
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,34 +29,36 @@ function Navbar() {
           {/* Left Section: Logo */}
           <div className="flex-1">
             <Link href="/">
-              <Image src="/eswclogo.png" alt="ESWC Logo" width={70} height={70} />
+              <Image src="/eswclogo.png" alt="ESWC Logo" width={70} height={70} className="w-12 h-12 lg:w-[70px] lg:h-[70px]" />
             </Link>
           </div>
-          {/* Middle Section: Links */}
+
+          {/* Middle Section: Links - Visible on MD+ with Responsive Sizing */}
           <div className="hidden md:flex flex-1 justify-center">
-            <ul className="flex space-x-6">
+            {/* Reduced spacing on MD, normal on LG */}
+            <ul className="flex space-x-3 lg:space-x-6 items-center">
               <li>
-                <Link href="/about" className="text-light-green text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500">
+                <Link href="/about" className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 whitespace-nowrap">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-light-green text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500">
+                <Link href="/contact" className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 whitespace-nowrap">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/activities" className="text-light-green text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500">
+                <Link href="/activities" className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 whitespace-nowrap">
                   Activities
                 </Link>
               </li>
               <li>
-                <Link href="/team" className="text-light-green text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500">
-                 Panel
+                <Link href="/team" className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 whitespace-nowrap">
+                  Panel
                 </Link>
               </li>
               <li className="relative group">
-                <button onClick={toggleDropdown} className="text-light-green text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500">
+                <button onClick={toggleDropdown} className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 flex items-center whitespace-nowrap">
                   More
                   <svg className="w-4 h-4 inline-block ml-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
@@ -63,19 +66,19 @@ function Navbar() {
                 </button>
                 {isDropdownOpen && (
                   <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg group-hover:block transition ease-in-out duration-300">
-                    <Link href="/research" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <Link href="/research" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Research
                     </Link>
-                    <Link href="/sponsors" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <Link href="/sponsors" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Sponsors
                     </Link>
-                    <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Gallery
                     </Link>
-                    <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Competetion
                     </Link>
-                    <Link href="/annual-report" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <Link href="/annual-report" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Annual Report
                     </Link>
                   </div>
@@ -83,21 +86,23 @@ function Navbar() {
               </li>
             </ul>
           </div>
-          {/* Right Section: Buttons */}
+
+          {/* Right Section: Buttons - Visible on MD+ with Responsive Sizing */}
           <div className="hidden md:flex flex-1 justify-end">
-            <div className="flex space-x-4">
-              <Link href="/coming" className="bg-green-200 hover:bg-green-400 text-black font-bold py-2 px-4 rounded-full">
+            <div className="flex space-x-2 lg:space-x-4">
+              <Link href="/coming" className="bg-green-200 hover:bg-green-400 text-black font-bold py-1 px-3 text-xs lg:text-base lg:py-2 lg:px-4 rounded-full flex items-center whitespace-nowrap">
                 Donate
               </Link>
-              <Link href="/join" className="bg-sky-200 hover:bg-blue-400 text-gray-800 font-bold py-2 px-4 rounded-full">
+              <Link href="/join" className="bg-sky-200 hover:bg-blue-400 text-gray-800 font-bold py-1 px-3 text-xs lg:text-base lg:py-2 lg:px-4 rounded-full flex items-center whitespace-nowrap">
                 Join Us
               </Link>
-              <Link href="/login" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-full transition-colors">
+              <Link href="/login" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1 px-3 text-xs lg:text-base lg:py-2 lg:px-4 rounded-full transition-colors flex items-center whitespace-nowrap">
                 Login
               </Link>
             </div>
           </div>
-          {/* Mobile Menu Button */}
+
+          {/* Mobile Menu Button - Visible Only on Small Screens */}
           <div className="md:hidden">
             <button onClick={toggleMenu} className="text-gray-800 hover:text-gray-900">
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -108,6 +113,7 @@ function Navbar() {
           </div>
         </div>
       </div>
+
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden fixed top-0 left-0 w-full h-screen bg-green-50 backdrop-blur-3xl z-50">
@@ -166,7 +172,7 @@ function Navbar() {
                     <Link href="/sponsors" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Sponsors
                     </Link>
-                    <Link href="/coming" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
+                    <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Gallery
                     </Link>
                     <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>

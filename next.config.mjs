@@ -1,11 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "images.unsplash.com", 
-      "res.cloudinary.com", 
-      "aust.edu",
-      "www.aibl.com.bd" // Added aust.edu for loading images
+    remotePatterns: [
+      { hostname: "images.unsplash.com" },
+      { hostname: "res.cloudinary.com" },
+      { hostname: "aust.edu" },
+      { hostname: "www.aibl.com.bd" },
+      { hostname: "www.dailymessenger.net" },
+      { hostname: "cdn.shortpixel.ai" }
     ],
   },
 };

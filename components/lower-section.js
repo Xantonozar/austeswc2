@@ -1,34 +1,35 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import Image  from "next/image";
+import Image from "next/image";
 import Banner from "../public/Banner.png"
-const Initiative = ({ title, subtitle, imageSrc, colorClass,eventUrl }) => {
+const Initiative = ({ title, subtitle, imageSrc, colorClass, eventUrl }) => {
   return (
     <div className={cn(
       "rounded-3xl p-6 transition-all duration-500 hover:scale-[1.02] hover:shadow-lg",
       colorClass || "bg-gray-50"
     )}>
-      <div className="overflow-hidden rounded-2xl mb-6">
-        <img
+      <div className="overflow-hidden rounded-2xl mb-6 relative h-64 w-full">
+        <Image
           src={imageSrc}
           alt={title}
-          className="w-full h-64 object-cover transform transition-transform duration-700 hover:scale-105"
-          loading="lazy"
+          fill
+          className="object-cover transform transition-transform duration-700 hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
       <h3 className="text-2xl font-semibold mb-2 text-slate-800">{title}</h3>
       <p className="text-slate-600 mb-6">{subtitle}</p>
-     
+
       <a
-  href={eventUrl}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-block"
->
-  <button className="px-6 py-2 rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors duration-300">
-    Learn More !!
-  </button>
-</a>
+        href={eventUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block"
+      >
+        <button className="px-6 py-2 rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors duration-300">
+          Learn More !!
+        </button>
+      </a>
 
     </div>
   );
@@ -46,19 +47,19 @@ const LowSection = () => {
             for a Better Impact
           </h2>
           <p className="mt-4 text-slate-600 max-w-3xl mx-auto">
-          Our initiatives that madee you think, act, and connect with us
+            Our initiatives that madee you think, act, and connect with us
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <Initiative
-            title="Club Fair"
-            subtitle="Recruiting New Members"
-            imageSrc="https://res.cloudinary.com/chirkut/image/upload/v1739896998/Banner_q7w5un.png"
+            title="Eco Fair"
+            subtitle="Sustainable Innovations"
+            imageSrc="https://res.cloudinary.com/chirkut/image/upload/v1739914874/WhatsApp_Image_2025-02-19_at_03.19.31_19591f2b_jg2bnl.jpg"
             colorClass="bg-blue-50"
-            eventUrl="https://facebook.com/events/s/austeswc-general-member-recrui/1144053617319053/"
+            eventUrl="#"
           />
           <Initiative
-            title="Eco Champion 2.0"
+            title="Eco Champion 3.0"
             subtitle="Journey Towards Knowledge"
             imageSrc="https://res.cloudinary.com/chirkut/image/upload/v1739896661/eco-champ_uyir0n.jpg"
             colorClass="bg-green-50"

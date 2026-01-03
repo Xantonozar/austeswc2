@@ -1,0 +1,31 @@
+
+> eswc@0.2.0 build
+> next build
+
+ΓÜá `images.domains` is deprecated in favor of `images.remotePatterns`. Please update next.config.mjs to protect your application from malicious users.
+Γû▓ Next.js 16.1.1 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./app/globals.css:2949:8
+Parsing CSS source code failed
+  2947 | /* Import the font from Google Fonts */
+  2948 | /* @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap'); */
+> 2949 | @import url('https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap');
+       |        ^
+  2950 |  
+  2951 | @font-face {
+  2952 |   font-family: "ExoItalic";
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.js [Server Component]
+
+
+    at <unknown> (./app/globals.css:2949:8)
