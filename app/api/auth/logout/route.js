@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { serialize } from 'cookie';
+import { cookies } from 'next/headers';
 
 export async function POST(req) {
     // Clear session cookie
-    const cookie = serialize('admin_session', '', {
+    const cookieStore = await cookies();
+    cookieStore.set('admin_session', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -11,8 +12,5 @@ export async function POST(req) {
         path: '/',
     });
 
-    const response = NextResponse.json({ success: true });
-    response.headers.set('Set-Cookie', cookie);
-
-    return response;
+    return NextResponse.json({ success: true });
 }

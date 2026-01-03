@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { serialize } from 'cookie';
+import { cookies } from 'next/headers';
 
 export async function POST(req) {
     try {
@@ -20,7 +20,8 @@ export async function POST(req) {
             // Create session cookie
             const sessionToken = Buffer.from(`${username}:${Date.now()}`).toString('base64');
 
-            const cookie = serialize('admin_session', sessionToken, {
+            const cookieStore = await cookies();
+            cookieStore.set('admin_session', sessionToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
@@ -28,10 +29,7 @@ export async function POST(req) {
                 path: '/',
             });
 
-            const response = NextResponse.json({ success: true });
-            response.headers.set('Set-Cookie', cookie);
-
-            return response;
+            return NextResponse.json({ success: true });
         } else {
             return NextResponse.json(
                 { error: 'Invalid credentials' },
