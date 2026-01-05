@@ -3,11 +3,11 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
     CheckCircle2, Leaf, User, BookOpen,
     CreditCard, ChevronRight, Upload,
-    Loader2, ArrowLeft, Banknote, Smartphone
+    Loader2, ArrowLeft, Smartphone
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -401,52 +401,36 @@ export default function JoinPage() {
                             <h3 className="font-bold text-slate-800 text-lg">Payment Method</h3>
                         </div>
 
-                        {/* Switcher */}
-                        <div className="bg-slate-100 p-1.5 rounded-xl flex">
-                            <button
-                                type="button"
-                                onClick={() => setForm(prev => ({ ...prev, paymentMethod: 'Online' }))}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all ${form.paymentMethod === 'Online'
-                                    ? 'bg-white text-pink-600 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
-                                    }`}
-                            >
-                                <Smartphone className="w-4 h-4" /> Online (bKash)
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setForm(prev => ({ ...prev, paymentMethod: 'Cash' }))}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all ${form.paymentMethod === 'Cash'
-                                    ? 'bg-white text-emerald-600 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
-                                    }`}
-                            >
-                                <Banknote className="w-4 h-4" /> Cash Pay
-                            </button>
+                        {/* Payment Details */}
+                        <div className="bg-pink-50 border border-pink-100 rounded-xl p-5 mb-6">
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white rounded-full shadow-sm text-pink-600">
+                                    <Smartphone className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-pink-900 text-lg">Send Money (bKash)</h4>
+                                    <div className="mt-1 space-y-1 text-pink-800">
+                                        <p className="font-medium">Number: <span className="font-bold text-xl select-all">01853259598</span></p>
+                                        <p className="font-medium">Amount: <span className="font-bold text-xl">102 TK</span></p>
+                                    </div>
+                                    <p className="text-xs text-pink-600 mt-2">
+                                        *Please use "Send Money" option from your bKash app.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-4">
-                            <AnimatePresence mode="wait">
-                                {form.paymentMethod === 'Online' && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        className="space-y-4 overflow-hidden"
-                                    >
-                                        <div>
-                                            <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">bKash Transaction ID</label>
-                                            <input
-                                                name="bkashId"
-                                                value={form.bkashId}
-                                                onChange={handleChange}
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-medium focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all placeholder:text-slate-400 font-mono uppercase"
-                                                placeholder="TRX123456"
-                                            />
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">bKash Transaction ID</label>
+                                <input
+                                    name="bkashId"
+                                    value={form.bkashId}
+                                    onChange={handleChange}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-medium focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none transition-all placeholder:text-slate-400 font-mono uppercase"
+                                    placeholder="TRX123456"
+                                />
+                            </div>
 
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Profile Photo</label>
