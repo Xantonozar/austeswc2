@@ -509,7 +509,7 @@ export default function PanelMembers() {
         </motion.div>
 
         <Tabs defaultValue="current" className="w-full">
-          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-6 mb-8 bg-gray-100 p-1 rounded-lg">
+          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8 bg-gray-100 p-1 rounded-lg">
             <TabsTrigger
               value="current"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
@@ -539,12 +539,6 @@ export default function PanelMembers() {
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               Fall 23
-            </TabsTrigger>
-            <TabsTrigger
-              value="spring23"
-              className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
-            >
-              Spring 23
             </TabsTrigger>
           </TabsList>
 
@@ -595,16 +589,6 @@ export default function PanelMembers() {
               transition={{ duration: 0.8 }}
             >
               {renderMemberCards(fall23Members)}
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="spring23">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              {renderMemberCards(spring23Members)}
             </motion.div>
           </TabsContent>
         </Tabs>
