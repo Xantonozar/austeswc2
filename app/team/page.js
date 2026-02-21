@@ -88,7 +88,7 @@ export default function PanelMembers() {
       fullName: "Amm Jakaria Haque Rifat",
       designation: "Organizing Secretary",
       department: "",
-      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657049/inbound1169359981169208947_-_Md._Abu_Bakar_Siddique_qitq7h.jpg",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657049/IMG-20260118-WA0001_-_Jakaria_Rifat_p2vyyq.jpg",
       social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
     },
     {
