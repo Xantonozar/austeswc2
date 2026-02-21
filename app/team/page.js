@@ -6,8 +6,138 @@ import { motion } from "framer-motion";
 
 export default function PanelMembers() {
   // Current members (Fall 24)
+  const spring25Members = [
+    {
+      fullName: "MS Saida Sultana",
+      designation: "Advisor",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1757179766/WhatsApp_Image_2025-09-06_at_23.20.29_4be79188_kjhevc.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Romana Yasmin",
+      designation: "Treasurer",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1757179766/WhatsApp_Image_2025-09-06_at_23.20.28_122406cb_rdipjx.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Iftakhar Uddin",
+      designation: "President",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657047/IMG_2334_-_Iftakhar_Uddin_Ifti_yzmkpm.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Rupshree Chowdhury",
+      designation: "Vice President",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657053/inbound5034993937930329136_-_RUPSHREE_CHOWDHURY_z8nxlk.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Sazia Sultana Jui",
+      designation: "General Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657049/inbound286412579528833322_-_SAZIA_SULTANA_JUI_kvljkd.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "AKM Saidur Rahman",
+      designation: "Assistant General Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657044/350._350_-_A_K_M_Saidur_Rahman_Saurav_bjrfcq.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "MD Rayhan Bappy",
+      designation: "Joint Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657047/IMG_5012_-_Shafiqul_Islam_wg5fug.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Khandaker Musfiqul Alam Hamin",
+      designation: "Joint Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657052/inbound1959372519812022781_-_KHANDAKER_MUSFIQUL_ALAM_HAMIM_1_qsbqzx.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Shifat Estiak",
+      designation: "Joint Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657052/inbound4045897525270537194_-_Md_Estiakuzzaman_l3i8ks.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Md. Abu Bakar Siddique",
+      designation: "Organizing Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657049/inbound1169359981169208947_-_Md._Abu_Bakar_Siddique_qitq7h.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Hasibur Rashid Tokey",
+      designation: "Organizing Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657047/IMG_6246_-_Hasibur_Rashid_Tokey_ggxlho.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Amm Jakaria Haque Rifat",
+      designation: "Organizing Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657049/inbound1169359981169208947_-_Md._Abu_Bakar_Siddique_qitq7h.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Mostakim Shahriar Shakib",
+      designation: "Organizing Secretary",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657048/IMG_20251015_081315_-_Shahriar_Shakib_u1ms7g.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Kazi Rafi Rahman",
+      designation: "Head of Logistics",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657050/inbound1499732402308872815_-_rafi_rahman_khaba6.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Tasfia Hossain Raiba",
+      designation: "Head of Event Management",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657048/IMG_7872_-_TASFIA_HOSSAIN_bp5skz.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Md. Manjin Ahmed",
+      designation: "Head of PR and Communication",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657047/20251229_121752_-_Manjin_Ahmed_pgjgho.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Dewan Rayhan Rahman",
+      designation: "Head of Content Writing",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657047/20251006_090208_-_AR_D_Rayhan_Rahman_xvpumt.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    },
+    {
+      fullName: "Motasim Misbah Mredul",
+      designation: "Head of Graphics and Design",
+      department: "",
+      image: "https://res.cloudinary.com/chirkut/image/upload/v1771657048/IMG_20260118_110746_059_2_3_-_Motasim_Misbah_wubtqi.jpg",
+      social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
+    }
+  ];
+
+  // Fall 24 members
   const fall24Members = [
-        {
+    {
       fullName: "MS Saida Sultana",
       designation: "Advisor",
       department: "",
@@ -18,7 +148,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com"
       }
     },
-        {
+    {
       fullName: "Romana Yasmin",
       designation: "Treasurer",
       department: "",
@@ -51,7 +181,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/bobwilson"
       }
     },
-        {
+    {
       fullName: "MD Abdullah Al Naim",
       designation: "Genarel Secratory",
       department: "",
@@ -74,7 +204,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/bobwilson"
       }
     },
-        {
+    {
       fullName: "Rebeka Sultana Khusboo",
       designation: "Joint Secratory",
       department: "",
@@ -97,7 +227,7 @@ export default function PanelMembers() {
       }
     },
 
-        {
+    {
       fullName: "Sazia Sultana Jui",
       designation: "Organizing Secratory",
       department: "",
@@ -108,8 +238,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-            {
-              fullName: "Rupshree Chowdhury",
+    {
+      fullName: "Rupshree Chowdhury",
       designation: "Administrative Secratory",
       department: "",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137807/20250628_225432_qz7eq8.jpg",
@@ -119,8 +249,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-                {
-              fullName: "Shifat Istiak",
+    {
+      fullName: "Shifat Istiak",
       designation: "Oparational Secratory",
       department: "Content Writing",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137810/WhatsApp_Image_2025-09-06_at_11.45.29_95ac857d_kipcn4.jpg",
@@ -130,8 +260,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-                    {
-              fullName: "Hashibur Rashid Tokey",
+    {
+      fullName: "Hashibur Rashid Tokey",
       designation: "Oparational Secratory",
       department: "Sponsorship Management",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137807/IMG_9745_sk8dl7.jpg",
@@ -141,8 +271,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-                    {
-              fullName: "Mostakim Shahriar Shakib",
+    {
+      fullName: "Mostakim Shahriar Shakib",
       designation: "Oparational Secratory",
       department: "PR & Communication",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137808/shahriar_ntwywn.jpg",
@@ -152,8 +282,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-                    {
-              fullName: "MD Rahman Bappy",
+    {
+      fullName: "MD Rahman Bappy",
       designation: "Oparational Secratory",
       department: "Logistic",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757141115/WhatsApp_Image_2025-09-06_at_12.44.47_0f7812c6_pztvia.jpg",
@@ -163,8 +293,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-                    {
-              fullName: "Abu Bakar Siddque",
+    {
+      fullName: "Abu Bakar Siddque",
       designation: "Oparational Secratory",
       department: "Research and Developement",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137810/WhatsApp_Image_2025-09-06_at_11.45.29_b320ecb6_jljulx.jpg",
@@ -174,8 +304,8 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/evarodriguez"
       }
     },
-                        {
-              fullName: "A.K.M. Saidur Rahman",
+    {
+      fullName: "A.K.M. Saidur Rahman",
       designation: "Oparational Secratory",
       department: "Event Management",
       image: "https://res.cloudinary.com/chirkut/image/upload/v1757137807/WhatsApp_Image_2025-09-06_at_11.47.27_ef9d681c_oguaka.jpg",
@@ -196,7 +326,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/frankchen"
       }
     },
-        {
+    {
       fullName: "Khandakar Mashfiqur Alam Hamim",
       designation: "Executive Director",
       department: "Event Management",
@@ -207,7 +337,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/frankchen"
       }
     },
-        {
+    {
       fullName: "Sadia Karim",
       designation: "Executive Director",
       department: "Content Writing",
@@ -218,7 +348,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/frankchen"
       }
     },
-        {
+    {
       fullName: "Sanzida Sultana",
       designation: "Executive Director",
       department: "Sponsorship Management",
@@ -228,7 +358,7 @@ export default function PanelMembers() {
         instagram: "https://instagram.com/frankchen",
         linkedin: "https://linkedin.com/in/frankchen"
       }
-    },    {
+    }, {
       fullName: "A M Jakaria Haque Rifat",
       designation: "Executive Director",
       department: "Logistics",
@@ -239,7 +369,7 @@ export default function PanelMembers() {
         linkedin: "https://linkedin.com/in/frankchen"
       }
     },
-        {
+    {
       fullName: "Yeasin Akhter",
       designation: "Executive Director",
       department: "Research & Developement",
@@ -276,7 +406,7 @@ export default function PanelMembers() {
   // Helper function to render member cards
   const renderMemberCards = (members) => {
     const groupedMembers = groupMembersByDesignation(members);
-    
+
     return Object.entries(groupedMembers).map(([designation, memberList]) => (
       <section key={designation} className="mb-20">
         <div className="text-center mb-12">
@@ -285,11 +415,11 @@ export default function PanelMembers() {
           </h2>
           <div className="w-32 h-1 bg-gradient-to-r from-emerald-400 via-green-500 to-teal-500 mx-auto rounded-full shadow-lg"></div>
         </div>
-        
+
         <div className="flex flex-wrap justify-center gap-8 lg:gap-6">
           {memberList.map((member, index) => (
-            <motion.div 
-              key={index} 
+            <motion.div
+              key={index}
               className="text-center group w-64 lg:w-60 xl:w-64"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -364,7 +494,7 @@ export default function PanelMembers() {
         <img src="/eswclogo.svg" alt="ESWC Watermark" className="opacity-10 w-2/3 max-w-3xl select-none" />
       </div>
       <div className="relative container mx-auto px-4 max-w-7xl z-10">
-        <motion.div 
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -379,32 +509,38 @@ export default function PanelMembers() {
         </motion.div>
 
         <Tabs defaultValue="current" className="w-full">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8 bg-gray-100 p-1 rounded-lg">
-            <TabsTrigger 
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-6 mb-8 bg-gray-100 p-1 rounded-lg">
+            <TabsTrigger
               value="current"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               Current
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
+              value="spring25"
+              className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              Spring 25
+            </TabsTrigger>
+            <TabsTrigger
               value="fall24"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               Fall 24
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="spring24"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               Spring 24
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="fall23"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               Fall 23
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="spring23"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
@@ -418,7 +554,17 @@ export default function PanelMembers() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              {renderMemberCards(fall24Members)}
+              {renderMemberCards(spring25Members)}
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="spring25">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {renderMemberCards(spring25Members)}
             </motion.div>
           </TabsContent>
 
