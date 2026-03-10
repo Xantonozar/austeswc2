@@ -57,6 +57,11 @@ function Navbar() {
                   Panel
                 </Link>
               </li>
+              <li>
+                <Link href="/competetion" className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 whitespace-nowrap">
+                  Competition
+                </Link>
+              </li>
               <li className="relative group">
                 <button onClick={toggleDropdown} className="text-light-green text-sm lg:text-lg hover:underline hover:text-black hover:scale-110 hover:font-bold hover:decoration-green-500 flex items-center whitespace-nowrap">
                   More
@@ -75,9 +80,6 @@ function Navbar() {
                     <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Gallery
                     </Link>
-                    <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
-                      Competetion
-                    </Link>
                     <Link href="/annual-report" className="block px-4 py-2 text-gray-800 hover:bg-gray-100 text-sm lg:text-base">
                       Annual Report
                     </Link>
@@ -90,14 +92,15 @@ function Navbar() {
           {/* Right Section: Buttons - Visible on MD+ with Responsive Sizing */}
           <div className="hidden md:flex flex-1 justify-end">
             <div className="flex space-x-2 lg:space-x-4">
-              <Link href="/coming" className="bg-green-200 hover:bg-green-400 text-black font-bold py-1 px-3 text-xs lg:text-base lg:py-2 lg:px-4 rounded-full flex items-center whitespace-nowrap">
-                Donate
-              </Link>
-              <Link href="/join" className="bg-sky-200 hover:bg-blue-400 text-gray-800 font-bold py-1 px-3 text-xs lg:text-base lg:py-2 lg:px-4 rounded-full flex items-center whitespace-nowrap">
-                Join Us
-              </Link>
-              <Link href="/login" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1 px-3 text-xs lg:text-base lg:py-2 lg:px-4 rounded-full transition-colors flex items-center whitespace-nowrap">
-                Login
+              <Link href="/greenova" className="flex flex-col items-center justify-center hover:scale-105 hover:opacity-80 transition-all">
+                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1 mt-1">In Association With</span>
+                <Image
+                  src="/greenova.png"
+                  alt="Greenova"
+                  width={150}
+                  height={45}
+                  className="h-8 w-auto object-contain"
+                />
               </Link>
             </div>
           </div>
@@ -158,6 +161,14 @@ function Navbar() {
                 </Link>
               </li>
               <li>
+                <Link href="/competetion" className="hover:underline flex items-center space-x-2" onClick={toggleMenu}>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 8a1 1 0 112 0v4a1 1 0 11-2 0V8zm1 8a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                  <span>Competition</span>
+                </Link>
+              </li>
+              <li>
                 <button onClick={toggleDropdown} className="hover:underline flex items-center space-x-2">
                   <span>More</span>
                   <svg className="w-5 h-5 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
@@ -175,9 +186,6 @@ function Navbar() {
                     <Link href="/gallery" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Gallery
                     </Link>
-                    <Link href="/competetion" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
-                      Competetion
-                    </Link>
                     <Link href="/annual-report" className="block px-4 py-2 text-gray-800 hover:bg-gray-100" onClick={toggleMenu}>
                       Annual Report
                     </Link>
@@ -185,25 +193,16 @@ function Navbar() {
                 )}
               </li>
             </ul>
-            <div className="mt-6 flex flex-col items-center gap-6">
-              <Link href="/donate" className="bg-green-500 w-full hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center space-x-2" onClick={toggleMenu}>
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 8a1 1 0 112 0v4a1 1 0 11-2 0V8zm1 8a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-                <span>Donate</span>
-              </Link>
-              <Link href="/join" className="bg-gray-200 w-full hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full flex items-center justify-center space-x-2" onClick={toggleMenu}>
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9 8a1 1 0 112 0v4a1 1 0 11-2 0V8zm1 8a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-                <span>Join Us</span>
-              </Link>
-              <Link href="/login" className="bg-emerald-600 w-full hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center space-x-2" onClick={toggleMenu}>
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path d="M4 5a2 2 0 00-2 2v1a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 012-2h6a2 2 0 012 2v1a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H4z" />
-                </svg>
-                <span>Login</span>
+            <div className="mt-8 flex flex-col items-center gap-6 w-full px-4">
+              <Link href="/greenova" className="flex flex-col items-center justify-center hover:scale-105 hover:opacity-80 transition-all active:scale-95" onClick={toggleMenu}>
+                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-2">In Association With</span>
+                <Image
+                  src="/greenova.png"
+                  alt="Greenova"
+                  width={200}
+                  height={60}
+                  className="h-12 w-auto object-contain"
+                />
               </Link>
             </div>
           </div>

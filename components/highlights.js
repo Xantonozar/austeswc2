@@ -22,19 +22,19 @@ export const Highlight = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 sm:gap-x-16 md:gap-x-24 gap-y-8">
           {[
             {
-              src: "https://res.cloudinary.com/chirkut/image/upload/v1739896661/eco-champ_uyir0n.jpg",
+              src: "https://res.cloudinary.com/chirkut/image/upload/v1767465559/bannerEcoChampion_iam476.svg",
               alt: "Eco Champion",
               text: "Championing Green Initiatives",
               title: "Eco Champion 3.0",
             },
             {
-              src: "https://res.cloudinary.com/chirkut/image/upload/v1739911319/WhatsApp_Image_2025-02-19_at_01.55.34_cca12ec4_jtl4lt.jpg",
+              src: "https://res.cloudinary.com/chirkut/image/upload/v1771661156/FB_IMG_1769234724125_s6uogi.jpg",
               alt: "Winter Cloth",
               text: "Spreading Warmth",
               title: "Winter Cloth Collection Spring 25",
             },
             {
-              src: "https://res.cloudinary.com/chirkut/image/upload/v1739911320/WhatsApp_Image_2025-02-19_at_01.58.52_9fb16e7a_r6q9yg.jpg",
+              src: "https://res.cloudinary.com/chirkut/image/upload/v1772103213/615395054_860158470152457_8608973001880448478_n_dbnhez.jpg",
               alt: "Mojar School",
               text: "Supporting Education",
               title: "Mojar School",

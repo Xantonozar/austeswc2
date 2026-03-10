@@ -61,7 +61,7 @@ const LowSection = () => {
           <Initiative
             title="Eco Champion 3.0"
             subtitle="Journey Towards Knowledge"
-            imageSrc="https://res.cloudinary.com/chirkut/image/upload/v1739896661/eco-champ_uyir0n.jpg"
+            imageSrc="https://res.cloudinary.com/chirkut/image/upload/v1767465559/bannerEcoChampion_iam476.svg"
             colorClass="bg-green-50"
             eventUrl="https://facebook.com/events/s/eco-champions-20/1799927074119266/"
           />
