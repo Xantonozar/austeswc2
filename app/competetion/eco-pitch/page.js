@@ -18,10 +18,20 @@ export default function ThreePitchDetails() {
                     <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-sm">
                         <Mic2 className="w-10 h-10 text-[#1B4B43]" />
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-[#1B4B43] mb-4 relative z-10">Eco Pitch</h1>
-                    <p className="text-lg text-gray-700 max-w-2xl mx-auto relative z-10">
+                    <h1 className="text-4xl md:text-5xl font-bold text-[#1B4B43] mb-4 relative z-10">Eco Pitch 180</h1>
+                    <p className="text-lg text-gray-700 max-w-2xl mx-auto relative z-10 mb-8">
                         3-Minute Thesis competition on environmental innovations.
                     </p>
+                    <div className="flex justify-center gap-4 relative z-10">
+                        <a
+                            href="https://drive.google.com/file/d/13HGkBWaSJZ8DbwmvnVEz0ipo66QuLXFu/view?usp=drivesdk"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-[#1B4B43] text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95"
+                        >
+                            <FileText className="w-5 h-5" /> View Rulebook
+                        </a>
+                    </div>
                 </motion.div>
 
                 <div className="grid md:grid-cols-3 gap-8 mb-8">

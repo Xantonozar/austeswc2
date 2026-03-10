@@ -96,6 +96,7 @@ export default function EcoBuzzersRegister() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
         if (!validate()) return;
         setLoading(true);
         const toastId = toast.loading('Registering Team...');

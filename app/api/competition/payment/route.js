@@ -39,18 +39,37 @@ export async function POST(req) {
             return new Response(JSON.stringify({ error: 'not_found', message: 'Competitor not found' }), { status: 404 });
         }
 
-        if (competitor.status !== 'selected') {
+        if (competitor.status !== 'selected' && competitor.status !== 'rejected') {
             return new Response(JSON.stringify({ error: 'invalid_status', message: 'You must be selected for Round 2 to make a payment' }), { status: 400 });
         }
 
-        competitor.bkashTxId = bkashTxId;
-        competitor.status = 'paid';
+        // Determine if this is a Round 1 or Round 2 update
+        const isRound2 = competitor.paymentVerified === true;
+
+        if (isRound2) {
+            // Update Round 2 details
+            competitor.bkashTxIdRound2 = bkashTxId;
+            competitor.paymentMethodRound2 = body.paymentMethod || 'bkash';
+            competitor.status = 'paid';
+        } else {
+            // Update Round 1 details (handling rejection re-submission)
+            competitor.bkashTxId = bkashTxId;
+            competitor.paymentMethod = body.paymentMethod || 'bkash';
+            competitor.status = 'registered';
+        }
+
         await competitor.save();
 
-        // Trigger payment success email asynchronously
-        const { sendPaymentSuccessEmail } = await import('@/lib/brevo');
-        const participantName = competitor.teamName || competitor.name;
-        sendPaymentSuccessEmail(competitor.email, participantName, competitor.type);
+        // Trigger payment success email synchronously to prevent Vercel from killing the function
+        if (isRound2) {
+            const { sendPaymentSuccessEmail } = await import('@/lib/brevo');
+            const participantName = competitor.teamName || competitor.name;
+            try {
+                await sendPaymentSuccessEmail(competitor.email, participantName, competitor.type);
+            } catch (emailError) {
+                console.error('Failed to send payment success email:', emailError);
+            }
+        }
 
         return new Response(JSON.stringify({ result: 'success', data: competitor }), {
             status: 200,

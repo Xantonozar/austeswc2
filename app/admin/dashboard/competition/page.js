@@ -42,12 +42,14 @@ export default function CompetitionAdmin() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterType]);
 
-    const handleStatusUpdate = async (id, status, paymentVerified = null, bkashTxId = undefined) => {
+    const handleStatusUpdate = async (id, status, paymentVerified = null, bkashTxId = undefined, paymentVerifiedRound2 = null, bkashTxIdRound2 = undefined) => {
         const loadingToast = toast.loading("Updating status...");
         try {
             const payload = { id, status };
             if (paymentVerified !== null) payload.paymentVerified = paymentVerified;
             if (bkashTxId !== undefined) payload.bkashTxId = bkashTxId;
+            if (paymentVerifiedRound2 !== null) payload.paymentVerifiedRound2 = paymentVerifiedRound2;
+            if (bkashTxIdRound2 !== undefined) payload.bkashTxIdRound2 = bkashTxIdRound2;
 
             const res = await fetch('/api/admin/competition', {
                 method: 'PATCH',
@@ -101,8 +103,12 @@ export default function CompetitionAdmin() {
             "Phone": c.phone,
             "Members": c.members?.map(m => m.name).join(", ") || "N/A",
             "Status": c.status.toUpperCase(),
+            "Payment Method": c.paymentMethod || "bkash",
             "Payment Verfied": c.paymentVerified ? "YES" : "NO",
             "Tx ID": c.bkashTxId || "N/A",
+            "R2 Payment Method": c.paymentMethodRound2 || "bkash",
+            "R2 Payment Verified": c.paymentVerifiedRound2 ? "YES" : "NO",
+            "R2 Tx ID": c.bkashTxIdRound2 || "N/A",
             "Date": new Date(c.createdAt).toLocaleDateString()
         }));
 
@@ -156,7 +162,8 @@ export default function CompetitionAdmin() {
             registered: "bg-slate-100 text-slate-600 border-slate-200",
             selected: "bg-blue-50 text-blue-700 border-blue-100",
             paid: "bg-emerald-50 text-emerald-700 border-emerald-100",
-            eliminated: "bg-rose-50 text-rose-700 border-rose-100"
+            eliminated: "bg-rose-50 text-rose-700 border-rose-100",
+            rejected: "bg-amber-50 text-amber-700 border-amber-100"
         };
         return <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border ${styles[status]}`}>{status}</span>;
     };
@@ -174,7 +181,7 @@ export default function CompetitionAdmin() {
         return (
             <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${config.bg} ${config.text} border border-current/10`}>
                 <Icon className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold uppercase tracking-tight">{type.replace('-', ' ')}</span>
+                <span className="text-[11px] font-bold uppercase tracking-tight">{type === 'eco-pitch' ? 'Eco Pitch 180' : type.replace('-', ' ')}</span>
             </div>
         );
     };
@@ -212,7 +219,7 @@ export default function CompetitionAdmin() {
                             <option value="eco-capture">Eco Capture</option>
                             <option value="eco-buzzers">Eco Buzzers</option>
                             <option value="green-story">Green Story</option>
-                            <option value="eco-pitch">Eco Pitch</option>
+                            <option value="eco-pitch">Eco Pitch 180</option>
                         </select>
 
                         <button onClick={handleExport} className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" disabled={loading || filteredCompetitors.length === 0}>
@@ -234,7 +241,7 @@ export default function CompetitionAdmin() {
                                 <th className="px-6 py-5 cursor-pointer hover:text-slate-900 transition-colors" onClick={() => toggleSort("name")}>
                                     <div className="flex items-center gap-2">Participant {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}</div>
                                 </th>
-                                <th className="px-6 py-5">Submissions</th>
+                                <th className="px-6 py-5">Asset</th>
                                 <th className="px-6 py-5 cursor-pointer hover:text-slate-900 transition-colors" onClick={() => toggleSort("status")}>
                                     <div className="flex items-center gap-2">Status & Payment {sortBy === "status" && (sortOrder === "asc" ? "↑" : "↓")}</div>
                                 </th>
@@ -304,7 +311,7 @@ export default function CompetitionAdmin() {
                                                     {comp.type === 'eco-pitch' ? <FileText className="w-3.5 h-3.5" /> :
                                                         comp.type === 'green-story' ? <Video className="w-3.5 h-3.5" /> :
                                                             <Users className="w-3.5 h-3.5" />}
-                                                    View Asset
+                                                    Asset
                                                 </button>
                                             )}
                                         </td>
@@ -317,7 +324,12 @@ export default function CompetitionAdmin() {
                                                 {comp.bkashTxId ? (
                                                     <div className="flex items-center gap-3 p-2 bg-slate-50/50 rounded-xl border border-slate-100 group/pay min-w-[200px]">
                                                         <div className="flex flex-col">
-                                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Transaction ID</span>
+                                                            <div className="flex items-center gap-1.5 mb-1">
+                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tx ID (R1)</span>
+                                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider shadow-sm border ${comp.paymentMethod === 'rocket' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-pink-100 text-pink-700 border-pink-200'}`}>
+                                                                    {comp.paymentMethod || 'bkash'}
+                                                                </span>
+                                                            </div>
                                                             <span className="text-[11px] font-mono font-black text-slate-900 uppercase tracking-tight">{comp.bkashTxId}</span>
                                                         </div>
 
@@ -335,7 +347,7 @@ export default function CompetitionAdmin() {
                                                                         Verify
                                                                     </button>
                                                                     <button
-                                                                        onClick={() => handleStatusUpdate(comp._id, comp.status, false, null)}
+                                                                        onClick={() => handleStatusUpdate(comp._id, 'rejected', false, null)}
                                                                         className="px-2 py-1 bg-white border border-rose-200 hover:bg-rose-600 hover:text-white text-rose-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm whitespace-nowrap"
                                                                     >
                                                                         Reject
@@ -355,11 +367,50 @@ export default function CompetitionAdmin() {
                                                         <span className="text-[9px] text-amber-700 font-black uppercase tracking-[0.1em]">Unpaid</span>
                                                     </div>
                                                 )}
+
+                                                {/* Round 2 Payment Display */}
+                                                {comp.bkashTxIdRound2 && (
+                                                    <div className="flex items-center gap-3 p-2 bg-pink-50/50 rounded-xl border border-pink-100 group/pay min-w-[200px]">
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-1.5 mb-1">
+                                                                <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">Tx ID (R2)</span>
+                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{comp.type === 'eco-pitch' ? '700 TK' : '100 TK'}</span>
+                                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider shadow-sm border ${comp.paymentMethodRound2 === 'rocket' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-pink-100 text-pink-700 border-pink-200'}`}>
+                                                                    {comp.paymentMethodRound2 || 'bkash'}
+                                                                </span>
+                                                            </div>
+                                                            <span className="text-[11px] font-mono font-black text-slate-900 uppercase tracking-tight">{comp.bkashTxIdRound2}</span>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 ml-auto">
+                                                            {comp.paymentVerifiedRound2 ? (
+                                                                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-pink-500 text-white rounded-md text-[8px] font-black uppercase tracking-tighter shadow-sm">
+                                                                    <CheckCircle2 className="w-2.5 h-2.5" /> Verified
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-1">
+                                                                    <button
+                                                                        onClick={() => handleStatusUpdate(comp._id, comp.status, null, undefined, true)}
+                                                                        className="px-2 py-1 bg-white border border-pink-200 hover:bg-pink-600 hover:text-white text-pink-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                                                    >
+                                                                        Verify
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleStatusUpdate(comp._id, 'rejected', null, undefined, false, null)}
+                                                                        className="px-2 py-1 bg-white border border-rose-200 hover:bg-rose-600 hover:text-white text-rose-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                                                    >
+                                                                        Reject
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-6 whitespace-nowrap">
                                             <div className="flex items-center gap-2 transition-opacity">
-                                                {comp.status !== 'selected' && comp.status !== 'paid' && (
+                                                {comp.status === 'registered' && (
                                                     <button
                                                         onClick={() => handleStatusUpdate(comp._id, 'selected')}
                                                         className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border border-emerald-100 active:scale-95"
@@ -484,12 +535,14 @@ export default function CompetitionAdmin() {
 
                                         {/* Status Control */}
                                         <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={() => handleStatusUpdate(selectedEntry._id, 'selected')}
-                                                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm ${selectedEntry.status === 'selected' ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-500 hover:text-emerald-600'}`}
-                                            >
-                                                Select Round 2
-                                            </button>
+                                            {selectedEntry.status === 'registered' && (
+                                                <button
+                                                    onClick={() => handleStatusUpdate(selectedEntry._id, 'selected')}
+                                                    className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm bg-white text-slate-600 border-slate-200 hover:border-emerald-500 hover:text-emerald-600"
+                                                >
+                                                    Select Round 2
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleStatusUpdate(selectedEntry._id, 'eliminated')}
                                                 className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm ${selectedEntry.status === 'eliminated' ? 'bg-rose-600 text-white border-rose-600 shadow-rose-200' : 'bg-white text-slate-600 border-slate-200 hover:border-rose-500 hover:text-rose-600'}`}
@@ -499,24 +552,56 @@ export default function CompetitionAdmin() {
                                         </div>
 
                                         {/* Payment verification if applicable */}
-                                        {selectedEntry.bkashTxId && (
-                                            <div className="flex items-center gap-4 ml-auto">
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Transaction ID</span>
-                                                    <span className="text-sm font-black text-slate-900 font-mono tracking-tight bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{selectedEntry.bkashTxId}</span>
-                                                    {selectedEntry.paymentVerified ?
-                                                        <span className="text-[8px] bg-emerald-100 text-emerald-700 font-black px-1.5 py-0.5 rounded-full uppercase">Verified</span> :
-                                                        <span className="text-[8px] bg-amber-100 text-amber-700 font-black px-1.5 py-0.5 rounded-full uppercase">Pending</span>
-                                                    }
-                                                </div>
-                                                {!selectedEntry.paymentVerified && (
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(selectedEntry._id, selectedEntry.status, true)}
-                                                        className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-md shadow-emerald-500/20"
-                                                        title="Verify Payment"
-                                                    >
-                                                        <CheckCircle2 className="w-5 h-5" />
-                                                    </button>
+                                        {(selectedEntry.bkashTxId || selectedEntry.bkashTxIdRound2) && (
+                                            <div className="flex items-center gap-6 ml-auto">
+                                                {selectedEntry.bkashTxId && (
+                                                    <div className="flex items-center gap-4 border-r border-slate-200 pr-6">
+                                                        <div className="flex flex-col items-end">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider border ${selectedEntry.paymentMethod === 'rocket' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-pink-100 text-pink-700 border-pink-200'}`}>{selectedEntry.paymentMethod || 'bkash'}</span>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">R1 Tx ID</span>
+                                                            </div>
+                                                            <span className="text-sm font-black text-slate-900 font-mono tracking-tight bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{selectedEntry.bkashTxId}</span>
+                                                            {selectedEntry.paymentVerified ?
+                                                                <span className="text-[8px] bg-emerald-100 text-emerald-700 font-black px-1.5 py-0.5 rounded-full uppercase mt-1">Verified</span> :
+                                                                <span className="text-[8px] bg-amber-100 text-amber-700 font-black px-1.5 py-0.5 rounded-full uppercase mt-1">Pending</span>
+                                                            }
+                                                        </div>
+                                                        {!selectedEntry.paymentVerified && (
+                                                            <button
+                                                                onClick={() => handleStatusUpdate(selectedEntry._id, selectedEntry.status, true)}
+                                                                className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-md shadow-emerald-500/20"
+                                                                title="Verify Round 1 Payment"
+                                                            >
+                                                                <CheckCircle2 className="w-5 h-5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {selectedEntry.bkashTxIdRound2 && (
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="flex flex-col items-end">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider border ${selectedEntry.paymentMethodRound2 === 'rocket' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-pink-100 text-pink-700 border-pink-200'}`}>{selectedEntry.paymentMethodRound2 || 'bkash'}</span>
+                                                                <span className="text-[10px] font-black uppercase tracking-widest text-pink-500">R2 Tx ID</span>
+                                                            </div>
+                                                            <span className="text-sm font-black text-slate-900 font-mono tracking-tight bg-pink-50 px-2 py-0.5 rounded-md border border-pink-100">{selectedEntry.bkashTxIdRound2}</span>
+                                                            {selectedEntry.paymentVerifiedRound2 ?
+                                                                <span className="text-[8px] bg-emerald-100 text-emerald-700 font-black px-1.5 py-0.5 rounded-full uppercase mt-1">Verified</span> :
+                                                                <span className="text-[8px] bg-pink-100 text-pink-700 font-black px-1.5 py-0.5 rounded-full uppercase mt-1">Pending</span>
+                                                            }
+                                                        </div>
+                                                        {!selectedEntry.paymentVerifiedRound2 && (
+                                                            <button
+                                                                onClick={() => handleStatusUpdate(selectedEntry._id, selectedEntry.status, null, undefined, true)}
+                                                                className="p-2.5 bg-pink-600 hover:bg-pink-700 text-white rounded-xl transition-all shadow-md shadow-pink-500/20"
+                                                                title="Verify Round 2 Payment"
+                                                            >
+                                                                <CheckCircle2 className="w-5 h-5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </div>
                                         )}

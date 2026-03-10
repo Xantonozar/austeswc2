@@ -44,7 +44,7 @@ const competitions = [
   },
   {
     id: "eco-pitch",
-    title: "Eco Pitch",
+    title: "Eco Pitch 180",
     subtitle: "3-Minute Thesis",
     icon: Mic2,
     bgClass: "bg-[#E8F9FF]",

@@ -17,7 +17,8 @@ export default function ThreePitchRegister() {
         universityName: '',
         bkashTxId: '',
         pdfBase64: '',
-        agreeToTerms: false
+        agreeToTerms: false,
+        paymentMethod: 'bkash'
     });
 
     const [members, setMembers] = useState([{ name: '', email: '', phone: '' }]);
@@ -51,21 +52,21 @@ export default function ThreePitchRegister() {
         const file = e.target.files[0];
         if (!file) return;
 
-        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const allowedTypes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         if (!allowedTypes.includes(file.type)) {
-            toast.error('Only PDF and DOC/DOCX files are allowed');
+            toast.error('Only DOCX files are allowed');
             return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error('File size must be less than 5MB');
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('File size must be less than 10MB');
             return;
         }
 
         const reader = new FileReader();
         reader.onload = (ev) => {
             setForm(prev => ({ ...prev, pdfBase64: ev.target.result }));
-            toast.success('PDF attached successfully');
+            toast.success('Abstract attached successfully');
         };
         reader.onerror = () => toast.error('Failed to read file');
         reader.readAsDataURL(file);
@@ -91,7 +92,7 @@ export default function ThreePitchRegister() {
             return false;
         }
         if (!form.pdfBase64) {
-            toast.error('Please upload your abstract (PDF/DOC)');
+            toast.error('Please upload your abstract (DOCX)');
             return false;
         }
         if (!form.agreeToTerms) {
@@ -103,6 +104,7 @@ export default function ThreePitchRegister() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
         if (!validate()) return;
         setLoading(true);
         const toastId = toast.loading('Submitting proposal...');
@@ -114,6 +116,7 @@ export default function ThreePitchRegister() {
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
                 bkashTxId: form.bkashTxId.trim().toUpperCase(),
+                paymentMethod: form.paymentMethod,
                 pdfBase64: form.pdfBase64,
                 members: members.map(m => ({
                     name: m.name.trim(),
@@ -146,7 +149,14 @@ export default function ThreePitchRegister() {
                         <ArrowLeft className="w-6 h-6 text-[#1B4B43]" />
                     </Link>
                     <h1 className="text-lg font-bold text-[#1B4B43]">Abstract Submission</h1>
-                    <div className="w-10"></div>
+                    <a
+                        href="https://drive.google.com/file/d/13HGkBWaSJZ8DbwmvnVEz0ipo66QuLXFu/view?usp=drivesdk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg font-bold text-[10px] hover:bg-emerald-100 transition-all border border-emerald-100 uppercase tracking-tight"
+                    >
+                        <FileText className="w-3.5 h-3.5" /> Rulebook
+                    </a>
                 </div>
             </div>
 
@@ -155,8 +165,11 @@ export default function ThreePitchRegister() {
                 <div className="w-64 h-64 absolute -bottom-20 -right-20 border-[8px] border-[#E8F9FF]/10 rounded-full"></div>
                 <div className="max-w-xl mx-auto text-center relative z-10">
                     <Mic2 className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
-                    <h2 className="text-3xl font-bold mb-2">Register for Eco Pitch</h2>
-                    <p className="text-[#B7E9FF] text-sm opacity-90">Register your team (1-3 members), pay the first round fee, and upload your abstract (PDF/DOC).</p>
+                    <h2 className="text-3xl font-bold mb-2">Register for Eco Pitch 180</h2>
+                    <p className="text-[#B7E9FF] text-sm opacity-90">
+                        Register your team (1-3 members), pay the first round fee, and upload your abstract (PDF/DOC).
+                        Check the <a href="https://drive.google.com/file/d/13HGkBWaSJZ8DbwmvnVEz0ipo66QuLXFu/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" className="underline font-bold hover:text-white transition-colors">Rulebook</a> for details.
+                    </p>
                 </div>
             </div>
 
@@ -245,11 +258,11 @@ export default function ThreePitchRegister() {
                                         <Upload className="w-5 h-5 text-gray-400" />
                                     </div>
                                     <p className="font-medium text-gray-700">Tap to upload your abstract</p>
-                                    <p className="text-xs text-gray-400 mt-1">Abstract in PDF or DOC format (Max 5MB)</p>
+                                    <p className="text-xs text-gray-400 mt-1">Abstract in DOCX format (Max 10MB)</p>
                                 </>
                             )}
                         </div>
-                        <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleFileUpload} />
+                        <input ref={fileInputRef} type="file" className="hidden" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleFileUpload} />
                     </div>
 
                     <hr className="border-gray-100" />
@@ -261,10 +274,29 @@ export default function ThreePitchRegister() {
                             <h3 className="font-bold text-[#1B4B43] text-lg">Registration Fee (Round 1)</h3>
                         </div>
 
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                            <button
+                                type="button"
+                                onClick={() => setForm(prev => ({ ...prev, paymentMethod: 'bkash' }))}
+                                className={`py-4 rounded-xl border-2 font-bold transition-all flex flex-col items-center gap-2 ${form.paymentMethod === 'bkash' ? 'border-[#1B4B43] bg-[#E8F9FF] text-[#1B4B43]' : 'border-gray-200 bg-white text-gray-500 hover:border-[#1B4B43]/30'}`}
+                            >
+                                <span className="text-xl">bKash</span>
+                                <span className="text-[10px] uppercase tracking-wider opacity-60">Send Money</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setForm(prev => ({ ...prev, paymentMethod: 'rocket' }))}
+                                className={`py-4 rounded-xl border-2 font-bold transition-all flex flex-col items-center gap-2 ${form.paymentMethod === 'rocket' ? 'border-[#1B4B43] bg-[#E8F9FF] text-[#1B4B43]' : 'border-gray-200 bg-white text-gray-500 hover:border-[#1B4B43]/30'}`}
+                            >
+                                <span className="text-xl">Rocket</span>
+                                <span className="text-[10px] uppercase tracking-wider opacity-60">Send Money</span>
+                            </button>
+                        </div>
+
                         <div className="bg-yellow-50/80 border border-yellow-200 rounded-xl p-4 flex items-start gap-4">
                             <Smartphone className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
                             <div>
-                                <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money (bKash, Nagad)</p>
+                                <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money ({form.paymentMethod === 'bkash' ? 'bKash' : 'Rocket'})</p>
                                 <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
                                 <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">300 BDT</span></p>
                                 <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
@@ -272,7 +304,7 @@ export default function ThreePitchRegister() {
                         </div>
 
                         <div>
-                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Transaction ID (bKash/Nagad)</label>
+                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Transaction ID ({form.paymentMethod === 'bkash' ? 'bKash' : 'Rocket'})</label>
                             <input name="bkashTxId" value={form.bkashTxId} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all" placeholder="TRX123456" />
                         </div>
                     </div>

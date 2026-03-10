@@ -23,7 +23,10 @@ export async function POST(req) {
         // we expect the client to have uploaded the files (or pass base64 to be uploaded).
         // For simplicity, we assume the client passed `imageBase64` arrays or strings and we upload them now.
 
-        let processedData = { ...body };
+        let processedData = {
+            ...body,
+            paymentMethod: body.paymentMethod || 'bkash'
+        };
         const { uploadBase64 } = await import('@/lib/cloudinary');
 
         // Process Eco-Capture photos
@@ -54,20 +57,49 @@ export async function POST(req) {
             }
         }
 
-        // Paid comps default status
+        // Initial registration status is ALWAYS 'registered'
+        // Admin will review payment and then 'select' them for Round 2
+        processedData.status = 'registered';
+
+        // Paid comps validation
         if (['eco-buzzers', 'green-story', 'eco-pitch'].includes(body.type)) {
-            processedData.status = 'paid'; // Automatically paid status if tx id is provided on registration
             if (!body.bkashTxId) {
                 return new Response(JSON.stringify({ error: 'payment_required', message: 'Transaction ID is required' }), { status: 400 });
             }
+
+            // [DEDUPLICATION] Check if this Transaction ID already exists
+            const existingPayment = await Competition.findOne({
+                bkashTxId: body.bkashTxId.trim().toUpperCase(),
+                type: body.type
+            });
+            if (existingPayment) {
+                return new Response(JSON.stringify({ error: 'duplicate_payment', message: 'This Transaction ID has already been used for this competition.' }), { status: 400 });
+            }
+        }
+
+        // [DEDUPLICATION] Prevent very rapid double submissions (within 10 seconds)
+        const tenSecondsAgo = new Date(Date.now() - 10000);
+        const recentSubmission = await Competition.findOne({
+            email: body.email.toLowerCase(),
+            type: body.type,
+            createdAt: { $gte: tenSecondsAgo }
+        });
+
+        if (recentSubmission) {
+            return new Response(JSON.stringify({ error: 'duplicate_submission', message: 'We already received your submission. Please wait a moment.' }), { status: 400 });
         }
 
         // Create record
         const registration = await Competition.create(processedData);
 
-        // Send confirmation email asynchronously
+        // Send confirmation email synchronously to prevent Vercel from killing the function
         const recipientName = processedData.name || processedData.teamName || 'Participant';
-        sendCompetitionRegistrationEmail(processedData.email, recipientName, processedData.type).catch(console.error);
+        try {
+            await sendCompetitionRegistrationEmail(processedData.email, recipientName, processedData.type);
+        } catch (emailError) {
+            console.error('Failed to send registration email:', emailError);
+            // We still return success for the registration itself even if email fails
+        }
 
         return new Response(JSON.stringify({ result: 'success', data: registration }), {
             status: 201,

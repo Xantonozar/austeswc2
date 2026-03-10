@@ -131,6 +131,7 @@ export default function EcoCaptureRegister() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return;
         if (!validate()) return;
 
         setLoading(true);
