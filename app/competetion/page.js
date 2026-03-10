@@ -1,170 +1,149 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Users, MapPin } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Camera, Zap, FileVideo, Mic2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
-// Upcoming Competitions Data
-const upcomingCompetitions = [
+const competitions = [
   {
-    title: "Eco Champion: Reel Making Competition",
-    date: "March 10, 2025",
-    location: "AUST Campus Auditorium",
-    participants: "Open for all",
-    description:
-      "Participate in our Eco Champion reel making competition and showcase your environmental creativity.",
-    image: "https://res.cloudinary.com/chirkut/image/upload/v1739913621/WhatsApp_Image_2025-02-19_at_03.19.32_2e87fec5_lepm3s.jpg",
+    id: "eco-capture",
+    title: "Eco Capture",
+    subtitle: "Photography Contest",
+    icon: Camera,
+    bgClass: "bg-[#F3F9F1]",
+    btnClass: "bg-[#D9F2D6] hover:bg-[#C5E8C1] text-[#1B4B43]",
+    description: "Capture the essence of nature and environmental impact in 5 stunning photographs along with their stories.",
+    delay: 0.1,
+    image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    isOpen: false
   },
   {
-    title: "Eco Champion: Poster Presentation Competition",
-    date: "March 15, 2025",
-    location: "AUST Main Hall",
-    participants: "Open for all",
-    description:
-      "Join our poster presentation competition to display innovative ideas on environmental conservation.",
-    image: "https://res.cloudinary.com/chirkut/image/upload/v1739913631/WhatsApp_Image_2025-02-19_at_03.19.32_abaa43ee_ua5wyh.jpg",
+    id: "eco-buzzers",
+    title: "Eco Buzzers",
+    subtitle: "Buzzer Quiz Competition",
+    icon: Zap,
+    bgClass: "bg-[#E8F9FF]",
+    btnClass: "bg-[#B7E9FF] hover:bg-[#95DFFF] text-[#1B4B43]",
+    description: "Test your environmental knowledge in this fast-paced, team-based buzzer competition.",
+    delay: 0.2,
+    image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    isOpen: false
   },
   {
-    title: "Eco Champion: Photography Competition",
-    date: "March 20, 2025",
-    location: "AUST Online Platform",
-    participants: "Free for all",
-    description:
-      "Test your photography skills  in our Eco Champion photography quiz competition.",
-    image: "https://res.cloudinary.com/chirkut/image/upload/v1739913622/WhatsApp_Image_2025-02-19_at_03.19.32_9ac1ef3e_t0y5ne.jpg",
+    id: "green-story",
+    title: "Green Story",
+    subtitle: "Ad Making Contest",
+    icon: FileVideo,
+    bgClass: "bg-[#F3F9F1]",
+    btnClass: "bg-[#D9F2D6] hover:bg-[#C5E8C1] text-[#1B4B43]",
+    description: "Create a compelling video advertisement that promotes sustainability and green living.",
+    delay: 0.3,
+    image: "https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    isOpen: false
   },
   {
-    title: "Eco Champion: Quiz Competition",
-    date: "March 20, 2025",
-    location: "AUST Online Platform",
-    participants: "Free for all",
-    description:
-      "Test your knsowledge in our Eco Champion  quiz competition.",
-    image: "https://res.cloudinary.com/chirkut/image/upload/v1739913631/WhatsApp_Image_2025-02-19_at_03.19.32_07523f07_s7sz6i.jpg",
-  },
-];
-
-// Past Competitions Data
-const pastCompetitions = [
-  {
-    title: "Nature’s Canvas: Roof Garden Video Making Competition",
-    date: "January 19, 2024",
-    impact: "Highlighted innovative green design ideas",
-    description:
-      "A successful competition showcasing creative video entries on roof gardening and sustainable campus design.",
-    image: "http://aust.edu/storage/files/Y5otl3bxRdBBSRBq85LC6jk6SGOi8aqAUhcVIRG7.jpg",
-  },
-  {
-    title: "Eco Quiz Competition",
-    date: "December 10, 2023",
-    impact: "Increasing the Knowledge of Environmental Issues",
-    description:
-      "A challenging quiz competition that tested participants' skills and environmental knowledge.",
-    image: "https://aust.edu/storage/files/cVGGgmkfDgVa5xoYU947JA0xV4NxIvJmpLdAcsEV.jpg",
+    id: "eco-pitch",
+    title: "Eco Pitch",
+    subtitle: "3-Minute Thesis",
+    icon: Mic2,
+    bgClass: "bg-[#E8F9FF]",
+    btnClass: "bg-[#B7E9FF] hover:bg-[#95DFFF] text-[#1B4B43]",
+    description: "Pitch your innovative environmental research or thesis in just 3 minutes to our panel of judges. Registration fee: 300 BDT.",
+    delay: 0.4,
+    image: "https://images.unsplash.com/photo-1475721025582-eb06b251ce72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    isOpen: true
   },
 ];
 
 export default function CompetitionsPage() {
   return (
-    <div className="min-h-screen pt-20 bg-green-50">
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h1 className="text-4xl font-bold mb-4">Competitions</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore our past and upcoming competitions that foster creativity and promote environmental awareness.
-            </p>
-          </motion.div>
+    <div className="w-full relative flex flex-col font-sans pt-24 pb-20">
+      <div className="w-full relative flex flex-col items-center justify-start md:justify-center">
 
-          {/* Upcoming Competitions */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-4">Upcoming Competitions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {upcomingCompetitions.map((comp, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: index * 0.2 }}
-                >
-                  <Card className="h-full flex flex-col">
-                    <div
-                      className="h-56  bg-center bg-cover "
-                      style={{ backgroundImage: `url(${comp.image})` }}
-                    />
-                    <CardHeader>
-                      <CardTitle>{comp.title}</CardTitle>
-                      <CardDescription>{comp.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          {comp.date}
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <MapPin className="w-4 h-4" />
-                          {comp.location}
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Users className="w-4 h-4" />
-                          {comp.participants}
-                        </div>
-                        <Link href="/contact">
-                          <Button className="w-full mt-4 rounded-full">
-                            Register Now
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16 px-4"
+        >
+          <div className="inline-flex items-center justify-center mb-4">
+            <span className="flex items-center justify-center bg-[#D9F2D6] text-[#1B4B43] px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
+              Live Competitions
+              <span className="flex w-2.5 h-2.5 bg-[#1B4B43] rounded-full ml-2 animate-pulse"></span>
+            </span>
           </div>
 
-          {/* Past Competitions */}
-          <div>
-            <h2 className="text-3xl font-bold mb-4">Past Competitions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {pastCompetitions.map((comp, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: index * 0.2 }}
-                  className="relative group h-full"
-                >
-                  <div
-                    className="h-64 rounded-lg bg-cover bg-center group-hover:opacity-75 transition-opacity duration-300"
-                    style={{ backgroundImage: `url(${comp.image})` }}
+          <h1 className="text-[#1B4B43] text-4xl md:text-5xl font-bold mb-4">Showcase Your Eco-Talent</h1>
+          <p className="text-gray-600 max-w-[600px] mx-auto text-lg">
+            Join our flagship environmental competitions. Whether you're a photographer,
+            researcher, or creative thinker, there's a platform for you to shine.
+          </p>
+        </motion.header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl mx-auto px-4 md:px-8">
+          {competitions.map((comp) => (
+            <motion.div
+              key={comp.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: comp.delay }}
+              className="flex w-full"
+            >
+              <div className={`w-full ${comp.bgClass} rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex flex-col border border-gray-100`}>
+
+                {/* Image Header */}
+                <div className="w-full h-48 relative overflow-hidden bg-gray-200">
+                  <Image
+                    src={comp.image}
+                    alt={comp.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-6 text-white">
-                    <h3 className="text-xl font-semibold mb-2">{comp.title}</h3>
-                    <p className="text-sm opacity-90 mb-1">{comp.date}</p>
-                    <p className="text-sm opacity-90">{comp.impact}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+
+                  {/* Icon floating on image */}
+                  <div className="absolute bottom-4 left-6 w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md shadow-black/10 transform -rotate-3 group-hover:scale-110 group-hover:rotate-0 transition-transform duration-300">
+                    <comp.icon className="w-6 h-6 text-[#1B4B43]" />
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                </div>
+
+                {/* Content Body */}
+                <div className="p-8 md:p-10 flex-1 flex flex-col relative z-10">
+                  {/* Decorative faint circle */}
+                  <div className="w-64 h-64 absolute -bottom-20 -right-20 rounded-full border-[12px] opacity-20 border-white mix-blend-overlay group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
+
+                  <h3 className="text-[#1B4B43] text-2xl font-bold mb-1">
+                    {comp.title}
+                  </h3>
+                  <p className="text-[#1B4B43]/70 font-bold uppercase tracking-wider text-xs mb-4">
+                    {comp.subtitle}
+                  </p>
+                  <p className="text-sm text-gray-700 leading-relaxed mb-8 flex-1">
+                    {comp.description}
+                  </p>
+
+                  <div className="mt-auto">
+                    {comp.isOpen ? (
+                      <Link href={`/competetion/${comp.id}`}>
+                        <button className={`${comp.btnClass} w-full md:w-auto px-6 py-3 rounded-full text-sm font-semibold transition-colors flex items-center justify-center gap-2 group-hover:-translate-y-1 transform duration-300 shadow-sm hover:shadow`}>
+                          View Details & Register <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </Link>
+                    ) : (
+                      <div className="w-full md:w-auto px-6 py-3 rounded-full text-sm font-semibold flex items-center justify-center gap-2 bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed">
+                        Registration Closed
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </motion.div>
+          ))}
         </div>
-      </section>
+
+      </div>
     </div>
   );
 }

@@ -152,7 +152,7 @@ const allActivities = {
         impact: "Distributed essential goods",
         description: "Making a positive impact in the lives of those affected by the flood.",
         longDescription: "In response to devastating floods affecting our region, we organized a comprehensive relief effort to provide essential goods and support to affected families. The initiative focused on immediate relief and long-term recovery support.",
-        image: "https://res.cloudinary.com/chirkut/image/upload/v1739911320/WhatsApp_Image_2025-02-19_at_01.58.52_9fb16e7a_r6q9yg.jpg",
+        image: "https://res.cloudinary.com/chirkut/image/upload/v1772103213/615395054_860158470152457_8608973001880448478_n_dbnhez.jpg",
         duration: "2-week relief operation",
         participants: "100+ volunteers",
         highlights: [
@@ -393,7 +393,7 @@ export default function ActivityDetail() {
           ...(categoryActivities.upcoming || []),
           ...(categoryActivities.past || [])
         ].find(act => act.id === params.id);
-        
+
         if (foundActivity) {
           setActivity(foundActivity);
         }
@@ -465,9 +465,8 @@ export default function ActivityDetail() {
               <div className="absolute inset-0 bg-black bg-opacity-40" />
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    isUpcoming ? 'bg-green-500' : 'bg-blue-500'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${isUpcoming ? 'bg-green-500' : 'bg-blue-500'
+                    }`}>
                     {isUpcoming ? 'Upcoming' : 'Past Event'}
                   </span>
                 </div>
@@ -562,7 +561,7 @@ export default function ActivityDetail() {
                     <p className="text-gray-600">{activity.date}</p>
                   </div>
                 </div>
-                
+
                 {activity.duration && (
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-green-600" />
@@ -606,7 +605,7 @@ export default function ActivityDetail() {
                       <p className="text-gray-600 text-sm">{activity.requirements}</p>
                     </div>
                   )}
-                  
+
                   {activity.registrationDeadline && (
                     <div>
                       <p className="font-medium text-gray-800 mb-2">Registration Deadline</p>

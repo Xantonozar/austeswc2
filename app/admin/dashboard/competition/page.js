@@ -1,0 +1,771 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Loader2, Search, Filter, Download, Trash2,
+    CheckCircle2, XCircle, Eye, ExternalLink,
+    FileText, Camera, Video, Zap, User, Users, Phone, Mail,
+    ChevronRight, X
+} from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import * as XLSX from "xlsx";
+
+export default function CompetitionAdmin() {
+    const [competitors, setCompetitors] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [filterType, setFilterType] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedEntry, setSelectedEntry] = useState(null);
+    const [fullscreenImage, setFullscreenImage] = useState(null);
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
+
+    const fetchCompetitors = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/admin/competition?type=${filterType}`);
+            const data = await res.json();
+            if (data.result === 'success') {
+                setCompetitors(data.data);
+            } else {
+                toast.error("Failed to load competitors");
+            }
+        } catch (err) {
+            toast.error("Error connecting to server");
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchCompetitors();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterType]);
+
+    const handleStatusUpdate = async (id, status, paymentVerified = null, bkashTxId = undefined) => {
+        const loadingToast = toast.loading("Updating status...");
+        try {
+            const payload = { id, status };
+            if (paymentVerified !== null) payload.paymentVerified = paymentVerified;
+            if (bkashTxId !== undefined) payload.bkashTxId = bkashTxId;
+
+            const res = await fetch('/api/admin/competition', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.result === 'success') {
+                toast.success(`Status updated to ${status}`, { id: loadingToast });
+                // Update local state instead of full fetch for smoothness
+                setCompetitors(prev => prev.map(c => c._id === id ? { ...c, ...payload } : c));
+                if (selectedEntry?._id === id) {
+                    setSelectedEntry(prev => ({ ...prev, ...payload }));
+                }
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (err) {
+            toast.error("Failed to update status", { id: loadingToast });
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm("Are you sure you want to delete this competitor?")) return;
+
+        const loadingToast = toast.loading("Deleting record...");
+        try {
+            const res = await fetch(`/api/admin/competition?id=${id}`, {
+                method: 'DELETE'
+            });
+            const data = await res.json();
+
+            if (data.result === 'success') {
+                toast.success("Competitor deleted", { id: loadingToast });
+                setCompetitors(competitors.filter(c => c._id !== id));
+                if (selectedEntry?._id === id) setSelectedEntry(null);
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (err) {
+            toast.error("Failed to delete", { id: loadingToast });
+        }
+    };
+
+    const handleExport = () => {
+        const exportData = filteredCompetitors.map(c => ({
+            "Competition": c.type.toUpperCase(),
+            "Name/Team": c.name || c.teamName,
+            "Email": c.email,
+            "Phone": c.phone,
+            "Members": c.members?.map(m => m.name).join(", ") || "N/A",
+            "Status": c.status.toUpperCase(),
+            "Payment Verfied": c.paymentVerified ? "YES" : "NO",
+            "Tx ID": c.bkashTxId || "N/A",
+            "Date": new Date(c.createdAt).toLocaleDateString()
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Competitors");
+        XLSX.writeFile(wb, `eswc_competitors_${filterType}_${Date.now()}.xlsx`);
+    };
+
+    const filteredCompetitors = competitors
+        .filter(c => {
+            const query = searchQuery.toLowerCase();
+            const matchName = (c.name || '').toLowerCase().includes(query);
+            const matchTeam = (c.teamName || '').toLowerCase().includes(query);
+            const matchEmail = (c.email || '').toLowerCase().includes(query);
+            const matchPhone = (c.phone || '').toLowerCase().includes(query);
+            return matchName || matchTeam || matchEmail || matchPhone;
+        })
+        .sort((a, b) => {
+            let valA, valB;
+            if (sortBy === "name") {
+                valA = a.name || a.teamName || "";
+                valB = b.name || b.teamName || "";
+            } else if (sortBy === "createdAt") {
+                valA = new Date(a.createdAt).getTime();
+                valB = new Date(b.createdAt).getTime();
+            } else if (sortBy === "status") {
+                valA = a.status;
+                valB = b.status;
+            } else if (sortBy === "type") {
+                valA = a.type;
+                valB = b.type;
+            }
+
+            if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+            if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+            return 0;
+        });
+
+    const toggleSort = (field) => {
+        if (sortBy === field) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(field);
+            setSortOrder("desc");
+        }
+    };
+
+    const getStatusBadge = (status) => {
+        const styles = {
+            registered: "bg-slate-100 text-slate-600 border-slate-200",
+            selected: "bg-blue-50 text-blue-700 border-blue-100",
+            paid: "bg-emerald-50 text-emerald-700 border-emerald-100",
+            eliminated: "bg-rose-50 text-rose-700 border-rose-100"
+        };
+        return <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.1em] border ${styles[status]}`}>{status}</span>;
+    };
+
+    const getCompetitionBadge = (type) => {
+        const styles = {
+            'eco-capture': { bg: "bg-cyan-50", text: "text-cyan-700", icon: Camera },
+            'eco-buzzers': { bg: "bg-amber-50", text: "text-amber-700", icon: Zap },
+            'green-story': { bg: "bg-green-50", text: "text-green-700", icon: Video },
+            'eco-pitch': { bg: "bg-pink-50", text: "text-pink-700", icon: FileText }
+        };
+        const config = styles[type] || { bg: "bg-slate-50", text: "text-slate-700", icon: User };
+        const Icon = config.icon;
+
+        return (
+            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${config.bg} ${config.text} border border-current/10`}>
+                <Icon className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-bold uppercase tracking-tight">{type.replace('-', ' ')}</span>
+            </div>
+        );
+    };
+
+    return (
+        <div className="p-4 md:p-8 max-w-[1600px] mx-auto min-h-screen bg-[#F8FAFC] font-sans">
+            <Toaster position="top-right" />
+
+            {/* Header */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Competitions Panel</h1>
+                    <p className="text-slate-500 mt-1 font-medium italic">Monitor registrations and manage competition lifecycle.</p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4 w-full lg:w-auto">
+                    <div className="relative flex-1 w-full lg:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Find participant..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm shadow-sm"
+                        />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                        <select
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                            className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 font-semibold text-sm shadow-sm cursor-pointer"
+                        >
+                            <option value="all">All Events</option>
+                            <option value="eco-capture">Eco Capture</option>
+                            <option value="eco-buzzers">Eco Buzzers</option>
+                            <option value="green-story">Green Story</option>
+                            <option value="eco-pitch">Eco Pitch</option>
+                        </select>
+
+                        <button onClick={handleExport} className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" disabled={loading || filteredCompetitors.length === 0}>
+                            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Table Section */}
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden relative">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm min-w-[1000px]">
+                        <thead className="bg-slate-50/50 text-slate-400 uppercase font-black text-[9px] tracking-[0.2em] border-b border-slate-100">
+                            <tr>
+                                <th className="px-6 py-5 cursor-pointer hover:text-slate-900 transition-colors" onClick={() => toggleSort("type")}>
+                                    <div className="flex items-center gap-2">Competition {sortBy === "type" && (sortOrder === "asc" ? "↑" : "↓")}</div>
+                                </th>
+                                <th className="px-6 py-5 cursor-pointer hover:text-slate-900 transition-colors" onClick={() => toggleSort("name")}>
+                                    <div className="flex items-center gap-2">Participant {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}</div>
+                                </th>
+                                <th className="px-6 py-5">Submissions</th>
+                                <th className="px-6 py-5 cursor-pointer hover:text-slate-900 transition-colors" onClick={() => toggleSort("status")}>
+                                    <div className="flex items-center gap-2">Status & Payment {sortBy === "status" && (sortOrder === "asc" ? "↑" : "↓")}</div>
+                                </th>
+                                <th className="px-6 py-5">Quick Actions</th>
+                                <th className="px-6 py-5 text-right">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="5" className="py-32 text-center bg-white">
+                                        <div className="flex flex-col items-center">
+                                            <Loader2 className="w-10 h-10 animate-spin text-emerald-500 mb-4" />
+                                            <p className="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Synchronizing Data...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredCompetitors.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="py-32 text-center text-slate-400 bg-white">
+                                        <Filter className="w-12 h-12 mx-auto text-slate-200 mb-4" />
+                                        <p className="font-bold uppercase tracking-widest text-xs">No entries reached the surface</p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredCompetitors.map((comp) => (
+                                    <tr key={comp._id} className="hover:bg-slate-50/80 transition-all border-l-4 border-l-transparent hover:border-l-emerald-500 group">
+                                        <td className="px-6 py-6 whitespace-nowrap">
+                                            {getCompetitionBadge(comp.type)}
+                                            <p className="text-[10px] font-bold text-slate-400 mt-2.5 flex items-center gap-1.5 opacity-60">
+                                                <CalendarIcon /> {new Date(comp.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </p>
+                                        </td>
+                                        <td className="px-6 py-6 font-medium">
+                                            <p className="font-extrabold text-slate-900 leading-tight mb-1">{comp.teamName || comp.name}</p>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5 hover:text-emerald-600 transition-colors">
+                                                    <Mail className="w-3 h-3" /> {comp.email}
+                                                </p>
+                                                <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
+                                                    <Phone className="w-3 h-3" /> {comp.phone || 'N/A'}
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-6">
+                                            {comp.type === 'eco-capture' && (
+                                                <div className="inline-flex items-center gap-3">
+                                                    <div className="flex -space-x-3 overflow-hidden cursor-pointer hover:-space-x-1 transition-all" onClick={() => setSelectedEntry(comp)}>
+                                                        {comp.photos?.slice(0, 3).map((p, i) => {
+                                                            const thumbUrl = p.url.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/');
+                                                            return <img key={i} src={thumbUrl} className="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-md" alt="Submission Thumbnail" />
+                                                        })}
+                                                        {comp.photos?.length > 3 && (
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-md">
+                                                                +{comp.photos.length - 3}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">{comp.photos?.length} frames</span>
+                                                </div>
+                                            )}
+                                            {['eco-pitch', 'green-story', 'eco-buzzers'].includes(comp.type) && (
+                                                <button
+                                                    onClick={() => setSelectedEntry(comp)}
+                                                    className="flex items-center gap-2.5 bg-white border border-slate-200 hover:border-emerald-500 hover:text-emerald-600 text-slate-600 font-black px-4 py-2 rounded-xl transition-all text-[10px] uppercase tracking-wider shadow-sm active:scale-95"
+                                                >
+                                                    {comp.type === 'eco-pitch' ? <FileText className="w-3.5 h-3.5" /> :
+                                                        comp.type === 'green-story' ? <Video className="w-3.5 h-3.5" /> :
+                                                            <Users className="w-3.5 h-3.5" />}
+                                                    View Asset
+                                                </button>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-6 whitespace-nowrap">
+                                            <div className="flex items-center gap-4">
+                                                <div>{getStatusBadge(comp.status)}</div>
+
+                                                <div className="h-10 w-px bg-slate-100 shrink-0"></div>
+
+                                                {comp.bkashTxId ? (
+                                                    <div className="flex items-center gap-3 p-2 bg-slate-50/50 rounded-xl border border-slate-100 group/pay min-w-[200px]">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Transaction ID</span>
+                                                            <span className="text-[11px] font-mono font-black text-slate-900 uppercase tracking-tight">{comp.bkashTxId}</span>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 ml-auto">
+                                                            {comp.paymentVerified ? (
+                                                                <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500 text-white rounded-md text-[8px] font-black uppercase tracking-tighter shadow-sm">
+                                                                    <CheckCircle2 className="w-2.5 h-2.5" /> Verified
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-1">
+                                                                    <button
+                                                                        onClick={() => handleStatusUpdate(comp._id, comp.status, true)}
+                                                                        className="px-2 py-1 bg-white border border-emerald-200 hover:bg-emerald-600 hover:text-white text-emerald-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                                                    >
+                                                                        Verify
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleStatusUpdate(comp._id, comp.status, false, null)}
+                                                                        className="px-2 py-1 bg-white border border-rose-200 hover:bg-rose-600 hover:text-white text-rose-700 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                                                    >
+                                                                        Reject
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : comp.status === 'paid' ? (
+                                                    <div className="flex items-center gap-2 px-2 py-1 bg-emerald-50 border border-emerald-100 rounded-lg">
+                                                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                                        <span className="text-[9px] text-emerald-700 font-black uppercase tracking-[0.1em]">Payment Verified</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-2 px-2 py-1 bg-amber-50 border border-amber-100 rounded-lg">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                                                        <span className="text-[9px] text-amber-700 font-black uppercase tracking-[0.1em]">Unpaid</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-6 whitespace-nowrap">
+                                            <div className="flex items-center gap-2 transition-opacity">
+                                                {comp.status !== 'selected' && comp.status !== 'paid' && (
+                                                    <button
+                                                        onClick={() => handleStatusUpdate(comp._id, 'selected')}
+                                                        className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border border-emerald-100 active:scale-95"
+                                                    >
+                                                        Select
+                                                    </button>
+                                                )}
+                                                {comp.status !== 'eliminated' && (
+                                                    <button
+                                                        onClick={() => handleStatusUpdate(comp._id, 'eliminated')}
+                                                        className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-600 hover:text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border border-red-100 active:scale-95"
+                                                    >
+                                                        Eliminate
+                                                    </button>
+                                                )}
+                                                {(comp.status === 'selected' || comp.status === 'paid' || comp.status === 'eliminated') && (
+                                                    <button
+                                                        onClick={() => handleStatusUpdate(comp._id, 'registered')}
+                                                        className="px-3 py-1.5 bg-slate-50 text-slate-500 hover:bg-slate-200 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border border-slate-100 active:scale-95"
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-6 text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <button
+                                                    onClick={() => setSelectedEntry(comp)}
+                                                    className="p-2.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                                                    title="View Full Details"
+                                                >
+                                                    <Eye className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(comp._id)}
+                                                    className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm"
+                                                    title="Remove Entry"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Submission Detail Modal */}
+            <AnimatePresence>
+                {selectedEntry && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-10">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedEntry(null)}
+                            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+                        />
+
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col bg-submission-pattern"
+                        >
+                            {/* Modal Header */}
+                            <div className="px-10 py-7 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur-xl z-10">
+                                <div className="flex items-center gap-5">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1.5">{selectedEntry.teamName || selectedEntry.name}</h2>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${selectedEntry.type === 'eco-capture' ? 'bg-cyan-50 text-cyan-600' :
+                                                selectedEntry.type === 'eco-buzzers' ? 'bg-amber-50 text-amber-600' :
+                                                    selectedEntry.type === 'green-story' ? 'bg-green-50 text-green-600' :
+                                                        'bg-pink-50 text-pink-600'
+                                                }`}>
+                                                {selectedEntry.type.replace('-', ' ')}
+                                            </div>
+                                            <div className="w-1 h-1 rounded-full bg-slate-300"></div>
+                                            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Round {selectedEntry.round || 1}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedEntry(null)} className="p-3 bg-slate-50 hover:bg-slate-100 hover:rotate-90 rounded-full transition-all text-slate-400 hover:text-slate-600 border border-slate-100">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/30">
+                                {/* Top Meta Bar: Contact & Control */}
+                                <div className="px-8 py-6 border-b border-slate-100 bg-white/50 backdrop-blur-md sticky top-0 z-20">
+                                    <div className="flex flex-wrap items-center gap-8 lg:gap-12">
+                                        {/* Contact Section */}
+                                        <div className="flex items-center gap-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-emerald-50 rounded-xl">
+                                                    <Mail className="w-4 h-4 text-emerald-600" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Email Address</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedEntry.email}</span>
+                                                </div>
+                                            </div>
+                                            <div className="w-[1px] h-8 bg-slate-200/60 hidden sm:block"></div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-emerald-50 rounded-xl">
+                                                    <Phone className="w-4 h-4 text-emerald-600" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Phone Number</span>
+                                                    <span className="text-sm font-bold text-slate-700">{selectedEntry.phone || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="w-[1px] h-10 bg-slate-200 hidden lg:block"></div>
+
+                                        {/* Status Control */}
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => handleStatusUpdate(selectedEntry._id, 'selected')}
+                                                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm ${selectedEntry.status === 'selected' ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-500 hover:text-emerald-600'}`}
+                                            >
+                                                Select Round 2
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(selectedEntry._id, 'eliminated')}
+                                                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm ${selectedEntry.status === 'eliminated' ? 'bg-rose-600 text-white border-rose-600 shadow-rose-200' : 'bg-white text-slate-600 border-slate-200 hover:border-rose-500 hover:text-rose-600'}`}
+                                            >
+                                                Eliminate
+                                            </button>
+                                        </div>
+
+                                        {/* Payment verification if applicable */}
+                                        {selectedEntry.bkashTxId && (
+                                            <div className="flex items-center gap-4 ml-auto">
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Transaction ID</span>
+                                                    <span className="text-sm font-black text-slate-900 font-mono tracking-tight bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{selectedEntry.bkashTxId}</span>
+                                                    {selectedEntry.paymentVerified ?
+                                                        <span className="text-[8px] bg-emerald-100 text-emerald-700 font-black px-1.5 py-0.5 rounded-full uppercase">Verified</span> :
+                                                        <span className="text-[8px] bg-amber-100 text-amber-700 font-black px-1.5 py-0.5 rounded-full uppercase">Pending</span>
+                                                    }
+                                                </div>
+                                                {!selectedEntry.paymentVerified && (
+                                                    <button
+                                                        onClick={() => handleStatusUpdate(selectedEntry._id, selectedEntry.status, true)}
+                                                        className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-md shadow-emerald-500/20"
+                                                        title="Verify Payment"
+                                                    >
+                                                        <CheckCircle2 className="w-5 h-5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="p-8 lg:p-12">
+
+                                    {/* Eco Capture: Full Width Cinematic Gallery */}
+                                    {selectedEntry.type === 'eco-capture' && (
+                                        <div className="max-w-4xl mx-auto space-y-24">
+                                            {selectedEntry.photos?.map((p, i) => (
+                                                <div key={i} className="group flex flex-col gap-8">
+                                                    {/* Story on Top */}
+                                                    <div className="max-w-2xl text-left bg-emerald-50/50 p-8 rounded-[2rem] border-l-4 border-emerald-500 shadow-sm transition-all group-hover:bg-emerald-50">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">0{i + 1}</div>
+                                                            <h4 className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em]">The Photographic Story</h4>
+                                                        </div>
+                                                        <p className="text-slate-700 text-lg leading-relaxed font-medium italic opacity-90 antialiased font-serif">
+                                                            "{p.story}"
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Image in Premium Frame */}
+                                                    <div className="relative rounded-[1.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-8 border-white group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)] transition-all duration-700 w-full max-w-4xl mx-auto bg-slate-100 flex items-center justify-center">
+                                                        <div className="relative group cursor-zoom-in w-full flex justify-center" onClick={() => setFullscreenImage(p.url)}>
+                                                            <img
+                                                                src={p.url.replace('/upload/', '/upload/c_limit,w_1200,q_auto,f_auto/')}
+                                                                className="max-w-full max-h-[80vh] object-contain transition-transform duration-1000 group-hover:scale-[1.02]"
+                                                                alt={`Photo ${i + 1}`}
+                                                                loading="lazy"
+                                                            />
+
+                                                            {/* Overlay Badges */}
+                                                            <div className="absolute top-6 left-6 bg-emerald-900/40 backdrop-blur-md text-emerald-50 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest border border-emerald-100/20 shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                                                                Capture Frame #{i + 1}
+                                                            </div>
+
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                                                            {/* Quick Actions */}
+                                                            <div className="absolute bottom-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); setFullscreenImage(p.url); }}
+                                                                    className="p-3 bg-white/90 backdrop-blur-md text-emerald-900 rounded-full shadow-2xl hover:bg-emerald-600 hover:text-white transition-all"
+                                                                >
+                                                                    <Eye className="w-5 h-5" />
+                                                                </button>
+                                                                <a
+                                                                    href={p.url}
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    className="p-3 bg-white/90 backdrop-blur-md text-emerald-900 rounded-full shadow-2xl hover:bg-emerald-600 hover:text-white transition-all"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                >
+                                                                    <ExternalLink className="w-5 h-5" />
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Other Competitions (Top-Down Cinematic Layout) */}
+                                    {selectedEntry.type !== 'eco-capture' && (
+                                        <div className="max-w-4xl mx-auto space-y-16">
+                                            {/* 1. Team Roster on Top */}
+                                            {selectedEntry.members?.length > 0 && (
+                                                <section>
+                                                    <div className="flex items-center gap-3 mb-6 px-2">
+                                                        <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">
+                                                            <Users className="w-4 h-4" />
+                                                        </div>
+                                                        <h3 className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em]">Team Roster</h3>
+                                                    </div>
+
+                                                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {selectedEntry.members.map((m, i) => (
+                                                            <div key={i} className="group flex flex-col gap-4 p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
+                                                                <div className="flex items-center justify-between border-b border-slate-50 pb-3">
+                                                                    <span className="text-sm font-black text-slate-900">{m.name}</span>
+                                                                    <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Member 0{i + 1}</span>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                                                        <Mail className="w-3 h-3 text-emerald-500" /> {m.email}
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                                                        <Phone className="w-3 h-3 text-emerald-500" /> {m.phone}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </section>
+                                            )}
+
+                                            {/* 2. Submission Asset Below */}
+                                            <section className="space-y-8">
+                                                <div className="flex items-center gap-3 px-2">
+                                                    <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">
+                                                        {selectedEntry.type === 'eco-pitch' ? <FileText className="w-4 h-4" /> :
+                                                            selectedEntry.type === 'green-story' ? <Video className="w-4 h-4" /> :
+                                                                <Zap className="w-4 h-4" />}
+                                                    </div>
+                                                    <h3 className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em]">Submission Asset</h3>
+                                                </div>
+
+                                                <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-8 border-white bg-white">
+                                                    {/* Eco Pitch Asset */}
+                                                    {selectedEntry.type === 'eco-pitch' && (() => {
+                                                        const rawPdfUrl = selectedEntry.pdfUrl
+                                                            ? selectedEntry.pdfUrl.replace('/image/upload/', '/raw/upload/')
+                                                            : null;
+
+                                                        return (
+                                                            <div className="p-8 lg:p-12 text-center">
+                                                                <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-emerald-600">
+                                                                    <FileText className="w-10 h-10" />
+                                                                </div>
+                                                                <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Research Abstract Document</h4>
+                                                                <p className="text-slate-500 text-sm mb-10 max-w-sm mx-auto font-medium">Original document submitted for the 3-minute thesis presentation.</p>
+
+                                                                {!rawPdfUrl ? (
+                                                                    <div className="p-6 bg-rose-50 rounded-2xl border border-rose-100 text-rose-700 text-sm font-bold flex items-center justify-center gap-2">
+                                                                        <XCircle className="w-5 h-5" /> No document found.
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="space-y-8">
+                                                                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                                                            <a
+                                                                                href={rawPdfUrl}
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                className="w-full sm:w-auto px-10 py-5 bg-slate-900 hover:bg-black text-white rounded-2xl font-black transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                                                                            >
+                                                                                Open Document <ExternalLink className="w-4 h-4" />
+                                                                            </a>
+                                                                            <a
+                                                                                href={rawPdfUrl.replace('/upload/', '/upload/fl_attachment/')}
+                                                                                className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-200 hover:border-emerald-500 hover:text-emerald-700 text-slate-700 rounded-2xl font-black transition-all shadow-sm flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                                                                                target="_blank"
+                                                                            >
+                                                                                <Download className="w-4 h-4" /> Download
+                                                                            </a>
+                                                                        </div>
+                                                                        <div className="border border-slate-100 rounded-2xl overflow-hidden bg-slate-50 h-[600px] hidden md:block">
+                                                                            <iframe
+                                                                                src={`https://docs.google.com/gview?url=${encodeURIComponent(rawPdfUrl)}&embedded=true`}
+                                                                                className="w-full h-full border-none"
+                                                                                title="Document Preview"
+                                                                            ></iframe>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })()}
+
+                                                    {/* Green Story Asset */}
+                                                    {selectedEntry.type === 'green-story' && (
+                                                        <div className="p-12 text-center">
+                                                            <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-emerald-600">
+                                                                <Video className="w-10 h-10" />
+                                                            </div>
+                                                            <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Video Advertisement</h4>
+                                                            <p className="text-slate-500 text-sm mb-10 max-w-sm mx-auto font-medium">Link to the participant's video submission on Google Drive.</p>
+                                                            <a
+                                                                href={selectedEntry.videoLink}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-3 px-12 py-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black transition-all shadow-xl shadow-emerald-500/20 uppercase tracking-widest text-xs"
+                                                            >
+                                                                Watch Video on Drive <ChevronRight className="w-4 h-4" />
+                                                            </a>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Eco Buzzers Asset */}
+                                                    {selectedEntry.type === 'eco-buzzers' && (
+                                                        <div className="p-12 text-center">
+                                                            <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-amber-100">
+                                                                <Zap className="w-10 h-10" />
+                                                            </div>
+                                                            <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Quiz Team Registration</h4>
+                                                            <p className="text-slate-500 text-sm max-w-sm mx-auto font-medium">This team is registered for the environmental buzzer round competition.</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </section>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Fullscreen Image Lightbox */}
+            < AnimatePresence >
+                {fullscreenImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setFullscreenImage(null)}
+                        className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out"
+                    >
+                        <motion.button
+                            className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all border border-white/20"
+                            onClick={() => setFullscreenImage(null)}
+                        >
+                            <X className="w-6 h-6" />
+                        </motion.button>
+
+                        <motion.img
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            src={fullscreenImage} // Original untouched image for full-screen analysis
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                            alt="Fullscreen Preview"
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence >
+
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+                .bg-submission-pattern {
+                    background-image: radial-gradient(#F1F5F9 1px, transparent 1px);
+                    background-size: 20px 20px;
+                }
+            `}</style>
+        </div >
+    );
+}
+
+function CalendarIcon() {
+    return (
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+    )
+}

@@ -49,9 +49,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-    <head>
-    <link rel="icon" href="/eswclogo.png" sizes="any" />
-  </head>
+      <head>
+        <link rel="icon" href="/eswclogo.png" sizes="any" />
+      </head>
       <body className={exoItalic.variable}>
         <Navbar />
         {children}

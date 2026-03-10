@@ -20,6 +20,18 @@ export const environmentalActivities = {
             image: "https://res.cloudinary.com/chirkut/image/upload/v1767465126/503830277_683812211120418_5308928442902817123_n_nsc0rc.jpg",
         },
         {
+            title: "Vertical Gardening Discussion",
+            date: "February 13, 2025",
+            description: "Awareness session on vertical gardening as a solution to urban air pollution.",
+            image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=2072&auto=format&fit=crop",
+        },
+        {
+            title: "Plastic Pollution Campaign",
+            date: "February 03, 2025",
+            description: "Awareness drive on responsible waste disposal and plastic reduction.",
+            image: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?q=80&w=1974&auto=format&fit=crop",
+        },
+        {
             title: "Eco Champion 2.0 ",
             date: "February 19, 2025",
             location: "AUST Campus",
@@ -67,10 +79,37 @@ export const welfareActivities = {
     ],
     past: [
         {
+            title: "Mojar School: Jamalpur Outreach",
+            date: "January 14, 2026",
+            location: "Nalchiya Govt. Primary School, Jamalpur",
+            description: "Environmental talks, tree plantation, and gift distribution as part of our nationwide campaign.",
+            image: "https://res.cloudinary.com/chirkut/image/upload/v1772103194/614811648_860159490152355_5899781724395276874_n_pcyncb.jpg",
+        },
+        {
+            title: "Usnotar Hasi - Day 01",
+            date: "January 13, 2026",
+            location: "Madarganj Upazila, Jamalpur",
+            description: "Distribution of blankets, winter clothes, and health supplies to 85+ underprivileged individuals.",
+            image: "https://res.cloudinary.com/chirkut/image/upload/v1772112202/615767995_863805759787728_965306133818918610_n_g3dwvu.jpg",
+        },
+        {
+            title: "Mojar School: Cumilla Outreach",
+            date: "January 08, 2026",
+            location: "Little Moon High School, Cumilla",
+            description: "Educational materials distribution and interactive student engagement sessions.",
+            image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2073&auto=format&fit=crop",
+        },
+        {
+            title: "Anondo Utshob",
+            date: "December 2025",
+            description: "A festival dedicated to sharing joy with underprivileged children featuring games and gifts.",
+            image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop",
+        },
+        {
             title: "Winter Cloth Collection",
             date: "December 15, 2025",
             description: "Let's spread warmth this winter. Campaign to collect new or gently used winter clothes to protect people from severe cold and reduce winter-related health risks",
-            image: "https://res.cloudinary.com/chirkut/image/upload/v1767465130/602004536_842589521909352_1230474454358681280_n_zqjtdn.jpg",
+            image: "https://res.cloudinary.com/chirkut/image/upload/v1771661156/FB_IMG_1769234724125_s6uogi.jpg",
         },
         {
             title: "Mojar School",
