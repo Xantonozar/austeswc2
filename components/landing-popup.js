@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera } from 'lucide-react';
+import { X, Leaf } from 'lucide-react';
 
 export default function LandingPopup() {
     const [isOpen, setIsOpen] = useState(false);
@@ -65,11 +65,11 @@ export default function LandingPopup() {
                         {/* Content Area */}
                         <div className="p-8 text-center space-y-4 bg-[#F3F9F1]">
                             <div className="inline-flex items-center justify-center p-3 bg-white rounded-full shadow-sm text-[#1B4B43] mb-2">
-                                <Camera className="w-8 h-8" />
+                                <Leaf className="w-8 h-8" />
                             </div>
-                            <h2 className="text-2xl font-black text-[#1B4B43]">Eco Capture is Live!</h2>
+                            <h2 className="text-2xl font-black text-[#1B4B43]">Greenova is Live!</h2>
                             <p className="text-gray-600 font-medium pb-4">
-                                Join our flagship photography contest. Showcase the beauty of nature and environmental awareness through your lens.
+                                Join our flagship environmental competitions. Whether you're a photographer, researcher, or creative thinker, there's a platform for you to shine.
                             </p>
 
                             <div className="flex gap-4 justify-center">
@@ -80,7 +80,7 @@ export default function LandingPopup() {
                                     Maybe Later
                                 </button>
                                 <Link
-                                    href="/competetion/eco-capture"
+                                    href="/greenova"
                                     onClick={() => setIsOpen(false)}
                                     className="px-6 py-3 rounded-xl font-bold text-white bg-[#1B4B43] hover:bg-[#12332D] shadow-lg shadow-[#1B4B43]/30 transition-all flex items-center gap-2"
                                 >

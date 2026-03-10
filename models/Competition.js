@@ -37,7 +37,7 @@ const MemberSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['registered', 'selected', 'paid', 'eliminated'],
+        enum: ['registered', 'selected', 'paid', 'eliminated', 'rejected'],
         default: 'registered'
     },
     round: {
@@ -47,7 +47,13 @@ const MemberSchema = new mongoose.Schema({
 
     // Payment
     bkashTxId: { type: String },
+    paymentMethod: { type: String, enum: ['bkash', 'rocket', 'nagad'], default: 'bkash' },
     paymentVerified: { type: Boolean, default: false },
+
+    // Round 2 Payment
+    bkashTxIdRound2: { type: String },
+    paymentMethodRound2: { type: String, enum: ['bkash', 'rocket', 'nagad'], default: 'bkash' },
+    paymentVerifiedRound2: { type: Boolean, default: false },
 
     createdAt: {
         type: Date,
