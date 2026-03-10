@@ -170,7 +170,7 @@ export default function ThreePitchRegister() {
                     <h2 className="text-3xl font-bold mb-2">Register for Eco Pitch 180</h2>
                     <p className="text-[#B7E9FF] text-sm opacity-90">
                         Register your team (1-3 members), pay the first round fee, and upload your abstract (PDF/DOC).
-                        Check the <a href="https://drive.google.com/file/d/13HGkBWaSJZ8DbwmvnVEz0ipo66QuLXFu/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" className="underline font-bold hover:text-white transition-colors">Rulebook</a> for details.
+                        Check the <a href="https://drive.google.com/file/d/1MdMP0de98jlhLm1yWCA1n2xADBLyeZ1K/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" className="underline font-bold hover:text-white transition-colors">Rulebook</a> for details.
                     </p>
                 </div>
             </div>
