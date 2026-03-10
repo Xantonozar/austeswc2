@@ -93,7 +93,7 @@ function Navbar() {
           <div className="hidden md:flex flex-1 justify-end">
             <div className="flex space-x-2 lg:space-x-4">
               <Link href="/greenova" className="flex flex-col items-center justify-center hover:scale-105 hover:opacity-80 transition-all">
-                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-1 mt-1">In Association With</span>
+               
                 <Image
                   src="/greenova.png"
                   alt="Greenova"
@@ -195,7 +195,7 @@ function Navbar() {
             </ul>
             <div className="mt-8 flex flex-col items-center gap-6 w-full px-4">
               <Link href="/greenova" className="flex flex-col items-center justify-center hover:scale-105 hover:opacity-80 transition-all active:scale-95" onClick={toggleMenu}>
-                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mb-2">In Association With</span>
+               
                 <Image
                   src="/greenova.png"
                   alt="Greenova"
@@ -211,5 +211,6 @@ function Navbar() {
     </nav>
   );
 }
+
 
 export default Navbar;
