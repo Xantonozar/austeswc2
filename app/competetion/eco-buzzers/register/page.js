@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Zap, Users, ArrowLeft, Loader2, CreditCard, Smartphone, Plus, Trash2, GraduationCap } from 'lucide-react';
+import { Zap, Users, ArrowLeft, Loader2, CreditCard, Smartphone, Plus, Trash2, GraduationCap, Star } from 'lucide-react';
 import Link from 'next/link';
 
 export default function EcoBuzzersRegister() {
@@ -14,6 +14,7 @@ export default function EcoBuzzersRegister() {
     const [form, setForm] = useState({
         teamName: '',
         universityName: '',
+        caReference: '',
         bkashTxId: '',
         agreeToTerms: false
     });
@@ -105,6 +106,7 @@ export default function EcoBuzzersRegister() {
                 type: 'eco-buzzers',
                 teamName: form.teamName.trim(),
                 universityName: form.universityName.trim(),
+                caReference: form.caReference.trim(),
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
                 bkashTxId: form.bkashTxId.trim().toUpperCase(),
@@ -173,6 +175,13 @@ export default function EcoBuzzersRegister() {
                                 University Name
                             </label>
                             <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University of Science and Technology" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
+                                <Star className="w-4 h-4 text-amber-500" />
+                                Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
+                            </label>
+                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Name of the Campus Ambassador who referred you" />
                         </div>
                     </div>
 

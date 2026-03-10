@@ -35,6 +35,9 @@ export default function CheckStatusPage() {
 
             if (response.ok) {
                 setResults(data.data);
+            } else if (response.status === 404 && data.error === 'not_found') {
+                // No registrations for this email — show empty state card, not a toast
+                setResults([]);
             } else {
                 toast.error(data.message || "Registration not found");
             }
@@ -191,6 +194,24 @@ export default function CheckStatusPage() {
 
                 {/* Results Area */}
                 <AnimatePresence mode="wait">
+                    {results === null && !loading && (
+                        <motion.div
+                            key="hint"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="text-center py-14 bg-white rounded-2xl border border-dashed border-gray-200"
+                        >
+                            <div className="w-16 h-16 bg-[#E8F9FF] rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Search className="w-7 h-7 text-[#1B4B43]" />
+                            </div>
+                            <h3 className="text-lg font-bold text-[#1B4B43] mb-1">Enter Your Email Above</h3>
+                            <p className="text-gray-500 text-sm max-w-xs mx-auto">
+                                Enter the email you used when registering to view your competition status and submit payments.
+                            </p>
+                        </motion.div>
+                    )}
+
                     {results && results.length > 0 && (
                         <motion.div
                             key="results"
@@ -257,7 +278,7 @@ export default function CheckStatusPage() {
                                                             <p className="text-xs md:text-sm text-gray-700 mb-6 font-medium leading-relaxed">
                                                                 {comp.status === 'rejected'
                                                                     ? `Your previous ${roundLabel} payment verification failed. Please re-check your Transaction ID and submit the correct details below to continue.`
-                                                                    : `Congratulations! To proceed to ${roundLabel}, please complete the payment of ${fee} BDT via bKash or Rocket.`}
+                                                                    : `Congratulations! To proceed to ${roundLabel}, please complete the payment of ${fee} BDT via bKash or Nagad.`}
                                                             </p>
 
                                                             {fee > 0 ? (
@@ -272,17 +293,17 @@ export default function CheckStatusPage() {
                                                                         </button>
                                                                         <button
                                                                             type="button"
-                                                                            onClick={() => setPaymentMethod('rocket')}
-                                                                            className={`py-2.5 rounded-xl border-2 font-bold transition-all ${paymentMethod === 'rocket' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/40 text-gray-500'}`}
+                                                                            onClick={() => setPaymentMethod('nagad')}
+                                                                            className={`py-2.5 rounded-xl border-2 font-bold transition-all ${paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/40 text-gray-500'}`}
                                                                         >
-                                                                            Rocket
+                                                                            Nagad
                                                                         </button>
                                                                     </div>
 
                                                                     <div className="bg-white/80 backdrop-blur-sm px-4 md:px-6 py-4 rounded-2xl flex flex-col gap-2 mb-6 border-2 border-dashed border-[#1B4B43]/30">
                                                                         <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
                                                                             <div className="flex flex-col items-center sm:items-start">
-                                                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Send Money To ({paymentMethod === 'bkash' ? 'bKash' : 'Rocket'})</span>
+                                                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Send Money To ({paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</span>
                                                                                 <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-[#1B4B43]">01853259598</span>
                                                                             </div>
                                                                             <div className="flex flex-col items-center sm:items-end">
@@ -303,7 +324,7 @@ export default function CheckStatusPage() {
                                                                         <div className="relative">
                                                                             <input
                                                                                 type="text"
-                                                                                placeholder={`Enter ${paymentMethod === 'bkash' ? 'bKash' : 'Rocket'} Transaction ID`}
+                                                                                placeholder={`Enter ${paymentMethod === 'bkash' ? 'bKash' : 'Nagad'} Transaction ID`}
                                                                                 value={activeCompId === comp._id ? bkashTxId : ""}
                                                                                 onChange={(e) => {
                                                                                     setBkashTxId(e.target.value);
@@ -376,8 +397,8 @@ export default function CheckStatusPage() {
                                 <Search className="w-6 h-6 text-gray-400" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 mb-1">No Registrations Found</h3>
-                            <p className="text-gray-500 max-w-sm mx-auto">
-                                We couldn't find any competition registrations associated with <strong>{email}</strong>.
+                            <p className="text-gray-500 max-w-sm mx-auto text-sm">
+                                We couldn't find any competition registrations for <strong>{email}</strong>. Please double-check your email address and try again.
                             </p>
                         </motion.div>
                     )}

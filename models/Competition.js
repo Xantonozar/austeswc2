@@ -29,6 +29,9 @@ const MemberSchema = new mongoose.Schema({
     pdfUrl: { type: String },
     pdfPublicId: { type: String },
 
+    // Campus Ambassador Reference
+    caReference: { type: String, default: '' },
+
     // Competition tracking
     type: {
         type: String,
@@ -47,12 +50,12 @@ const MemberSchema = new mongoose.Schema({
 
     // Payment
     bkashTxId: { type: String },
-    paymentMethod: { type: String, enum: ['bkash', 'rocket', 'nagad'], default: 'bkash' },
+    paymentMethod: { type: String, enum: ['bkash', 'nagad'], default: 'bkash' },
     paymentVerified: { type: Boolean, default: false },
 
     // Round 2 Payment
     bkashTxIdRound2: { type: String },
-    paymentMethodRound2: { type: String, enum: ['bkash', 'rocket', 'nagad'], default: 'bkash' },
+    paymentMethodRound2: { type: String, enum: ['bkash', 'nagad'], default: 'bkash' },
     paymentVerifiedRound2: { type: Boolean, default: false },
 
     createdAt: {

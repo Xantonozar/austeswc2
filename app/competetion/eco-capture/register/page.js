@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Camera, User, ArrowLeft, Loader2, Upload, CheckCircle2, FileText, GraduationCap } from 'lucide-react';
+import { Camera, User, ArrowLeft, Loader2, Upload, CheckCircle2, FileText, GraduationCap, Star } from 'lucide-react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
 
@@ -14,6 +14,7 @@ export default function EcoCaptureRegister() {
     const [form, setForm] = useState({
         name: '',
         universityName: '',
+        caReference: '',
         email: '',
         phone: '',
         agreeToTerms: false
@@ -184,6 +185,7 @@ export default function EcoCaptureRegister() {
                 type: 'eco-capture',
                 name: form.name.trim(),
                 universityName: form.universityName.trim(),
+                caReference: form.caReference.trim(),
                 email: form.email.trim().toLowerCase(),
                 phone: form.phone.trim(),
                 photosReady: uploadedResults // Use a new key to distinguish from photosBase64
@@ -262,6 +264,13 @@ export default function EcoCaptureRegister() {
                                     University Name
                                 </label>
                                 <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] focus:border-transparent outline-none transition-all" placeholder="e.g. Ahsanullah University of Science and Technology" />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-amber-500" />
+                                    Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
+                                </label>
+                                <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] focus:border-transparent outline-none transition-all" placeholder="e.g. Name of the Campus Ambassador who referred you" />
                             </div>
                         </div>
                     </div>

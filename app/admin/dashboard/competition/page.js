@@ -6,7 +6,7 @@ import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
     FileText, Camera, Video, Zap, User, Users, Phone, Mail,
-    ChevronRight, X
+    ChevronRight, X, Star
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -99,6 +99,8 @@ export default function CompetitionAdmin() {
         const exportData = filteredCompetitors.map(c => ({
             "Competition": c.type.toUpperCase(),
             "Name/Team": c.name || c.teamName,
+            "University": c.universityName || "N/A",
+            "CA Reference": c.caReference || "N/A",
             "Email": c.email,
             "Phone": c.phone,
             "Members": c.members?.map(m => m.name).join(", ") || "N/A",
@@ -284,6 +286,11 @@ export default function CompetitionAdmin() {
                                                 <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
                                                     <Phone className="w-3 h-3" /> {comp.phone || 'N/A'}
                                                 </p>
+                                                {comp.caReference && (
+                                                    <p className="text-[10px] text-amber-600 font-bold flex items-center gap-1.5">
+                                                        <Star className="w-3 h-3" /> CA: {comp.caReference}
+                                                    </p>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-6">
@@ -530,6 +537,18 @@ export default function CompetitionAdmin() {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {selectedEntry.caReference && (
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-amber-50 rounded-xl">
+                                                    <Star className="w-4 h-4 text-amber-500" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">CA Reference</span>
+                                                    <span className="text-sm font-bold text-amber-700">{selectedEntry.caReference}</span>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         <div className="w-[1px] h-10 bg-slate-200 hidden lg:block"></div>
 

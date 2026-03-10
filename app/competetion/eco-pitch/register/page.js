@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Mic2, Users, ArrowLeft, Loader2, Plus, Trash2, FileText, Upload, CheckCircle2, CreditCard, Smartphone, GraduationCap } from 'lucide-react';
+import { Mic2, Users, ArrowLeft, Loader2, Plus, Trash2, FileText, Upload, CheckCircle2, CreditCard, Smartphone, GraduationCap, Star } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ThreePitchRegister() {
@@ -15,6 +15,7 @@ export default function ThreePitchRegister() {
     const [form, setForm] = useState({
         teamName: '',
         universityName: '',
+        caReference: '',
         bkashTxId: '',
         pdfBase64: '',
         agreeToTerms: false,
@@ -113,6 +114,7 @@ export default function ThreePitchRegister() {
                 type: 'eco-pitch',
                 teamName: form.teamName.trim(),
                 universityName: form.universityName.trim(),
+                caReference: form.caReference.trim(),
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
                 bkashTxId: form.bkashTxId.trim().toUpperCase(),
@@ -194,6 +196,14 @@ export default function ThreePitchRegister() {
                                 University Name
                             </label>
                             <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University of Science and Technology" />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
+                                <Star className="w-4 h-4 text-amber-500" />
+                                Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
+                            </label>
+                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Name of the Campus Ambassador who referred you" />
                         </div>
                     </div>
 
@@ -285,10 +295,10 @@ export default function ThreePitchRegister() {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setForm(prev => ({ ...prev, paymentMethod: 'rocket' }))}
-                                className={`py-4 rounded-xl border-2 font-bold transition-all flex flex-col items-center gap-2 ${form.paymentMethod === 'rocket' ? 'border-[#1B4B43] bg-[#E8F9FF] text-[#1B4B43]' : 'border-gray-200 bg-white text-gray-500 hover:border-[#1B4B43]/30'}`}
+                                onClick={() => setForm(prev => ({ ...prev, paymentMethod: 'nagad' }))}
+                                className={`py-4 rounded-xl border-2 font-bold transition-all flex flex-col items-center gap-2 ${form.paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-[#E8F9FF] text-[#1B4B43]' : 'border-gray-200 bg-white text-gray-500 hover:border-[#1B4B43]/30'}`}
                             >
-                                <span className="text-xl">Rocket</span>
+                                <span className="text-xl">Nagad</span>
                                 <span className="text-[10px] uppercase tracking-wider opacity-60">Send Money</span>
                             </button>
                         </div>
@@ -296,7 +306,7 @@ export default function ThreePitchRegister() {
                         <div className="bg-yellow-50/80 border border-yellow-200 rounded-xl p-4 flex items-start gap-4">
                             <Smartphone className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
                             <div>
-                                <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money ({form.paymentMethod === 'bkash' ? 'bKash' : 'Rocket'})</p>
+                                <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money ({form.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</p>
                                 <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
                                 <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">300 BDT</span></p>
                                 <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
@@ -304,7 +314,7 @@ export default function ThreePitchRegister() {
                         </div>
 
                         <div>
-                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Transaction ID ({form.paymentMethod === 'bkash' ? 'bKash' : 'Rocket'})</label>
+                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Transaction ID ({form.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</label>
                             <input name="bkashTxId" value={form.bkashTxId} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all" placeholder="TRX123456" />
                         </div>
                     </div>
