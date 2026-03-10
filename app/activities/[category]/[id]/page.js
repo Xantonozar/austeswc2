@@ -32,7 +32,7 @@ const allActivities = {
         impact: "Expected to plant 500+ trees and engage 200+ participants",
         registrationDeadline: "February 15, 2025",
         contactPerson: "Environmental Committee",
-        contactEmail: "environmental@austeswc.com"
+        contactEmail: "environmental@austeswc.org"
       }
     ],
     past: [
@@ -101,7 +101,7 @@ const allActivities = {
         impact: "Target: 500+ families to receive winter clothing",
         registrationDeadline: "Ongoing throughout the drive",
         contactPerson: "Welfare Committee",
-        contactEmail: "welfare@austeswc.com"
+        contactEmail: "welfare@austeswc.org"
       }
     ],
     past: [
@@ -230,7 +230,7 @@ const allActivities = {
         impact: "Expected to educate 150+ students on sustainability",
         registrationDeadline: "No registration required",
         contactPerson: "Campus Activities Committee",
-        contactEmail: "campus@austeswc.com"
+        contactEmail: "campus@austeswc.org"
       }
     ],
     past: [

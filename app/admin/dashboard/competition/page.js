@@ -6,10 +6,11 @@ import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
     FileText, Camera, Video, Zap, User, Users, Phone, Mail,
-    ChevronRight, X, Star
+    ChevronRight, X, Star, ArrowLeft
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import * as XLSX from "xlsx";
+import Link from "next/link";
 
 export default function CompetitionAdmin() {
     const [competitors, setCompetitors] = useState([]);
@@ -193,6 +194,16 @@ export default function CompetitionAdmin() {
             <Toaster position="top-right" />
 
             {/* Header */}
+            <div className="mb-6">
+                <Link
+                    href="/admin/dashboard"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-emerald-600 transition-colors group"
+                >
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                    Back to Dashboard
+                </Link>
+            </div>
+
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Competitions Panel</h1>

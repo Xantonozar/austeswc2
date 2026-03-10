@@ -76,12 +76,19 @@ export async function PATCH(req) {
         }
 
         // Send payment success if payment just got verified
-        if ((paymentVerified === true && competitor.paymentVerified !== true) ||
-            (paymentVerifiedRound2 === true && competitor.paymentVerifiedRound2 !== true)) {
+        if (paymentVerified === true && competitor.paymentVerified !== true) {
             try {
-                await sendPaymentSuccessEmail(updated.email, participantName, updated.type);
+                await sendPaymentSuccessEmail(updated.email, participantName, updated.type, 1);
             } catch (emailError) {
-                console.error('Failed to send payment success email:', emailError);
+                console.error('Failed to send payment success email for Round 1:', emailError);
+            }
+        }
+
+        if (paymentVerifiedRound2 === true && competitor.paymentVerifiedRound2 !== true) {
+            try {
+                await sendPaymentSuccessEmail(updated.email, participantName, updated.type, 2);
+            } catch (emailError) {
+                console.error('Failed to send payment success email for Round 2:', emailError);
             }
         }
 

@@ -7,7 +7,8 @@ import {
     LogOut, Users, Search, Download, Filter,
     ChevronDown, FileSpreadsheet, FileText, FileJson,
     Smartphone, Trash2, AlertTriangle, X, Check,
-    ExternalLink, CreditCard, User, Building2, MapPin, RefreshCw, Clock
+    ExternalLink, CreditCard, User, Building2, MapPin, RefreshCw, Clock,
+    ArrowLeft
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
@@ -209,11 +210,23 @@ export default function AdminDashboard() {
             {/* Navbar */}
             <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
                 <div className="max-w-[1600px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold">E</span>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                                <span className="text-white font-bold">E</span>
+                            </div>
+                            <span className="font-bold text-lg tracking-tight">ESWC Admin</span>
                         </div>
-                        <span className="font-bold text-lg tracking-tight">ESWC Admin</span>
+
+                        <div className="h-6 w-px bg-slate-200 mx-2 hidden md:block"></div>
+
+                        <Link
+                            href="/admin/dashboard"
+                            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-emerald-600 transition-colors group"
+                        >
+                            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+                            <span className="hidden sm:inline">Back to Dashboard</span>
+                        </Link>
                     </div>
 
                     <div className="flex items-center gap-3">
