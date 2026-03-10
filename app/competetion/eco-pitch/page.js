@@ -24,7 +24,7 @@ export default function ThreePitchDetails() {
                     </p>
                     <div className="flex justify-center gap-4 relative z-10">
                         <a
-                            href="https://drive.google.com/file/d/13HGkBWaSJZ8DbwmvnVEz0ipo66QuLXFu/view?usp=drivesdk"
+                            href="https://drive.google.com/file/d/1MdMP0de98jlhLm1yWCA1n2xADBLyeZ1K/view?usp=drivesdk"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bg-[#1B4B43] text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95"
