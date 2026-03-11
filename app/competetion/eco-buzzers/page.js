@@ -18,7 +18,7 @@ export default function EcoBuzzersDetails() {
                     <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-sm">
                         <Zap className="w-10 h-10 text-[#1B4B43]" />
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-[#1B4B43] mb-4 relative z-10">Eco Buzzers</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold text-[#1B4B43] mb-4 relative z-10">Green Buzzer Battle</h1>
                     <p className="text-lg text-gray-700 max-w-2xl mx-auto relative z-10">
                         Team-based fast-paced environmental quiz competition.
                     </p>
