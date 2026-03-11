@@ -76,7 +76,7 @@ export default function EcoBuzzersDetails() {
 
                         <div className="w-full">
                             <Link 
-                                href="/competition/eco-buzzers/register" 
+                                href="/competetion/eco-buzzers/register" 
                                 className="w-full bg-[#1B4B43] hover:bg-[#266359] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95"
                             >
                                 Register Now <ArrowRight className="w-5 h-5" />
