@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
-import { motion } from 'framer-motion';
-import { Zap, Users, ArrowLeft, Loader2, CreditCard, Smartphone, Plus, Trash2, GraduationCap, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, Users, ArrowLeft, Loader2, CreditCard, Smartphone, Plus, Trash2, GraduationCap, Star, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default function EcoBuzzersRegister() {
@@ -16,6 +16,7 @@ export default function EcoBuzzersRegister() {
         universityName: '',
         caReference: '',
         bkashTxId: '',
+        paymentMethod: 'bkash', // New: Track payment method
         agreeToTerms: false
     });
 
@@ -33,7 +34,6 @@ export default function EcoBuzzersRegister() {
     };
 
     const addMember = () => {
-        // Updated: Max team member 2
         if (members.length < 2) {
             setMembers([...members, { name: '', email: '', phone: '' }]);
         }
@@ -84,7 +84,7 @@ export default function EcoBuzzersRegister() {
                     </div>
                     <h1 className="text-2xl font-bold text-[#1B4B43] mb-4">Registration Closed</h1>
                     <p className="text-gray-600 mb-8">
-                        The registration period for <strong>Green Buzzer Battle</strong> has ended. We are no longer accepting new team registrations.
+                        The registration period for <strong>Green Buzzer Battle</strong> has ended.
                     </p>
                     <Link href="/competetion">
                         <button className="w-full bg-[#1B4B43] text-white font-bold py-3.5 rounded-xl hover:bg-[#133630] transition-colors">
@@ -111,6 +111,7 @@ export default function EcoBuzzersRegister() {
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
                 bkashTxId: form.bkashTxId.trim().toUpperCase(),
+                paymentMethod: form.paymentMethod, // New: Send method to backend
                 members: members.map(m => ({
                     name: m.name.trim(),
                     email: m.email.trim().toLowerCase(),
@@ -136,6 +137,7 @@ export default function EcoBuzzersRegister() {
         <div className="min-h-screen bg-slate-50 pb-12 font-sans">
             <Toaster position="top-center" />
 
+            {/* Header */}
             <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
                 <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
                     <Link href="/competetion/eco-buzzers" className="p-2 -ml-2 rounded-full hover:bg-gray-50 transition-colors">
@@ -146,9 +148,9 @@ export default function EcoBuzzersRegister() {
                 </div>
             </div>
 
+            {/* Banner */}
             <div className="bg-[#1B4B43] text-[#E8F9FF] pt-8 pb-16 px-4 -mt-[1px] relative overflow-hidden">
                 <div className="w-64 h-64 absolute -top-20 -left-20 bg-[#E8F9FF]/10 rounded-full blur-3xl"></div>
-                <div className="w-64 h-64 absolute -bottom-20 -right-20 border-[8px] border-[#E8F9FF]/10 rounded-full"></div>
                 <div className="max-w-xl mx-auto text-center relative z-10">
                     <Zap className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
                     <h2 className="text-3xl font-bold mb-2">Register for Green Buzzer Battle</h2>
@@ -159,41 +161,35 @@ export default function EcoBuzzersRegister() {
             <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="max-w-xl mx-auto px-4 -mt-8 relative z-20">
                 <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl p-6 md:p-8 space-y-8 border border-gray-100">
 
-                    {/* Team Info */}
+                    {/* Team Info Section */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-6">
                             <div className="p-2 bg-[#E8F9FF] rounded-lg"><Users className="w-5 h-5 text-[#1B4B43]" /></div>
                             <h3 className="font-bold text-[#1B4B43] text-lg">Team Details</h3>
                         </div>
-
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Team Name</label>
                             <input name="teamName" value={form.teamName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Planet Saviors" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
-                                <GraduationCap className="w-4 h-4 text-gray-500" />
-                                University Name
+                                <GraduationCap className="w-4 h-4 text-gray-500" /> University Name
                             </label>
                             <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
-                                <Star className="w-4 h-4 text-amber-500" />
-                                Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
+                                <Star className="w-4 h-4 text-amber-500" /> Campus Ambassador Reference
                             </label>
-                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Name of the CA" />
+                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="Optional" />
                         </div>
                     </div>
 
                     <hr className="border-gray-100" />
 
-                    {/* Members Segment */}
+                    {/* Members Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center mb-4">
-                            <h3 className="font-bold text-[#1B4B43] text-lg shrink-0">Team Members</h3>
-                        </div>
-
+                        <h3 className="font-bold text-[#1B4B43] text-lg mb-4">Team Members</h3>
                         {members.map((member, idx) => (
                             <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-[#B7E9FF] transition-colors">
                                 {members.length > 1 && (
@@ -211,46 +207,85 @@ export default function EcoBuzzersRegister() {
                                 </div>
                             </div>
                         ))}
-
-                        {/* Updated: Check against 2 members */}
                         {members.length < 2 && (
-                            <button
-                                type="button"
-                                onClick={addMember}
-                                className="w-full py-4 border-2 border-dashed border-gray-100 rounded-2xl flex items-center justify-center gap-2 text-[#1B4B43] font-bold hover:border-[#1B4B43] hover:bg-[#E8F9FF]/20 transition-all active:scale-[0.98]"
-                            >
-                                <Plus className="w-5 h-5" /> Add Another Team Member
+                            <button type="button" onClick={addMember} className="w-full py-4 border-2 border-dashed border-gray-100 rounded-2xl flex items-center justify-center gap-2 text-[#1B4B43] font-bold hover:border-[#1B4B43] hover:bg-[#E8F9FF]/20 transition-all">
+                                <Plus className="w-5 h-5" /> Add Team Member
                             </button>
                         )}
                     </div>
 
                     <hr className="border-gray-100" />
 
-                    {/* Payment */}
+                    {/* NEW: Payment Section with Toggle */}
                     <div className="space-y-4 text-sm">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-2 bg-gray-100 rounded-lg"><CreditCard className="w-5 h-5 text-gray-600" /></div>
                             <h3 className="font-bold text-[#1B4B43] text-lg">Registration Fee</h3>
                         </div>
 
-                        <div className="bg-yellow-50/80 border border-yellow-200 rounded-xl p-4 flex items-start gap-4">
-                            <Smartphone className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
-                            <div>
-                                <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money (bKash, Nagad)</p>
-                                <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
-                                {/* Updated: Fee to 700 BDT */}
-                                <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">700 BDT</span></p>
-                                <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
-                            </div>
+                        {/* Payment Method Tabs */}
+                        <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl">
+                            {['bkash', 'nagad'].map((method) => (
+                                <button
+                                    key={method}
+                                    type="button"
+                                    onClick={() => setForm(prev => ({ ...prev, paymentMethod: method }))}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold capitalize transition-all ${
+                                        form.paymentMethod === method 
+                                        ? 'bg-white text-[#1B4B43] shadow-sm' 
+                                        : 'text-gray-400 hover:text-gray-600'
+                                    }`}
+                                >
+                                    {form.paymentMethod === method && <Check className="w-4 h-4" />}
+                                    {method}
+                                </button>
+                            ))}
                         </div>
 
+                        {/* Instruction Box */}
+                        <AnimatePresence mode="wait">
+                            <motion.div 
+                                key={form.paymentMethod}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                className={`border rounded-2xl p-5 flex items-start gap-4 transition-colors ${
+                                    form.paymentMethod === 'bkash' ? 'bg-pink-50/50 border-pink-100' : 'bg-orange-50/50 border-orange-100'
+                                }`}
+                            >
+                                <Smartphone className={`w-6 h-6 shrink-0 mt-1 ${
+                                    form.paymentMethod === 'bkash' ? 'text-pink-600' : 'text-orange-600'
+                                }`} />
+                                <div>
+                                    <p className={`font-bold mb-1 text-base ${
+                                        form.paymentMethod === 'bkash' ? 'text-pink-900' : 'text-orange-900'
+                                    }`}>
+                                        Send Money ({form.paymentMethod})
+                                    </p>
+                                    <p className="text-gray-700 font-medium mb-1">Number: <span className="font-bold select-all">01853259598</span></p>
+                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B4B43]">700 BDT</span></p>
+                                    <p className="text-xs text-gray-500 mt-3 italic leading-relaxed">
+                                        * Please include your <span className="font-bold">Team Name</span> as the reference during the transaction.
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+
                         <div>
-                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Transaction ID (bKash/Nagad)</label>
-                            <input name="bkashTxId" value={form.bkashTxId} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all" placeholder="TRX123456" />
+                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1 capitalize">
+                                {form.paymentMethod} Transaction ID
+                            </label>
+                            <input 
+                                name="bkashTxId" 
+                                value={form.bkashTxId} 
+                                onChange={handleFormChange} 
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all" 
+                                placeholder="TRX123456" 
+                            />
                         </div>
                     </div>
 
-                    {/* Submit */}
+                    {/* Submit Section */}
                     <div className="pt-4">
                         <label className="flex items-start gap-3 cursor-pointer p-3 -mx-3 rounded-lg hover:bg-gray-50 mb-6 transition-colors">
                             <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#1B4B43] focus:ring-[#1B4B43] border-gray-300" />
@@ -261,7 +296,6 @@ export default function EcoBuzzersRegister() {
                             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Confirm Registration'}
                         </button>
                     </div>
-
                 </form>
             </motion.div>
         </div>
