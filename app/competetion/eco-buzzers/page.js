@@ -75,8 +75,8 @@ export default function EcoBuzzersDetails() {
                         </div>
 
                         <div className="w-full">
-                            <button disabled className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed border border-gray-200 shadow-none">
-                                Registration Closed
+                            <button className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed border border-gray-200 shadow-none">
+                                Register
                             </button>
                         </div>
                     </motion.div>
