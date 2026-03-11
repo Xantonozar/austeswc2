@@ -46,7 +46,7 @@ export default function EcoBuzzersDetails() {
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Registration fee is <strong>100 BDT per team</strong>, payable via bKash during registration.</p>
+                                    <p>Registration fee is <strong>1000 BDT per team</strong>, payable via bKash during registration.</p>
                                 </li>
                             </ul>
                         </div>
@@ -61,7 +61,7 @@ export default function EcoBuzzersDetails() {
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Registration Fee</p>
-                                    <p className="font-bold text-xl">100 BDT</p>
+                                    <p className="font-bold text-xl">1000 BDT</p>
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Team Size</p>
@@ -75,9 +75,12 @@ export default function EcoBuzzersDetails() {
                         </div>
 
                         <div className="w-full">
-                            <button className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed border border-gray-200 shadow-none">
-                                Register
-                            </button>
+                            <Link 
+                                href="/register" 
+                                className="w-full bg-[#1B4B43] hover:bg-[#266359] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95"
+                            >
+                                Register Now <ArrowRight className="w-5 h-5" />
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
