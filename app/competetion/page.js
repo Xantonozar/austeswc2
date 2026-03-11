@@ -28,7 +28,7 @@ const competitions = [
     description: "Test your environmental knowledge in this fast-paced, team-based buzzer competition.",
     delay: 0.2,
     image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    isOpen: false
+    isOpen: true
   },
   {
     id: "green-story",
