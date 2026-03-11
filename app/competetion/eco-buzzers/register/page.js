@@ -236,7 +236,7 @@ export default function EcoBuzzersRegister() {
                             <div>
                                 <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money (bKash, Nagad)</p>
                                 <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
-                                <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">100 BDT</span></p>
+                                <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">1000 BDT</span></p>
                                 <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
                             </div>
                         </div>
