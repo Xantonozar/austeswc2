@@ -33,7 +33,8 @@ export default function EcoBuzzersRegister() {
     };
 
     const addMember = () => {
-        if (members.length < 3) {
+        // Updated: Max team member 2
+        if (members.length < 2) {
             setMembers([...members, { name: '', email: '', phone: '' }]);
         }
     };
@@ -103,7 +104,7 @@ export default function EcoBuzzersRegister() {
         const toastId = toast.loading('Registering Team...');
         try {
             const payload = {
-                type: 'eco-buzzers', // Kept same for API compatibility
+                type: 'eco-buzzers', 
                 teamName: form.teamName.trim(),
                 universityName: form.universityName.trim(),
                 caReference: form.caReference.trim(),
@@ -151,7 +152,7 @@ export default function EcoBuzzersRegister() {
                 <div className="max-w-xl mx-auto text-center relative z-10">
                     <Zap className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
                     <h2 className="text-3xl font-bold mb-2">Register for Green Buzzer Battle</h2>
-                    <p className="text-[#B7E9FF] text-sm opacity-90">Form your team (1-3 members) and secure your spot.</p>
+                    <p className="text-[#B7E9FF] text-sm opacity-90">Form your team (1-2 members) and secure your spot.</p>
                 </div>
             </div>
 
@@ -211,7 +212,8 @@ export default function EcoBuzzersRegister() {
                             </div>
                         ))}
 
-                        {members.length < 3 && (
+                        {/* Updated: Check against 2 members */}
+                        {members.length < 2 && (
                             <button
                                 type="button"
                                 onClick={addMember}
@@ -236,7 +238,8 @@ export default function EcoBuzzersRegister() {
                             <div>
                                 <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money (bKash, Nagad)</p>
                                 <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
-                                <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">1000 BDT</span></p>
+                                {/* Updated: Fee to 700 BDT */}
+                                <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">700 BDT</span></p>
                                 <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
                             </div>
                         </div>
