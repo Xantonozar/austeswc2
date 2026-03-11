@@ -19,8 +19,9 @@ const competitions = [
     isOpen: false
   },
   {
-    id: "eco-buzzers",
-    title: "Eco Buzzers",
+    // Logic/Path remains eco-buzzers, but front-end title is changed
+    id: "eco-buzzers", 
+    title: "Green Buzzer Battle",
     subtitle: "Buzzer Quiz Competition",
     icon: Zap,
     bgClass: "bg-[#E8F9FF]",
