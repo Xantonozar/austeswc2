@@ -72,7 +72,7 @@ export default function EcoBuzzersRegister() {
         return true;
     };
 
-    const isRegistrationOpen = true; // Registration is closed
+    const isRegistrationOpen = true; 
 
     if (!isRegistrationOpen) {
         return (
@@ -83,7 +83,7 @@ export default function EcoBuzzersRegister() {
                     </div>
                     <h1 className="text-2xl font-bold text-[#1B4B43] mb-4">Registration Closed</h1>
                     <p className="text-gray-600 mb-8">
-                        The registration period for <strong>Eco Buzzers</strong> has ended. We are no longer accepting new team registrations.
+                        The registration period for <strong>Green Buzzer Battle</strong> has ended. We are no longer accepting new team registrations.
                     </p>
                     <Link href="/competetion">
                         <button className="w-full bg-[#1B4B43] text-white font-bold py-3.5 rounded-xl hover:bg-[#133630] transition-colors">
@@ -103,7 +103,7 @@ export default function EcoBuzzersRegister() {
         const toastId = toast.loading('Registering Team...');
         try {
             const payload = {
-                type: 'eco-buzzers',
+                type: 'eco-buzzers', // Kept same for API compatibility
                 teamName: form.teamName.trim(),
                 universityName: form.universityName.trim(),
                 caReference: form.caReference.trim(),
@@ -150,7 +150,7 @@ export default function EcoBuzzersRegister() {
                 <div className="w-64 h-64 absolute -bottom-20 -right-20 border-[8px] border-[#E8F9FF]/10 rounded-full"></div>
                 <div className="max-w-xl mx-auto text-center relative z-10">
                     <Zap className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
-                    <h2 className="text-3xl font-bold mb-2">Register for Eco Buzzers</h2>
+                    <h2 className="text-3xl font-bold mb-2">Register for Green Buzzer Battle</h2>
                     <p className="text-[#B7E9FF] text-sm opacity-90">Form your team (1-3 members) and secure your spot.</p>
                 </div>
             </div>
@@ -174,14 +174,14 @@ export default function EcoBuzzersRegister() {
                                 <GraduationCap className="w-4 h-4 text-gray-500" />
                                 University Name
                             </label>
-                            <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University of Science and Technology" />
+                            <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
                                 <Star className="w-4 h-4 text-amber-500" />
                                 Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                             </label>
-                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Name of the Campus Ambassador who referred you" />
+                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Name of the CA" />
                         </div>
                     </div>
 
