@@ -72,7 +72,7 @@ export default function EcoBuzzersRegister() {
         return true;
     };
 
-    const isRegistrationOpen = false; // Registration is closed
+    const isRegistrationOpen = true; // Registration is closed
 
     if (!isRegistrationOpen) {
         return (
