@@ -16,7 +16,7 @@ const competitions = [
     description: "Capture the essence of nature and environmental impact in 5 stunning photographs along with their stories.",
     delay: 0.1,
     image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    isOpen: false
+    isOpen: true
   },
   {
     // Logic/Path remains eco-buzzers, but front-end title is changed
