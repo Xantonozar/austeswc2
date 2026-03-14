@@ -50,7 +50,7 @@ export default function EcoCaptureDetails() {
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>If selected for Round 2, an exhibition fee of <strong>100 BDT</strong> will apply to cover printing and display costs.</p>
+                                    <p>If selected for Round 2, an registration fee of <strong>300 BDT</strong> will apply to cover printing and display costs.</p>
                                 </li>
                             </ul>
                         </div>
