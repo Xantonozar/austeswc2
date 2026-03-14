@@ -46,7 +46,7 @@ export default function GreenStoryDetails() {
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Registration fee is <strong>100 BDT</strong>, payable via bKash during registration.</p>
+                                    <p>Registration for <strong>Round One</strong> is free of charge.</p>
                                 </li>
                             </ul>
                         </div>
@@ -61,7 +61,7 @@ export default function GreenStoryDetails() {
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Registration Fee</p>
-                                    <p className="font-bold text-xl">100 BDT</p>
+                                    <p className="font-bold text-xl">Free (Round 1)</p>
                                 </div>
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Participation</p>
@@ -74,11 +74,11 @@ export default function GreenStoryDetails() {
                             </div>
                         </div>
 
-                        <div className="w-full">
-                            <button className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed border border-gray-200 shadow-none">
-                                Register
+                        <Link href="/competetion/green-story/register" className="w-full">
+                            <button className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#D9F2D6] font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-[0.98]">
+                                Register Now <ArrowRight className="w-5 h-5" />
                             </button>
-                        </div>
+                        </Link>
                     </motion.div>
                 </div>
 

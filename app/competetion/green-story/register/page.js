@@ -18,7 +18,6 @@ export default function GreenStoryRegister() {
         email: '',
         phone: '',
         videoLink: '',
-        bkashTxId: '',
         agreeToTerms: false
     });
 
@@ -38,10 +37,6 @@ export default function GreenStoryRegister() {
         }
         if (!form.videoLink.trim() || !form.videoLink.includes('drive.google.com')) {
             toast.error('Please provide a valid Google Drive link');
-            return false;
-        }
-        if (!form.bkashTxId.trim()) {
-            toast.error('Transaction ID is required');
             return false;
         }
         if (!form.agreeToTerms) {
@@ -89,7 +84,6 @@ export default function GreenStoryRegister() {
                 email: form.email.trim().toLowerCase(),
                 phone: form.phone.trim(),
                 videoLink: form.videoLink.trim(),
-                bkashTxId: form.bkashTxId.trim().toUpperCase(),
             };
             const res = await fetch('/api/competition/register', {
                 method: 'POST',
@@ -183,34 +177,11 @@ export default function GreenStoryRegister() {
 
                     <hr className="border-gray-100" />
 
-                    {/* Payment */}
-                    <div className="space-y-4 text-sm">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 bg-gray-100 rounded-lg"><CreditCard className="w-5 h-5 text-gray-600" /></div>
-                            <h3 className="font-bold text-[#1B4B43] text-lg">Registration Fee</h3>
-                        </div>
-
-                        <div className="bg-yellow-50/80 border border-yellow-200 rounded-xl p-4 flex items-start gap-4">
-                            <Smartphone className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
-                            <div>
-                                <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money (bKash, Nagad)</p>
-                                <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
-                                <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">100 BDT</span></p>
-                                <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Transaction ID (bKash/Nagad)</label>
-                            <input name="bkashTxId" value={form.bkashTxId} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all" placeholder="TRX123456" />
-                        </div>
-                    </div>
-
                     {/* Submit */}
                     <div className="pt-4">
                         <label className="flex items-start gap-3 cursor-pointer p-3 -mx-3 rounded-lg hover:bg-gray-50 mb-6 transition-colors">
                             <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#1B4B43] focus:ring-[#1B4B43] border-gray-300" />
-                            <span className="text-sm text-gray-600 font-medium">I confirm the video is my original work and I have provided the correct payment details.</span>
+                            <span className="text-sm text-gray-600 font-medium">I confirm the video is my original work.</span>
                         </label>
 
                         <button type="submit" disabled={loading} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#D9F2D6] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
