@@ -62,7 +62,7 @@ export async function POST(req) {
         processedData.status = 'registered';
 
         // Paid comps validation
-        if (['eco-buzzers', 'green-story', 'eco-pitch'].includes(body.type)) {
+        if (['eco-buzzers', 'eco-pitch'].includes(body.type)) {
             if (!body.bkashTxId) {
                 return new Response(JSON.stringify({ error: 'payment_required', message: 'Transaction ID is required' }), { status: 400 });
             }
