@@ -41,7 +41,7 @@ const competitions = [
     description: "Create a compelling video advertisement that promotes sustainability and green living.",
     delay: 0.3,
     image: "https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    isOpen: false
+    isOpen: true
   },
   {
     id: "eco-pitch",
