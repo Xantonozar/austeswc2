@@ -16,7 +16,7 @@ const competitions = [
         description: "Capture the essence of nature and environmental impact in 5 stunning photographs along with their stories.",
         delay: 0.1,
         image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: false
+        isOpen: true
     },
     {
         id: "eco-buzzers",
@@ -28,7 +28,7 @@ const competitions = [
         description: "Test your environmental knowledge in this fast-paced, team-based buzzer competition.",
         delay: 0.2,
         image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: false
+        isOpen: true
     },
     {
         id: "green-story",
@@ -40,7 +40,7 @@ const competitions = [
         description: "Create a compelling video advertisement that promotes sustainability and green living.",
         delay: 0.3,
         image: "https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: false
+        isOpen: true
     },
     {
         id: "eco-pitch",
@@ -69,7 +69,7 @@ export default function GreenovaPage() {
                 >
                     <div className="inline-flex items-center justify-center mb-4">
                         <span className="flex items-center justify-center bg-[#D9F2D6] text-[#1B4B43] px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
-                            Greenova 2024
+                            Greenova 2026
                             <span className="flex w-2.5 h-2.5 bg-[#1B4B43] rounded-full ml-2 animate-pulse"></span>
                         </span>
                     </div>

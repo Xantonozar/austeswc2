@@ -14,7 +14,6 @@ export default function ThreePitchRegister() {
 
     const [form, setForm] = useState({
         teamName: '',
-        universityName: '',
         caReference: '',
         bkashTxId: '',
         pdfBase64: '',
@@ -22,7 +21,7 @@ export default function ThreePitchRegister() {
         paymentMethod: 'bkash'
     });
 
-    const [members, setMembers] = useState([{ name: '', email: '', phone: '' }]);
+    const [members, setMembers] = useState([{ name: '', email: '', phone: '', universityName: '' }]);
 
     const handleFormChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -37,7 +36,7 @@ export default function ThreePitchRegister() {
 
     const addMember = () => {
         if (members.length < 3) {
-            setMembers([...members, { name: '', email: '', phone: '' }]);
+            setMembers([...members, { name: '', email: '', phone: '', universityName: '' }]);
         }
     };
 
@@ -53,9 +52,10 @@ export default function ThreePitchRegister() {
         const file = e.target.files[0];
         if (!file) return;
 
-        const allowedTypes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        // Allow PDF and DOCX
+        const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         if (!allowedTypes.includes(file.type)) {
-            toast.error('Only DOCX files are allowed');
+            toast.error('Only PDF or DOCX files are allowed');
             return;
         }
 
@@ -78,12 +78,8 @@ export default function ThreePitchRegister() {
             toast.error('Please fill team details');
             return false;
         }
-        if (!form.universityName.trim()) {
-            toast.error('University Name is required');
-            return false;
-        }
         for (let i = 0; i < members.length; i++) {
-            if (!members[i].name.trim() || !members[i].email.trim() || !members[i].phone.trim()) {
+            if (!members[i].name.trim() || !members[i].email.trim() || !members[i].phone.trim() || !members[i].universityName.trim()) {
                 toast.error(`Please complete details for Member ${i + 1}`);
                 return false;
             }
@@ -93,7 +89,7 @@ export default function ThreePitchRegister() {
             return false;
         }
         if (!form.pdfBase64) {
-            toast.error('Please upload your abstract (DOCX)');
+            toast.error('Please upload your abstract');
             return false;
         }
         if (!form.agreeToTerms) {
@@ -113,7 +109,6 @@ export default function ThreePitchRegister() {
             const payload = {
                 type: 'eco-pitch',
                 teamName: form.teamName.trim(),
-                universityName: form.universityName.trim(),
                 caReference: form.caReference.trim(),
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
@@ -123,7 +118,8 @@ export default function ThreePitchRegister() {
                 members: members.map(m => ({
                     name: m.name.trim(),
                     email: m.email.trim().toLowerCase(),
-                    phone: m.phone.trim()
+                    phone: m.phone.trim(),
+                    universityName: m.universityName.trim()
                 }))
             };
             const res = await fetch('/api/competition/register', {
@@ -151,14 +147,7 @@ export default function ThreePitchRegister() {
                         <ArrowLeft className="w-6 h-6 text-[#1B4B43]" />
                     </Link>
                     <h1 className="text-lg font-bold text-[#1B4B43]">Abstract Submission</h1>
-                    <a
-                        href="https://drive.google.com/file/d/13HGkBWaSJZ8DbwmvnVEz0ipo66QuLXFu/view?usp=drivesdk"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg font-bold text-[10px] hover:bg-emerald-100 transition-all border border-emerald-100 uppercase tracking-tight"
-                    >
-                        <FileText className="w-3.5 h-3.5" /> Rulebook
-                    </a>
+                    <div className="w-10"></div>
                 </div>
             </div>
 
@@ -169,8 +158,7 @@ export default function ThreePitchRegister() {
                     <Mic2 className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
                     <h2 className="text-3xl font-bold mb-2">Register for Eco Pitch 180</h2>
                     <p className="text-[#B7E9FF] text-sm opacity-90">
-                        Register your team (1-3 members), pay the first round fee, and upload your abstract (PDF/DOC).
-                        Check the <a href="https://drive.google.com/file/d/1MdMP0de98jlhLm1yWCA1n2xADBLyeZ1K/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" className="underline font-bold hover:text-white transition-colors">Rulebook</a> for details.
+                        Register your team (1-3 members) and ensure each member provides their university name.
                     </p>
                 </div>
             </div>
@@ -192,20 +180,22 @@ export default function ThreePitchRegister() {
 
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
-                                <GraduationCap className="w-4 h-4 text-gray-500" />
-                                University Name
-                            </label>
-                            <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University of Science and Technology" />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
                                 <Star className="w-4 h-4 text-amber-500" />
                                 Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                             </label>
                             <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Name of the Campus Ambassador who referred you" />
                         </div>
                     </div>
+
+                    {members.length < 3 && (
+                        <button
+                            type="button"
+                            onClick={addMember}
+                            className="w-full py-4 border-2 border-dashed border-[#1B4B43]/20 rounded-2xl flex items-center justify-center gap-2 text-[#1B4B43] font-bold hover:border-[#1B4B43] hover:bg-[#E8F9FF]/20 transition-all active:scale-[0.98]"
+                        >
+                            <Plus className="w-5 h-5" /> Add Team Member
+                        </button>
+                    )}
 
                     <hr className="border-gray-100" />
 
@@ -216,7 +206,7 @@ export default function ThreePitchRegister() {
                         </div>
 
                         {members.map((member, idx) => (
-                            <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-[#B7E9FF] transition-colors">
+                            <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-[#B7E9FF] transition-colors shadow-sm">
                                 {members.length > 1 && (
                                     <button type="button" onClick={() => removeMember(idx)} className="absolute top-3 right-3 text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors">
                                         <Trash2 className="w-4 h-4" />
@@ -224,24 +214,15 @@ export default function ThreePitchRegister() {
                                 )}
                                 <h4 className="text-xs font-bold text-[#1B4B43]/60 uppercase tracking-wider mb-3">Member {idx + 1} {idx === 0 && '(Leader)'}</h4>
                                 <div className="space-y-3">
-                                    <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all" placeholder="Full Name" />
+                                    <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="Full Name" />
+                                    <input value={member.universityName} onChange={(e) => handleMemberChange(idx, 'universityName', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="University Name" />
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all" placeholder="Email Address" />
-                                        <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all" placeholder="Phone Number" />
+                                        <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="Email Address" />
+                                        <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="Phone Number" />
                                     </div>
                                 </div>
                             </div>
                         ))}
-
-                        {members.length < 3 && (
-                            <button
-                                type="button"
-                                onClick={addMember}
-                                className="w-full py-4 border-2 border-dashed border-gray-100 rounded-2xl flex items-center justify-center gap-2 text-[#1B4B43] font-bold hover:border-[#1B4B43] hover:bg-[#E8F9FF]/20 transition-all active:scale-[0.98]"
-                            >
-                                <Plus className="w-5 h-5" /> Add Another Team Member
-                            </button>
-                        )}
                     </div>
 
                     <hr className="border-gray-100" />
@@ -268,11 +249,11 @@ export default function ThreePitchRegister() {
                                         <Upload className="w-5 h-5 text-gray-400" />
                                     </div>
                                     <p className="font-medium text-gray-700">Tap to upload your abstract</p>
-                                    <p className="text-xs text-gray-400 mt-1">Abstract in DOCX format (Max 10MB)</p>
+                                    <p className="text-xs text-gray-400 mt-1">Abstract in PDF/DOCX format (Max 10MB)</p>
                                 </>
                             )}
                         </div>
-                        <input ref={fileInputRef} type="file" className="hidden" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleFileUpload} />
+                        <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleFileUpload} />
                     </div>
 
                     <hr className="border-gray-100" />
@@ -309,7 +290,6 @@ export default function ThreePitchRegister() {
                                 <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money ({form.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</p>
                                 <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
                                 <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">300 BDT</span></p>
-                                <p className="text-xs text-yellow-700 mt-2 italic font-semibold">Requirement: Must put your Team name in the reference field during payment.</p>
                             </div>
                         </div>
 
@@ -319,11 +299,13 @@ export default function ThreePitchRegister() {
                         </div>
                     </div>
 
+                    <hr className="border-gray-100" />
+
                     {/* Submit */}
                     <div className="pt-4">
                         <label className="flex items-start gap-3 cursor-pointer p-3 -mx-3 rounded-lg hover:bg-gray-50 mb-6 transition-colors">
                             <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#1B4B43] focus:ring-[#1B4B43] border-gray-300" />
-                            <span className="text-sm text-gray-600 font-medium">We confirm our abstract connects to environmental sustainability, agree to the competition rules, and confirm the payment details are accurate.</span>
+                            <span className="text-sm text-gray-600 font-medium">We agree to the competition rules and confirm the payment details are accurate.</span>
                         </label>
 
                         <button type="submit" disabled={loading} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">

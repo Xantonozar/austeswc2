@@ -12,7 +12,8 @@ const MemberSchema = new mongoose.Schema({
         name: { type: String },
         email: { type: String },
         phone: { type: String },
-        studentId: { type: String }
+        studentId: { type: String },
+        universityName: { type: String }
     }],
 
     // For Eco Capture

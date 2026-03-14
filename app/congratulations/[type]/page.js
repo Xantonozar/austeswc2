@@ -34,9 +34,9 @@ export default function CongratulationsPage({ params }) {
             case "green-story":
                 return {
                     title: "Green Story",
-                    message: "Your video advertisement link and payment have been submitted.",
+                    message: "Your team registration and video link have been submitted along with your payment.",
                     icon: FileVideo,
-                    nextSteps: "Your payment is under verification. Once confirmed, your video will be passed to our panel. Keep an eye on your inbox!",
+                    nextSteps: "Your payment of 700 TK is under verification. Once confirmed, your team's video will be reviewed by our panel. Keep an eye on your inbox!",
                     bgClass: "bg-[#F3F9F1]",
                     iconColor: "text-[#1B4B43]"
                 };

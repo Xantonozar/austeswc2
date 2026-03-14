@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileVideo, Calendar, User, FileText, ArrowRight } from "lucide-react";
+import { FileVideo, Calendar, Users, FileText, ArrowRight, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 export default function GreenStoryDetails() {
@@ -20,7 +20,7 @@ export default function GreenStoryDetails() {
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-[#1B4B43] mb-4 relative z-10">Green Story</h1>
                     <p className="text-lg text-gray-700 max-w-2xl mx-auto relative z-10">
-                        Ad-making contest focused on crafting compelling environmental narratives.
+                        Team-based ad-making contest focused on crafting compelling environmental narratives. Open to all universities!
                     </p>
                 </motion.div>
 
@@ -34,7 +34,7 @@ export default function GreenStoryDetails() {
                             <ul className="space-y-4 text-gray-600 leading-relaxed">
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Participants must create a short advertisement video (30-90 seconds) promoting an eco-friendly product, habit, or awareness message.</p>
+                                    <p>Teams must create a short advertisement video (180-240 seconds) promoting an eco-friendly product, habit, or awareness message.</p>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
@@ -42,11 +42,15 @@ export default function GreenStoryDetails() {
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Individual participation only. Plagiarized content will be disqualified.</p>
+                                    <p>This is a <strong>team contest (1-3 members)</strong>. Plagiarized content will be disqualified.</p>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Registration for <strong>Round One</strong> is free of charge.</p>
+                                    <p><strong>Cross-university participation</strong> is allowed — each member must provide their own university name.</p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p>Registration fee: <strong>700 TK</strong> per team.</p>
                                 </li>
                             </ul>
                         </div>
@@ -61,11 +65,11 @@ export default function GreenStoryDetails() {
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Registration Fee</p>
-                                    <p className="font-bold text-xl">Free (Round 1)</p>
+                                    <p className="font-bold text-xl">700 TK</p>
                                 </div>
                                 <div>
-                                    <p className="text-[#D9F2D6] text-sm">Participation</p>
-                                    <p className="font-bold flex items-center gap-2"><User className="w-4 h-4" /> Individual</p>
+                                    <p>Team Size</p>
+                                    <p className="font-bold flex items-center gap-2"><Users className="w-4 h-4" /> 1 - 3 Members</p>
                                 </div>
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Submission Deadline</p>

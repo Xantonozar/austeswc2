@@ -34,7 +34,7 @@ export default function EcoBuzzersDetails() {
                             <ul className="space-y-4 text-gray-600 leading-relaxed">
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Teams must consist of <strong>minimum 1 and maximum 3 members</strong>.</p>
+                                    <p>Teams must consist of <strong>minimum 1 and maximum 2 members</strong>. Each member must provide their university name.</p>
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
@@ -65,7 +65,7 @@ export default function EcoBuzzersDetails() {
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Team Size</p>
-                                    <p className="font-bold flex items-center gap-2"><Users className="w-4 h-4" /> 1 - 3 Members</p>
+                                    <p className="font-bold flex items-center gap-2"><Users className="w-4 h-4" /> 1 - 2 Members</p>
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Event Date</p>

@@ -78,11 +78,11 @@ export default function EcoCaptureDetails() {
                             </div>
                         </div>
 
-                        <div className="w-full">
-                            <button className="w-full bg-gray-100 text-gray-400 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed border border-gray-200 shadow-none">
-                                Register
+                        <Link href="/competetion/eco-capture/register" className="w-full">
+                            <button className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#D9F2D6] font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-[0.98]">
+                                Register Now <ArrowRight className="w-5 h-5" />
                             </button>
-                        </div>
+                        </Link>
                     </motion.div>
                 </div>
 

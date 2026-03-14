@@ -13,14 +13,13 @@ export default function EcoBuzzersRegister() {
 
     const [form, setForm] = useState({
         teamName: '',
-        universityName: '',
         caReference: '',
         bkashTxId: '',
-        paymentMethod: 'bkash', // New: Track payment method
+        paymentMethod: 'bkash',
         agreeToTerms: false
     });
 
-    const [members, setMembers] = useState([{ name: '', email: '', phone: '' }]);
+    const [members, setMembers] = useState([{ name: '', email: '', phone: '', universityName: '' }]);
 
     const handleFormChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -35,7 +34,9 @@ export default function EcoBuzzersRegister() {
 
     const addMember = () => {
         if (members.length < 2) {
-            setMembers([...members, { name: '', email: '', phone: '' }]);
+            setMembers([...members, { name: '', email: '', phone: '', universityName: '' }]);
+        } else {
+            toast.error('Maximum 2 members allowed');
         }
     };
 
@@ -52,19 +53,15 @@ export default function EcoBuzzersRegister() {
             toast.error('Please fill team details');
             return false;
         }
-        if (!form.universityName.trim()) {
-            toast.error('University Name is required');
-            return false;
+        for (let i = 0; i < members.length; i++) {
+            if (!members[i].name.trim() || !members[i].email.trim() || !members[i].phone.trim() || !members[i].universityName.trim()) {
+                toast.error(`Please complete details for Member ${i + 1}`);
+                return false;
+            }
         }
         if (!form.bkashTxId.trim()) {
             toast.error('Transaction ID is required');
             return false;
-        }
-        for (let i = 0; i < members.length; i++) {
-            if (!members[i].name.trim() || !members[i].email.trim() || !members[i].phone.trim()) {
-                toast.error(`Please complete details for Member ${i + 1}`);
-                return false;
-            }
         }
         if (!form.agreeToTerms) {
             toast.error('You must agree to the rules');
@@ -72,29 +69,6 @@ export default function EcoBuzzersRegister() {
         }
         return true;
     };
-
-    const isRegistrationOpen = true; 
-
-    if (!isRegistrationOpen) {
-        return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-gray-100">
-                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
-                        <Zap className="w-10 h-10" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-[#1B4B43] mb-4">Registration Closed</h1>
-                    <p className="text-gray-600 mb-8">
-                        The registration period for <strong>Green Buzzer Battle</strong> has ended.
-                    </p>
-                    <Link href="/competetion">
-                        <button className="w-full bg-[#1B4B43] text-white font-bold py-3.5 rounded-xl hover:bg-[#133630] transition-colors">
-                            Return to Competitions
-                        </button>
-                    </Link>
-                </motion.div>
-            </div>
-        );
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -106,16 +80,16 @@ export default function EcoBuzzersRegister() {
             const payload = {
                 type: 'eco-buzzers', 
                 teamName: form.teamName.trim(),
-                universityName: form.universityName.trim(),
                 caReference: form.caReference.trim(),
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
                 bkashTxId: form.bkashTxId.trim().toUpperCase(),
-                paymentMethod: form.paymentMethod, // New: Send method to backend
+                paymentMethod: form.paymentMethod,
                 members: members.map(m => ({
                     name: m.name.trim(),
                     email: m.email.trim().toLowerCase(),
-                    phone: m.phone.trim()
+                    phone: m.phone.trim(),
+                    universityName: m.universityName.trim()
                 }))
             };
             const res = await fetch('/api/competition/register', {
@@ -154,7 +128,7 @@ export default function EcoBuzzersRegister() {
                 <div className="max-w-xl mx-auto text-center relative z-10">
                     <Zap className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
                     <h2 className="text-3xl font-bold mb-2">Register for Green Buzzer Battle</h2>
-                    <p className="text-[#B7E9FF] text-sm opacity-90">Form your team (1-2 members) and secure your spot.</p>
+                    <p className="text-[#B7E9FF] text-sm opacity-90">Form your team (1-2 members) and provide university details.</p>
                 </div>
             </div>
 
@@ -173,25 +147,31 @@ export default function EcoBuzzersRegister() {
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
-                                <GraduationCap className="w-4 h-4 text-gray-500" /> University Name
-                            </label>
-                            <input name="universityName" value={form.universityName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="e.g. Ahsanullah University" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
                                 <Star className="w-4 h-4 text-amber-500" /> Campus Ambassador Reference
                             </label>
                             <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none transition-all" placeholder="Optional" />
                         </div>
                     </div>
 
+                    {members.length < 2 && (
+                        <button
+                            type="button"
+                            onClick={addMember}
+                            className="w-full py-4 border-2 border-dashed border-[#1B4B43]/20 rounded-2xl flex items-center justify-center gap-2 text-[#1B4B43] font-bold hover:border-[#1B4B43] hover:bg-[#E8F9FF]/20 transition-all active:scale-[0.98]"
+                        >
+                            <Plus className="w-5 h-5" /> Add Team Member
+                        </button>
+                    )}
+
                     <hr className="border-gray-100" />
 
                     {/* Members Section */}
                     <div className="space-y-4">
-                        <h3 className="font-bold text-[#1B4B43] text-lg mb-4">Team Members</h3>
+                        <div className="flex items-center mb-4">
+                            <h3 className="font-bold text-[#1B4B43] text-lg shrink-0">Team Members</h3>
+                        </div>
                         {members.map((member, idx) => (
-                            <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-[#B7E9FF] transition-colors">
+                            <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-[#B7E9FF] transition-colors shadow-sm">
                                 {members.length > 1 && (
                                     <button type="button" onClick={() => removeMember(idx)} className="absolute top-3 right-3 text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors">
                                         <Trash2 className="w-4 h-4" />
@@ -199,31 +179,26 @@ export default function EcoBuzzersRegister() {
                                 )}
                                 <h4 className="text-xs font-bold text-[#1B4B43]/60 uppercase tracking-wider mb-3">Member {idx + 1} {idx === 0 && '(Leader)'}</h4>
                                 <div className="space-y-3">
-                                    <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all" placeholder="Full Name" />
+                                    <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="Full Name" />
+                                    <input value={member.universityName} onChange={(e) => handleMemberChange(idx, 'universityName', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="University Name" />
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all" placeholder="Email Address" />
-                                        <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all" placeholder="Phone Number" />
+                                        <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="Email Address" />
+                                        <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm transition-all shadow-sm" placeholder="Phone Number" />
                                     </div>
                                 </div>
                             </div>
                         ))}
-                        {members.length < 2 && (
-                            <button type="button" onClick={addMember} className="w-full py-4 border-2 border-dashed border-gray-100 rounded-2xl flex items-center justify-center gap-2 text-[#1B4B43] font-bold hover:border-[#1B4B43] hover:bg-[#E8F9FF]/20 transition-all">
-                                <Plus className="w-5 h-5" /> Add Team Member
-                            </button>
-                        )}
                     </div>
 
                     <hr className="border-gray-100" />
 
-                    {/* NEW: Payment Section with Toggle */}
+                    {/* Payment Section */}
                     <div className="space-y-4 text-sm">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-2 bg-gray-100 rounded-lg"><CreditCard className="w-5 h-5 text-gray-600" /></div>
                             <h3 className="font-bold text-[#1B4B43] text-lg">Registration Fee</h3>
                         </div>
 
-                        {/* Payment Method Tabs */}
                         <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl">
                             {['bkash', 'nagad'].map((method) => (
                                 <button
@@ -242,7 +217,6 @@ export default function EcoBuzzersRegister() {
                             ))}
                         </div>
 
-                        {/* Instruction Box */}
                         <AnimatePresence mode="wait">
                             <motion.div 
                                 key={form.paymentMethod}
@@ -263,10 +237,7 @@ export default function EcoBuzzersRegister() {
                                         Send Money ({form.paymentMethod})
                                     </p>
                                     <p className="text-gray-700 font-medium mb-1">Number: <span className="font-bold select-all">01853259598</span></p>
-                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B4B43]">700 BDT</span></p>
-                                    <p className="text-xs text-gray-500 mt-3 italic leading-relaxed">
-                                        * Please include your <span className="font-bold">Team Name</span> as the reference during the transaction.
-                                    </p>
+                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B4B43]">1000 BDT</span></p>
                                 </div>
                             </motion.div>
                         </AnimatePresence>
@@ -279,17 +250,19 @@ export default function EcoBuzzersRegister() {
                                 name="bkashTxId" 
                                 value={form.bkashTxId} 
                                 onChange={handleFormChange} 
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all" 
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none font-mono uppercase transition-all shadow-sm" 
                                 placeholder="TRX123456" 
                             />
                         </div>
                     </div>
 
+                    <hr className="border-gray-100" />
+
                     {/* Submit Section */}
                     <div className="pt-4">
-                        <label className="flex items-start gap-3 cursor-pointer p-3 -mx-3 rounded-lg hover:bg-gray-50 mb-6 transition-colors">
+                        <label className="flex items-start gap-3 cursor-pointer p-3 -mx-3 rounded-lg hover:bg-gray-50 mb-6 transition-colors font-medium text-gray-600">
                             <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#1B4B43] focus:ring-[#1B4B43] border-gray-300" />
-                            <span className="text-sm text-gray-600 font-medium">We agree to the competition rules and confirm the payment details are accurate.</span>
+                            <span className="text-sm">We agree to the competition rules and confirm the payment details are accurate.</span>
                         </label>
 
                         <button type="submit" disabled={loading} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">

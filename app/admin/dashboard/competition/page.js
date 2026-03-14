@@ -428,7 +428,7 @@ export default function CompetitionAdmin() {
                                         </td>
                                         <td className="px-6 py-6 whitespace-nowrap">
                                             <div className="flex items-center gap-2 transition-opacity">
-                                                {comp.status === 'registered' && (
+                                                {comp.status === 'registered' && comp.type !== 'green-story' && (
                                                     <button
                                                         onClick={() => handleStatusUpdate(comp._id, 'selected')}
                                                         className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border border-emerald-100 active:scale-95"
@@ -565,7 +565,7 @@ export default function CompetitionAdmin() {
 
                                         {/* Status Control */}
                                         <div className="flex items-center gap-3">
-                                            {selectedEntry.status === 'registered' && (
+                                            {selectedEntry.status === 'registered' && selectedEntry.type !== 'green-story' && (
                                                 <button
                                                     onClick={() => handleStatusUpdate(selectedEntry._id, 'selected')}
                                                     className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border shadow-sm bg-white text-slate-600 border-slate-200 hover:border-emerald-500 hover:text-emerald-600"
@@ -725,6 +725,11 @@ export default function CompetitionAdmin() {
                                                                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
                                                                         <Phone className="w-3 h-3 text-emerald-500" /> {m.phone}
                                                                     </div>
+                                                                    {m.universityName && (
+                                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                                                           <GraduationCap className="w-3 h-3 text-emerald-500" /> {m.universityName}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         ))}
