@@ -65,7 +65,7 @@ export default function GreenStoryDetails() {
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Registration Fee</p>
-                                    <p className="font-bold text-xl">700 TK</p>
+                                    <p className="font-bold text-xl">400 TK</p>
                                 </div>
                                 <div>
                                     <p>Team Size</p>
