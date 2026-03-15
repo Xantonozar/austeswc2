@@ -281,7 +281,7 @@ export default function GreenStoryRegister() {
                         </div>
 
                         <div className="bg-[#F3F9F1] rounded-2xl p-5 border border-[#D9F2D6]">
-                            <p className="text-sm text-[#1B4B43] font-semibold mb-3">Send 700 TK to the following number:</p>
+                            <p className="text-sm text-[#1B4B43] font-semibold mb-3">Send 400 TK to the following number:</p>
                             <div className="bg-white rounded-xl p-4 flex items-center justify-between border border-gray-100">
                                 <div>
                                     <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">bKash / Nagad</p>
