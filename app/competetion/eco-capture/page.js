@@ -69,11 +69,11 @@ export default function EcoCaptureDetails() {
                                 </div>
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Round 1 Result</p>
-                                    <p className="font-bold">April 1, 2025</p>
+                                    <p className="font-bold">March 18, 2025</p>
                                 </div>
                                 <div>
                                     <p className="text-[#D9F2D6] text-sm">Final Exhibition</p>
-                                    <p className="font-bold">April 5, 2025</p>
+                                    <p className="font-bold">March 25, 2025</p>
                                 </div>
                             </div>
                         </div>

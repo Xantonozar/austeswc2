@@ -6,7 +6,7 @@ import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
     FileText, Camera, Video, Zap, User, Users, Phone, Mail,
-    ChevronRight, X, Star, ArrowLeft
+    ChevronRight, X, Star, ArrowLeft, GraduationCap
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -779,16 +779,18 @@ export default function CompetitionAdmin() {
                                                                                 Open Document <ExternalLink className="w-4 h-4" />
                                                                             </a>
                                                                             <a
-                                                                                href={rawPdfUrl.replace('/upload/', '/upload/fl_attachment/')}
-                                                                                className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-200 hover:border-emerald-500 hover:text-emerald-700 text-slate-700 rounded-2xl font-black transition-all shadow-sm flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                                                                                href={rawPdfUrl}
                                                                                 target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                download
+                                                                                className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-200 hover:border-emerald-500 hover:text-emerald-700 text-slate-700 rounded-2xl font-black transition-all shadow-sm flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
                                                                             >
                                                                                 <Download className="w-4 h-4" /> Download
                                                                             </a>
                                                                         </div>
                                                                         <div className="border border-slate-100 rounded-2xl overflow-hidden bg-slate-50 h-[600px] hidden md:block">
                                                                             <iframe
-                                                                                src={`https://docs.google.com/gview?url=${encodeURIComponent(rawPdfUrl)}&embedded=true`}
+                                                                                src={rawPdfUrl}
                                                                                 className="w-full h-full border-none"
                                                                                 title="Document Preview"
                                                                             ></iframe>
