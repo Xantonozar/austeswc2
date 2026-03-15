@@ -69,7 +69,7 @@ export default function EcoBuzzersDetails() {
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Event Date</p>
-                                    <p className="font-bold">March 22, 2025</p>
+                                    <p className="font-bold">April 5, 2025</p>
                                 </div>
                             </div>
                         </div>
