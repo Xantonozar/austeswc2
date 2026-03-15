@@ -277,7 +277,7 @@ export default function GreenStoryRegister() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-2 bg-[#F3F9F1] rounded-lg"><CreditCard className="w-5 h-5 text-[#1B4B43]" /></div>
-                            <h3 className="font-bold text-[#1B4B43] text-lg">Payment — 700 TK</h3>
+                            <h3 className="font-bold text-[#1B4B43] text-lg">Payment — 400 TK</h3>
                         </div>
 
                         <div className="bg-[#F3F9F1] rounded-2xl p-5 border border-[#D9F2D6]">
