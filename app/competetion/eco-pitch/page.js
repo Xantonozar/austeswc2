@@ -83,11 +83,11 @@ export default function ThreePitchDetails() {
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Proposal Deadline</p>
-                                    <p className="font-bold">March 15, 2025</p>
+                                    <p className="font-bold">March 24, 2025</p>
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Final Pitch Event</p>
-                                    <p className="font-bold">March 28, 2025</p>
+                                    <p className="font-bold">April 5, 2025</p>
                                 </div>
                             </div>
                         </div>
