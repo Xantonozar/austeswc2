@@ -175,7 +175,7 @@ export default function GreenStoryRegister() {
                 <div className="max-w-xl mx-auto text-center relative z-10">
                     <FileVideo className="w-12 h-12 mx-auto mb-4 text-[#D9F2D6]" />
                     <h2 className="text-3xl font-bold mb-2">Register Your Team</h2>
-                    <p className="text-[#D9F2D6] text-sm opacity-90">Registration fee: 700 TK per team • 1-3 Members • 180-240s Video</p>
+                    <p className="text-[#D9F2D6] text-sm opacity-90">Registration fee: 400 TK per team • 1-3 Members • 180-240s Video</p>
                 </div>
             </div>
 
