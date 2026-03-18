@@ -1,10 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Zap, Calendar, Users, FileText, ArrowRight } from "lucide-react";
+import { Zap, Calendar, Users, FileText, ArrowRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function EcoBuzzersDetails() {
+    const rulebookUrl = "https://drive.google.com/file/d/1bWe7r0FEO5JD2lxlb9zdqdqL1I14_5SY/view?fbclid=IwZXh0bgNhZW0DMTAwAHNydGMGYXBwX2lkDzI3NTI1NDY5MjU5ODI3OQABHosuEzfomwNyGfSiatOt4zbNxe5QReimms-rVBM0Bd-1knn9QKfvR0WB6JLh_aem_4Q0kPkQJODh0jzCrvsX36Q";
+
     return (
         <div className="min-h-screen pt-24 pb-16 bg-white font-sans">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,6 +50,21 @@ export default function EcoBuzzersDetails() {
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
                                     <p>Registration fee is <strong>700 BDT per team</strong>, payable via bKash during registration.</p>
                                 </li>
+                                {/* New Rulebook List Item */}
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p>
+                                        Detailed instructions can be found in the 
+                                        <a 
+                                            href={rulebookUrl} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="text-[#1B4B43] font-bold underline ml-1 hover:text-[#266359] inline-flex items-center gap-1"
+                                        >
+                                            Official Rulebook <ExternalLink className="w-3 h-3" />
+                                        </a>.
+                                    </p>
+                                </li>
                             </ul>
                         </div>
                     </motion.div>
@@ -74,13 +91,23 @@ export default function EcoBuzzersDetails() {
                             </div>
                         </div>
 
-                        <div className="w-full">
+                        <div className="w-full space-y-3">
                             <Link 
                                 href="/competetion/eco-buzzers/register" 
                                 className="w-full bg-[#1B4B43] hover:bg-[#266359] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95"
                             >
                                 Register Now <ArrowRight className="w-5 h-5" />
                             </Link>
+
+                            {/* New Rulebook Sidebar Button */}
+                            <a 
+                                href={rulebookUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full bg-white border-2 border-[#1B4B43] text-[#1B4B43] hover:bg-gray-50 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 shadow-sm"
+                            >
+                                <FileText className="w-5 h-5" /> View Rulebook
+                            </a>
                         </div>
                     </motion.div>
                 </div>
