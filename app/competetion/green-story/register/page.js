@@ -4,12 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { FileVideo, Users, ArrowLeft, Loader2, CreditCard, Smartphone, GraduationCap, Star, Plus, Trash2 } from 'lucide-react';
+// Added FileText to imports
+import { FileVideo, Users, ArrowLeft, Loader2, CreditCard, Smartphone, GraduationCap, Star, Plus, Trash2, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GreenStoryRegister() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    
+    // Rulebook Link
+    const rulebookUrl = "https://drive.google.com/file/d/1s0nv4CJTC55Pgw5t1F0LSb05u6ONdZzK/view?usp=sharing";
 
     const [form, setForm] = useState({
         teamName: '',
@@ -316,6 +320,18 @@ export default function GreenStoryRegister() {
 
                     {/* Submit */}
                     <div className="pt-4">
+                        {/* New Rulebook Download Link */}
+                        <div className="mb-6">
+                            <a 
+                                href={rulebookUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl text-[#1B4B43] font-bold text-sm hover:bg-slate-100 transition-colors"
+                            >
+                                <FileText size={18} /> View Official Rulebook & Guidelines
+                            </a>
+                        </div>
+
                         <label className="flex items-start gap-3 cursor-pointer p-3 -mx-3 rounded-lg hover:bg-gray-50 mb-6 transition-colors">
                             <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#1B4B43] focus:ring-[#1B4B43] border-gray-300" />
                             <span className="text-sm text-gray-600 font-medium">I confirm the video is our original work and we agree to the competition rules.</span>
