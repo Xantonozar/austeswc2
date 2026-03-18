@@ -1,86 +1,111 @@
-import React from 'react';
-import { FileText, Camera, Calendar, Award, ExternalLink } from 'lucide-react';
+"use client";
 
-const EcoCaptureDetails = () => {
-  // Updated Rulebook Link
-  const rulebookUrl = "https://drive.google.com/file/d/1s0nv4CJTC55Pgw5t1F0LSb05u6ONdZzK/view?usp=sharing";
+import { motion } from "framer-motion";
+// Added BookOpen to the imports
+import { FileVideo, Calendar, Users, FileText, ArrowRight, BookOpen } from "lucide-react";
+import Link from "next/link";
 
-  return (
-    <div className="max-w-4xl mx-auto p-8 bg-slate-50 border border-slate-200 shadow-xl rounded-2xl">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-4xl font-extrabold text-green-800 tracking-tight flex items-center gap-3">
-            <Camera className="text-green-600" size={36} /> Eco Capture
-          </h1>
-          <p className="text-slate-500 mt-2 font-medium">National Photography Contest & Exhibition</p>
-        </div>
-        <div className="text-right">
-          <span className="px-4 py-1 bg-green-100 text-green-700 text-sm font-bold rounded-full uppercase tracking-wider">
-            Phase 1 Active
-          </span>
-        </div>
-      </div>
+export default function GreenStoryDetails() {
+    const rulebookUrl = "https://drive.google.com/file/d/1s0nv4CJTC55Pgw5t1F0LSb05u6ONdZzK/view?fbclid=IwZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQPMjc1MjU0NjkyNTk4Mjc5AAEeCutHk8nqrOGcViFJyS4YaVdp5hDZ8tx1dIxeP1ZF510zA38rcl-lcIos1BU_aem_g3WAVnX4nQ0upiG0UQpQiA";
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h2 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <FileText size={20} className="text-blue-500" /> Contest Rules
-          </h2>
-          <ul className="space-y-3 text-slate-600 text-sm">
-            <li className="flex gap-2"><span>•</span> Submit exactly 5 photos centered on environmental action.</li>
-            <li className="flex gap-2"><span>•</span> Each entry must include a short narrative or story.</li>
-            <li className="flex gap-2"><span>•</span> High-resolution JPG/PNG formats only.</li>
-          </ul>
-        </div>
+    return (
+        <div className="min-h-screen pt-24 pb-16 bg-white font-sans">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h2 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <Award size={20} className="text-yellow-500" /> Registration & Fees
-          </h2>
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between text-slate-600">
-              <span>Round 1 (Submission)</span>
-              <span className="font-bold text-green-600">FREE</span>
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#F3F9F1] rounded-3xl p-8 md:p-12 text-center mb-8 relative overflow-hidden"
+                >
+                    <div className="w-96 h-96 absolute -bottom-20 -right-20 rounded-full border-[16px] border-white/40 bg-white/20 z-0"></div>
+                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-sm">
+                        <FileVideo className="w-10 h-10 text-[#1B4B43]" />
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-bold text-[#1B4B43] mb-4 relative z-10">Green Story</h1>
+                    <p className="text-lg text-gray-700 max-w-2xl mx-auto relative z-10">
+                        Team-based ad-making contest focused on crafting compelling environmental narratives. Open to all universities!
+                    </p>
+                </motion.div>
+
+                <div className="grid md:grid-cols-3 gap-8 mb-8">
+                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:col-span-2 space-y-8">
+                        {/* Details */}
+                        <div className="bg-white rounded-3xl p-8 shadow-md border border-gray-100">
+                            <h2 className="text-2xl font-bold text-[#1B4B43] mb-6 flex items-center gap-3">
+                                <FileText className="w-6 h-6 text-[#1B4B43]/70" /> Competition Rules
+                            </h2>
+                            <ul className="space-y-4 text-gray-600 leading-relaxed">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p>Teams must create a short advertisement video (180-240 seconds) promoting an eco-friendly product, habit, or awareness message.</p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p>Videos must be uploaded to Google Drive and the <strong>viewable link</strong> should be provided during registration.</p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p>This is a <strong>team contest (1-3 members)</strong>. Plagiarized content will be disqualified.</p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p><strong>Cross-university participation</strong> is allowed — each member must provide their own university name.</p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <p>Registration fee: <strong>400 TK</strong> per team.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </motion.div>
+
+                    {/* Sidebar info */}
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="space-y-6">
+                        <div className="bg-[#1B4B43] rounded-3xl p-8 shadow-lg text-white">
+                            <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
+                                <Calendar className="w-5 h-5 text-[#D9F2D6]" /> Event Details
+                            </h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-[#D9F2D6] text-sm">Registration Fee</p>
+                                    <p className="font-bold text-xl">400 TK</p>
+                                </div>
+                                <div>
+                                    <p className="text-[#D9F2D6] text-sm">Team Size</p>
+                                    <p className="font-bold flex items-center gap-2"><Users className="w-4 h-4" /> 1 - 3 Members</p>
+                                </div>
+                                <div>
+                                    <p className="text-[#D9F2D6] text-sm">Submission Deadline</p>
+                                    <p className="font-bold">March 20, 2025</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Rulebook Section */}
+                        <div className="bg-[#F3F9F1] rounded-3xl p-6 border border-[#1B4B43]/10">
+                            <h3 className="text-[#1B4B43] font-bold mb-3 flex items-center gap-2">
+                                <BookOpen className="w-5 h-5" /> Guidelines
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4">Read the full competition guidelines and scoring criteria.</p>
+                            <a 
+                                href={rulebookUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-[#1B4B43] font-semibold hover:underline gap-1 text-sm"
+                            >
+                                View Detailed Rulebook <ArrowRight className="w-4 h-4" />
+                            </a>
+                        </div>
+
+                        <Link href="/competetion/green-story/register" className="w-full">
+                            <button className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#D9F2D6] font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-[0.98]">
+                                Register Now <ArrowRight className="w-5 h-5" />
+                            </button>
+                        </Link>
+                    </motion.div>
+                </div>
+
             </div>
-            <div className="flex justify-between text-slate-600 border-t pt-2">
-              <span>Round 2 (Selection)</span>
-              <span className="font-bold text-slate-800">300 BDT</span>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8">
-        <h2 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
-          <Calendar size={20} className="text-red-500" /> Important Dates
-        </h2>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-slate-400 text-xs uppercase font-bold">Registration Deadline</p>
-            <p className="text-slate-900 font-semibold text-lg">April 15, 2026</p>
-          </div>
-          <div className="p-3 bg-slate-50 rounded-lg">
-            <p className="text-slate-400 text-xs uppercase font-bold">Final Exhibition</p>
-            <p className="text-slate-900 font-semibold text-lg">May 05, 2026</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-        <a 
-          href={rulebookUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-green-700 hover:bg-green-800 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-green-200/50"
-        >
-          <FileText size={20} /> Download Official Rulebook
-        </a>
-        <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all">
-          Register Now <ExternalLink size={18} />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-export default EcoCaptureDetails;
+    );
+}
