@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Camera, Calendar, Trophy, FileText, ArrowRight, Download, ExternalLink } from "lucide-react";
+import { Camera, Calendar, Trophy, FileText, ArrowRight, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function EcoCaptureDetails() {
-    const rulebookUrl = "https://drive.google.com/file/d/12HqONq4LjPMm-_Sk5FTzrQCFPVKy8fdZ/view?usp=drivesdk&fbclid=IwZXh0bgNhZW0DMTAwAHNydGMGYXBwX2lkDzI3NTI1NDY5MjU5ODI3OQABHgayvmdJScKNnF55ub3XT4xjKOVTbHUXOvKILQIGHwcrO6i25ykgsPlAGE1D_aem_4Q0kPkQJODh0jzCrvsX36Q";
+    // Standard Google Drive viewer link - opens in preview mode
+    const rulebookUrl = "https://drive.google.com/file/d/12HqONq4LjPMm-_Sk5FTzrQCFPVKy8fdZ/view?usp=sharing";
 
     return (
         <div className="min-h-screen pt-24 pb-16 bg-white font-sans">
@@ -63,7 +64,7 @@ export default function EcoCaptureDetails() {
                                         rel="noopener noreferrer"
                                         className="text-[#1B4B43] font-semibold flex items-center gap-1 hover:underline underline-offset-4"
                                     >
-                                        Read the full Rulebook <ExternalLink className="w-4 h-4" />
+                                        View the full Rulebook <ExternalLink className="w-4 h-4" />
                                     </a>
                                 </li>
                             </ul>
@@ -91,15 +92,15 @@ export default function EcoCaptureDetails() {
                                 </div>
                             </div>
                             
-                            {/* Rulebook Download Button in Sidebar */}
+                            {/* Rulebook Button in Sidebar */}
                             <hr className="my-6 border-white/20" />
                             <a 
                                 href={rulebookUrl} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-sm font-medium bg-white/10 hover:bg-white/20 transition-colors p-3 rounded-xl border border-white/10"
+                                className="flex items-center justify-center gap-2 text-sm font-medium bg-white/10 hover:bg-white/20 transition-colors p-3 rounded-xl border border-white/10"
                             >
-                                <Download className="w-4 h-4 text-[#D9F2D6]" /> Download Rulebook (PDF)
+                                <ExternalLink className="w-4 h-4 text-[#D9F2D6]" /> View Rulebook (PDF)
                             </a>
                         </div>
 
