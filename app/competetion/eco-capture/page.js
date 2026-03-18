@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Camera, Calendar, Trophy, FileText, ArrowRight, Download } from "lucide-react";
+import { Camera, Calendar, Trophy, FileText, ArrowRight, Download, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function EcoCaptureDetails() {
-    const rulebookUrl = "https://drive.google.com/file/d/12HqONq4LjPMm-_Sk5FTzrQCFPVKy8fdZ/view?usp=drivesdk";
+    const rulebookUrl = "https://drive.google.com/file/d/12HqONq4LjPMm-_Sk5FTzrQCFPVKy8fdZ/view?usp=drivesdk&fbclid=IwZXh0bgNhZW0DMTAwAHNydGMGYXBwX2lkDzI3NTI1NDY5MjU5ODI3OQABHgayvmdJScKNnF55ub3XT4xjKOVTbHUXOvKILQIGHwcrO6i25ykgsPlAGE1D_aem_4Q0kPkQJODh0jzCrvsX36Q";
 
     return (
         <div className="min-h-screen pt-24 pb-16 bg-white font-sans">
@@ -33,7 +33,7 @@ export default function EcoCaptureDetails() {
                             <h2 className="text-2xl font-bold text-[#1B4B43] mb-6 flex items-center gap-3">
                                 <FileText className="w-6 h-6 text-[#1B4B43]/70" /> Competition Rules
                             </h2>
-                            <ul className="space-y-4 text-gray-600 leading-relaxed mb-6">
+                            <ul className="space-y-4 text-gray-600 leading-relaxed">
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
                                     <p>Participants must submit exactly <strong>5 photographs</strong> related to environmental themes (e.g., pollution, conservation, nature's beauty).</p>
@@ -54,24 +54,24 @@ export default function EcoCaptureDetails() {
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
                                     <p>If selected for Round 2, an registration fee of <strong>300 BDT</strong> will apply to cover printing and display costs.</p>
                                 </li>
+                                {/* Rulebook Link Item */}
+                                <li className="flex items-start gap-3 pt-2">
+                                    <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
+                                    <a 
+                                        href={rulebookUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-[#1B4B43] font-semibold flex items-center gap-1 hover:underline underline-offset-4"
+                                    >
+                                        Read the full Rulebook <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                </li>
                             </ul>
-                            
-                            {/* Rulebook Text Link */}
-                            <div className="pt-6 border-t border-gray-100">
-                                <a 
-                                    href={rulebookUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-[#1B4B43] font-semibold hover:underline"
-                                >
-                                    <Download className="w-4 h-4" /> Download the full Official Rulebook (PDF)
-                                </a>
-                            </div>
                         </div>
                     </motion.div>
 
                     {/* Sidebar info */}
-                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="space-y-6">
                         <div className="bg-[#1B4B43] rounded-3xl p-8 shadow-lg text-white">
                             <h3 className="font-bold text-lg mb-6 flex items-center gap-2">
                                 <Calendar className="w-5 h-5 text-[#D9F2D6]" /> Key Dates
@@ -90,25 +90,24 @@ export default function EcoCaptureDetails() {
                                     <p className="font-bold">April 5, 2025</p>
                                 </div>
                             </div>
+                            
+                            {/* Rulebook Download Button in Sidebar */}
+                            <hr className="my-6 border-white/20" />
+                            <a 
+                                href={rulebookUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-sm font-medium bg-white/10 hover:bg-white/20 transition-colors p-3 rounded-xl border border-white/10"
+                            >
+                                <Download className="w-4 h-4 text-[#D9F2D6]" /> Download Rulebook (PDF)
+                            </a>
                         </div>
 
-                        <Link href="/competetion/eco-capture/register" className="w-full block">
+                        <Link href="/competetion/eco-capture/register" className="w-full">
                             <button className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#D9F2D6] font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-[0.98]">
                                 Register Now <ArrowRight className="w-5 h-5" />
                             </button>
                         </Link>
-
-                        {/* Rulebook Sidebar Button */}
-                        <a 
-                            href={rulebookUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="w-full block"
-                        >
-                            <button className="w-full bg-white border-2 border-[#1B4B43] text-[#1B4B43] hover:bg-[#F3F9F1] font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
-                                <Download className="w-5 h-5" /> Rulebook
-                            </button>
-                        </a>
                     </motion.div>
                 </div>
 
