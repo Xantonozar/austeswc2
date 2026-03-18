@@ -46,7 +46,7 @@ export default function EcoBuzzersDetails() {
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Registration fee is <strong>1000 BDT per team</strong>, payable via bKash during registration.</p>
+                                    <p>Registration fee is <strong>700 BDT per team</strong>, payable via bKash during registration.</p>
                                 </li>
                             </ul>
                         </div>
@@ -69,7 +69,7 @@ export default function EcoBuzzersDetails() {
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Event Date</p>
-                                    <p className="font-bold">April 5, 2025</p>
+                                    <p className="font-bold">April 5, 2026</p>
                                 </div>
                             </div>
                         </div>
