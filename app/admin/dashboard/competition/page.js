@@ -297,6 +297,11 @@ export default function CompetitionAdmin() {
                                                 <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
                                                     <Phone className="w-3 h-3" /> {comp.phone || 'N/A'}
                                                 </p>
+                                                {comp.type === 'eco-capture' && comp.universityName && (
+                                                    <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
+                                                        <GraduationCap className="w-3 h-3" /> {comp.universityName}
+                                                    </p>
+                                                )}
                                                 {comp.caReference && (
                                                     <p className="text-[10px] text-amber-600 font-bold flex items-center gap-1.5">
                                                         <Star className="w-3 h-3" /> CA: {comp.caReference}
@@ -547,6 +552,20 @@ export default function CompetitionAdmin() {
                                                     <span className="text-sm font-bold text-slate-700">{selectedEntry.phone || 'N/A'}</span>
                                                 </div>
                                             </div>
+                                            {selectedEntry.type === 'eco-capture' && selectedEntry.universityName && (
+                                                <>
+                                                    <div className="w-[1px] h-8 bg-slate-200/60 hidden sm:block"></div>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-emerald-50 rounded-xl">
+                                                            <GraduationCap className="w-4 h-4 text-emerald-600" />
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">University</span>
+                                                            <span className="text-sm font-bold text-slate-700">{selectedEntry.universityName}</span>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
 
                                         {selectedEntry.caReference && (
