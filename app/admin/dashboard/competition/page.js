@@ -61,7 +61,6 @@ export default function CompetitionAdmin() {
 
             if (data.result === 'success') {
                 toast.success(`Status updated to ${status}`, { id: loadingToast });
-                // Update local state instead of full fetch for smoothness
                 setCompetitors(prev => prev.map(c => c._id === id ? { ...c, ...payload } : c));
                 if (selectedEntry?._id === id) {
                     setSelectedEntry(prev => ({ ...prev, ...payload }));
@@ -181,10 +180,17 @@ export default function CompetitionAdmin() {
         const config = styles[type] || { bg: "bg-slate-50", text: "text-slate-700", icon: User };
         const Icon = config.icon;
 
+        const labelMap = {
+            'eco-capture': 'Eco Capture',
+            'eco-buzzers': 'Green Buzzers Battle',
+            'green-story': 'Green Story',
+            'eco-pitch': 'Eco Pitch 180',
+        };
+
         return (
             <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${config.bg} ${config.text} border border-current/10`}>
                 <Icon className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold uppercase tracking-tight">{type === 'eco-pitch' ? 'Eco Pitch 180' : type.replace('-', ' ')}</span>
+                <span className="text-[11px] font-bold uppercase tracking-tight">{labelMap[type] || type.replace('-', ' ')}</span>
             </div>
         );
     };
@@ -230,7 +236,7 @@ export default function CompetitionAdmin() {
                         >
                             <option value="all">All Events</option>
                             <option value="eco-capture">Eco Capture</option>
-                            <option value="eco-buzzers">Eco Buzzers</option>
+                            <option value="eco-buzzers">Green Buzzers Battle</option>
                             <option value="green-story">Green Story</option>
                             <option value="eco-pitch">Eco Pitch 180</option>
                         </select>
@@ -297,7 +303,8 @@ export default function CompetitionAdmin() {
                                                 <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
                                                     <Phone className="w-3 h-3" /> {comp.phone || 'N/A'}
                                                 </p>
-                                                {comp.type === 'eco-capture' && comp.universityName && (
+                                                {/* Show university for eco-capture, eco-buzzers, and green-story */}
+                                                {(comp.type === 'eco-capture' || comp.type === 'eco-buzzers' || comp.type === 'green-story') && comp.universityName && (
                                                     <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
                                                         <GraduationCap className="w-3 h-3" /> {comp.universityName}
                                                     </p>
@@ -514,7 +521,7 @@ export default function CompetitionAdmin() {
                                                     selectedEntry.type === 'green-story' ? 'bg-green-50 text-green-600' :
                                                         'bg-pink-50 text-pink-600'
                                                 }`}>
-                                                {selectedEntry.type.replace('-', ' ')}
+                                                {selectedEntry.type === 'eco-buzzers' ? 'Green Buzzers Battle' : selectedEntry.type.replace('-', ' ')}
                                             </div>
                                             <div className="w-1 h-1 rounded-full bg-slate-300"></div>
                                             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Round {selectedEntry.round || 1}</span>
@@ -552,7 +559,8 @@ export default function CompetitionAdmin() {
                                                     <span className="text-sm font-bold text-slate-700">{selectedEntry.phone || 'N/A'}</span>
                                                 </div>
                                             </div>
-                                            {selectedEntry.type === 'eco-capture' && selectedEntry.universityName && (
+                                            {/* Show university for eco-capture, eco-buzzers, and green-story */}
+                                            {(selectedEntry.type === 'eco-capture' || selectedEntry.type === 'eco-buzzers' || selectedEntry.type === 'green-story') && selectedEntry.universityName && (
                                                 <>
                                                     <div className="w-[1px] h-8 bg-slate-200/60 hidden sm:block"></div>
                                                     <div className="flex items-center gap-3">
@@ -845,7 +853,7 @@ export default function CompetitionAdmin() {
                                                             <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-amber-100">
                                                                 <Zap className="w-10 h-10" />
                                                             </div>
-                                                            <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Quiz Team Registration</h4>
+                                                            <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Green Buzzers Battle Registration</h4>
                                                             <p className="text-slate-500 text-sm max-w-sm mx-auto font-medium">This team is registered for the environmental buzzer round competition.</p>
                                                         </div>
                                                     )}
@@ -861,7 +869,7 @@ export default function CompetitionAdmin() {
             </AnimatePresence>
 
             {/* Fullscreen Image Lightbox */}
-            < AnimatePresence >
+            <AnimatePresence>
                 {fullscreenImage && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -881,13 +889,13 @@ export default function CompetitionAdmin() {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            src={fullscreenImage} // Original untouched image for full-screen analysis
+                            src={fullscreenImage}
                             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                             alt="Fullscreen Preview"
                         />
                     </motion.div>
                 )}
-            </AnimatePresence >
+            </AnimatePresence>
 
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -899,7 +907,7 @@ export default function CompetitionAdmin() {
                     background-size: 20px 20px;
                 }
             `}</style>
-        </div >
+        </div>
     );
 }
 
