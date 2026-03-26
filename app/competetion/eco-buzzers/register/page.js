@@ -237,7 +237,7 @@ export default function EcoBuzzersRegister() {
                                         Send Money ({form.paymentMethod})
                                     </p>
                                     <p className="text-gray-700 font-medium mb-1">Number: <span className="font-bold select-all">01853259598</span></p>
-                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B4B43]">700 BDT</span></p>
+                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B4B43]">720 BDT</span></p>
                                 </div>
                             </motion.div>
                         </AnimatePresence>
