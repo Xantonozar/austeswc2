@@ -78,7 +78,7 @@ export default function EcoBuzzersDetails() {
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Registration Fee</p>
-                                    <p className="font-bold text-xl">700 BDT</p>
+                                    <p className="font-bold text-xl">720 BDT</p>
                                 </div>
                                 <div>
                                     <p className="text-[#B7E9FF] text-sm">Team Size</p>
