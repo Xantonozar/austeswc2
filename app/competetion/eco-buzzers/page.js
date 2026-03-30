@@ -48,7 +48,7 @@ export default function EcoBuzzersDetails() {
                                 </li>
                                 <li className="flex items-start gap-3">
                                     <div className="w-2 h-2 rounded-full bg-[#1B4B43] mt-2 shrink-0"></div>
-                                    <p>Registration fee is <strong>700 BDT per team</strong>, payable via bKash during registration.</p>
+                                    <p>Registration fee is <strong>720 BDT per team</strong>, payable via bKash during registration.</p>
                                 </li>
                                 {/* New Rulebook List Item */}
                                 <li className="flex items-start gap-3">
