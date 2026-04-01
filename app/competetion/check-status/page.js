@@ -36,7 +36,6 @@ export default function CheckStatusPage() {
             if (response.ok) {
                 setResults(data.data);
             } else if (response.status === 404 && data.error === 'not_found') {
-                // No registrations for this email — show empty state card, not a toast
                 setResults([]);
             } else {
                 toast.error(data.message || "Registration not found");
@@ -50,7 +49,7 @@ export default function CheckStatusPage() {
 
     const handlePaymentSubmit = async (compId) => {
         if (!bkashTxId) {
-            toast.error("Please enter your bKash Transaction ID");
+            toast.error(`Please enter your ${paymentMethod} Transaction ID`);
             return;
         }
 
@@ -68,7 +67,6 @@ export default function CheckStatusPage() {
 
             if (response.ok) {
                 toast.success("Payment submitted successfully!");
-                // Update local state to reflect payment using data from backend
                 setResults((prev) =>
                     prev.map((comp) =>
                         comp._id === compId && data.data ? { ...comp, ...data.data } : comp
@@ -119,7 +117,6 @@ export default function CheckStatusPage() {
                     </span>
                 );
             default:
-                // Also handling 'verified' if admin manually updates it
                 if (status === "verified") {
                     return (
                         <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold">
@@ -163,7 +160,6 @@ export default function CheckStatusPage() {
                     transition={{ delay: 0.1 }}
                     className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-8 relative overflow-hidden"
                 >
-                    {/* Decorative background element match theme */}
                     <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#E8F9FF] rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
                     <form onSubmit={handleCheckStatus} className="relative z-10">
@@ -245,10 +241,9 @@ export default function CheckStatusPage() {
                                         </div>
                                     </div>
 
-                                    {/* Payment Section - Only show if Selected or Rejected */}
+                                    {/* Payment Section */}
                                     {(comp.status === "selected" || comp.status === "rejected") && (
                                         <div className="mt-6 p-5 md:p-6 rounded-xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] shadow-lg relative overflow-hidden group">
-                                            {/* Pulsing indicator */}
                                             <div className="absolute top-0 right-0 p-2">
                                                 <span className="relative flex h-3 w-3">
                                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1B4B43] opacity-75"></span>
@@ -258,8 +253,10 @@ export default function CheckStatusPage() {
 
                                             {(() => {
                                                 const isRound2 = comp.paymentVerified === true || comp.status === 'selected' || comp.status === 'paid';
+                                                
+                                                // Fee logic update: Eco Pitch R2 is 720 BDT
                                                 const fee = isRound2
-                                                    ? (comp.type === 'eco-pitch' ? 700 : 100)
+                                                    ? (comp.type === 'eco-pitch' ? 720 : 100)
                                                     : (comp.type === 'eco-pitch' ? 300 : (comp.type === 'eco-capture' ? 0 : 100));
 
                                                 const roundLabel = isRound2 ? 'Round 2' : 'Round 1';
