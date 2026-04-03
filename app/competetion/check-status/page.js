@@ -254,9 +254,9 @@ export default function CheckStatusPage() {
                                             {(() => {
                                                 const isRound2 = comp.paymentVerified === true || comp.status === 'selected' || comp.status === 'paid';
                                                 
-                                                // Fee logic update: Eco Pitch R2 is 720 BDT
+                                                // Fee logic update: Eco Pitch R2 is 720 BDT, Eco Capture R2 is 300 BDT
                                                 const fee = isRound2
-                                                    ? (comp.type === 'eco-pitch' ? 720 : 100)
+                                                    ? (comp.type === 'eco-pitch' ? 720 : (comp.type === 'eco-capture' ? 300 : 100))
                                                     : (comp.type === 'eco-pitch' ? 300 : (comp.type === 'eco-capture' ? 0 : 100));
 
                                                 const roundLabel = isRound2 ? 'Round 2' : 'Round 1';
