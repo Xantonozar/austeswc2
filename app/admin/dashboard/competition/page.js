@@ -23,6 +23,7 @@ export default function CompetitionAdmin() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
     const exportDropdownRef = useRef(null);
+    const [photoSelectionLoading, setPhotoSelectionLoading] = useState(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -105,6 +106,49 @@ export default function CompetitionAdmin() {
             }
         } catch (err) {
             toast.error("Failed to delete", { id: loadingToast });
+        }
+    };
+
+    const handlePhotoSelectionToggle = async (compId, photoIndex, currentSelected) => {
+        setPhotoSelectionLoading(`${compId}-${photoIndex}`);
+        try {
+            const res = await fetch('/api/admin/competition', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id: compId, 
+                    photoIndex, 
+                    photoSelected: !currentSelected 
+                })
+            });
+            const data = await res.json();
+
+            if (data.result === 'success') {
+                toast.success(`Photo ${!currentSelected ? 'selected' : 'deselected'} for Round 2`);
+                // Update local state
+                setCompetitors(prev => prev.map(c => {
+                    if (c._id === compId) {
+                        const updatedPhotos = [...c.photos];
+                        updatedPhotos[photoIndex] = { ...updatedPhotos[photoIndex], selected: !currentSelected };
+                        return { ...c, photos: updatedPhotos };
+                    }
+                    return c;
+                }));
+                // Update selected entry if viewing it
+                if (selectedEntry?._id === compId) {
+                    setSelectedEntry(prev => {
+                        const updatedPhotos = [...prev.photos];
+                        updatedPhotos[photoIndex] = { ...updatedPhotos[photoIndex], selected: !currentSelected };
+                        return { ...prev, photos: updatedPhotos };
+                    });
+                }
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (err) {
+            toast.error("Failed to update photo selection");
+        } finally {
+            setPhotoSelectionLoading(null);
         }
     };
 
@@ -1030,13 +1074,36 @@ export default function CompetitionAdmin() {
                                     {/* Eco Capture: Full Width Cinematic Gallery */}
                                     {selectedEntry.type === 'eco-capture' && (
                                         <div className="max-w-4xl mx-auto space-y-24">
+                                            {/* Selected Photos Summary */}
+                                            {selectedEntry.photos?.some(p => p.selected) && (
+                                                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black">
+                                                            {selectedEntry.photos.filter(p => p.selected).length}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-emerald-800 font-bold">Photos Selected for Round 2</p>
+                                                            <p className="text-emerald-600 text-sm">Fee: {selectedEntry.photos.filter(p => p.selected).length} × 300 = <span className="font-black">{selectedEntry.photos.filter(p => p.selected).length * 300} BDT</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
                                             {selectedEntry.photos?.map((p, i) => (
-                                                <div key={i} className="group flex flex-col gap-8">
+                                                <div key={i} className={`group flex flex-col gap-8 ${p.selected ? 'ring-4 ring-emerald-500 ring-offset-8 rounded-3xl' : ''}`}>
                                                     {/* Story on Top */}
-                                                    <div className="max-w-2xl text-left bg-emerald-50/50 p-8 rounded-[2rem] border-l-4 border-emerald-500 shadow-sm transition-all group-hover:bg-emerald-50">
-                                                        <div className="flex items-center gap-3 mb-4">
-                                                            <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">0{i + 1}</div>
-                                                            <h4 className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em]">The Photographic Story</h4>
+                                                    <div className={`max-w-2xl text-left p-8 rounded-[2rem] border-l-4 shadow-sm transition-all ${p.selected ? 'bg-emerald-100 border-emerald-600' : 'bg-emerald-50/50 border-emerald-500 group-hover:bg-emerald-50'}`}>
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg ${p.selected ? 'bg-emerald-700 shadow-emerald-300' : 'bg-emerald-600 shadow-emerald-200'}`}>0{i + 1}</div>
+                                                                <h4 className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em]">The Photographic Story</h4>
+                                                            </div>
+                                                            {/* Selection Badge */}
+                                                            {p.selected && (
+                                                                <span className="px-3 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider rounded-full flex items-center gap-1.5">
+                                                                    <CheckCircle2 className="w-3.5 h-3.5" /> Selected
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <p className="text-slate-700 text-lg leading-relaxed font-medium italic opacity-90 antialiased font-serif">
                                                             "{p.story}"
@@ -1044,7 +1111,7 @@ export default function CompetitionAdmin() {
                                                     </div>
 
                                                     {/* Image in Premium Frame */}
-                                                    <div className="relative rounded-[1.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-8 border-white group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)] transition-all duration-700 w-full max-w-4xl mx-auto bg-slate-100 flex items-center justify-center">
+                                                    <div className={`relative rounded-[1.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-8 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)] transition-all duration-700 w-full max-w-4xl mx-auto bg-slate-100 flex items-center justify-center ${p.selected ? 'border-emerald-200' : 'border-white'}`}>
                                                         <div className="relative group cursor-zoom-in w-full flex justify-center" onClick={() => setFullscreenImage(p.url)}>
                                                             <img
                                                                 src={p.url.replace('/upload/', '/upload/c_limit,w_1200,q_auto,f_auto/')}
@@ -1054,14 +1121,39 @@ export default function CompetitionAdmin() {
                                                             />
 
                                                             {/* Overlay Badges */}
-                                                            <div className="absolute top-6 left-6 bg-emerald-900/40 backdrop-blur-md text-emerald-50 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest border border-emerald-100/20 shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-                                                                Capture Frame #{i + 1}
+                                                            <div className="absolute top-6 left-6 flex items-center gap-2">
+                                                                <div className="bg-emerald-900/40 backdrop-blur-md text-emerald-50 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest border border-emerald-100/20 shadow-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                                                                    Capture Frame #{i + 1}
+                                                                </div>
+                                                                {p.selected && (
+                                                                    <div className="bg-emerald-600 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-xl">
+                                                                        ✓ R2 Selected
+                                                                    </div>
+                                                                )}
                                                             </div>
 
                                                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
                                                             {/* Quick Actions */}
                                                             <div className="absolute bottom-6 right-6 flex gap-3 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
+                                                                {/* Photo Selection Toggle */}
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); handlePhotoSelectionToggle(selectedEntry._id, i, p.selected); }}
+                                                                    disabled={photoSelectionLoading === `${selectedEntry._id}-${i}`}
+                                                                    className={`px-4 py-3 backdrop-blur-md rounded-full shadow-2xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-wider ${
+                                                                        p.selected 
+                                                                            ? 'bg-rose-500 text-white hover:bg-rose-600' 
+                                                                            : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                                                                    } ${photoSelectionLoading === `${selectedEntry._id}-${i}` ? 'opacity-50' : ''}`}
+                                                                >
+                                                                    {photoSelectionLoading === `${selectedEntry._id}-${i}` ? (
+                                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                                    ) : p.selected ? (
+                                                                        <><XCircle className="w-4 h-4" /> Deselect</>
+                                                                    ) : (
+                                                                        <><CheckCircle2 className="w-4 h-4" /> Select for R2</>
+                                                                    )}
+                                                                </button>
                                                                 <button
                                                                     onClick={(e) => { e.stopPropagation(); setFullscreenImage(p.url); }}
                                                                     className="p-3 bg-white/90 backdrop-blur-md text-emerald-900 rounded-full shadow-2xl hover:bg-emerald-600 hover:text-white transition-all"

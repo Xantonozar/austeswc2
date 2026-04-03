@@ -20,7 +20,8 @@ const MemberSchema = new mongoose.Schema({
     photos: [{
         url: { type: String },
         publicId: { type: String },
-        story: { type: String }
+        story: { type: String },
+        selected: { type: Boolean, default: false }
     }],
 
     // For Green Story

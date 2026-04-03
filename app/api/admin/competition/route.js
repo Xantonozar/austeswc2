@@ -29,10 +29,28 @@ export async function PATCH(req) {
     try {
         await connectDB();
         const body = await req.json();
-        const { id, status, paymentVerified, bkashTxId, paymentVerifiedRound2, bkashTxIdRound2, paymentMethod, paymentMethodRound2 } = body;
+        const { id, status, paymentVerified, bkashTxId, paymentVerifiedRound2, bkashTxIdRound2, paymentMethod, paymentMethodRound2, photoIndex, photoSelected } = body;
 
         if (!id) {
             return new Response(JSON.stringify({ error: 'missing_id', message: 'ID is required' }), { status: 400 });
+        }
+
+        // Get the current document to see if status is actually changing
+        const competitor = await Competition.findById(id);
+        if (!competitor) {
+            return new Response(JSON.stringify({ error: 'not_found', message: 'Competitor not found' }), { status: 404 });
+        }
+
+        // Handle photo selection toggle for eco-capture
+        if (typeof photoIndex === 'number' && typeof photoSelected === 'boolean') {
+            if (competitor.type !== 'eco-capture' || !competitor.photos || !competitor.photos[photoIndex]) {
+                return new Response(JSON.stringify({ error: 'invalid_photo', message: 'Invalid photo index' }), { status: 400 });
+            }
+            
+            competitor.photos[photoIndex].selected = photoSelected;
+            await competitor.save();
+            
+            return new Response(JSON.stringify({ result: 'success', data: competitor }), { status: 200 });
         }
 
         const updateData = {};
@@ -43,12 +61,6 @@ export async function PATCH(req) {
         if (bkashTxIdRound2 !== undefined) updateData.bkashTxIdRound2 = bkashTxIdRound2;
         if (paymentMethod) updateData.paymentMethod = paymentMethod;
         if (paymentMethodRound2) updateData.paymentMethodRound2 = paymentMethodRound2;
-
-        // Get the current document to see if status is actually changing
-        const competitor = await Competition.findById(id);
-        if (!competitor) {
-            return new Response(JSON.stringify({ error: 'not_found', message: 'Competitor not found' }), { status: 404 });
-        }
 
         const updated = await Competition.findByIdAndUpdate(id, updateData, { new: true });
 

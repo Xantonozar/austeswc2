@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet } from "lucide-react";
+import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet, Camera } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CheckStatusPage() {
@@ -254,12 +254,21 @@ export default function CheckStatusPage() {
                                             {(() => {
                                                 const isRound2 = comp.paymentVerified === true || comp.status === 'selected' || comp.status === 'paid';
                                                 
-                                                // Fee logic update: Eco Pitch R2 is 720 BDT, Eco Capture R2 is 300 BDT
+                                                // Fee logic: Eco Capture = 300 BDT per selected photo, others unchanged
+                                                const selectedPhotosCount = comp.type === 'eco-capture' && comp.photos 
+                                                    ? comp.photos.filter(p => p.selected).length 
+                                                    : 0;
+                                                
                                                 const fee = isRound2
-                                                    ? (comp.type === 'eco-pitch' ? 720 : (comp.type === 'eco-capture' ? 300 : 100))
+                                                    ? (comp.type === 'eco-pitch' ? 720 : (comp.type === 'eco-capture' ? selectedPhotosCount * 300 : 100))
                                                     : (comp.type === 'eco-pitch' ? 300 : (comp.type === 'eco-capture' ? 0 : 100));
 
                                                 const roundLabel = isRound2 ? 'Round 2' : 'Round 1';
+                                                
+                                                // Get selected photos for eco-capture
+                                                const selectedPhotos = comp.type === 'eco-capture' && comp.photos 
+                                                    ? comp.photos.filter(p => p.selected) 
+                                                    : [];
 
                                                 return (
                                                     <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
@@ -272,10 +281,56 @@ export default function CheckStatusPage() {
                                                                     {comp.status === 'rejected' ? `Action Required: ${roundLabel} Payment Rejected` : `Action Required: ${roundLabel} Payment`}
                                                                 </h5>
                                                             </div>
+                                                            
+                                                            {/* Show selected photos for Eco Capture */}
+                                                            {comp.type === 'eco-capture' && selectedPhotos.length > 0 && (
+                                                                <div className="mb-6">
+                                                                    <div className="flex items-center gap-2 mb-3">
+                                                                        <Camera className="w-4 h-4 text-[#1B4B43]" />
+                                                                        <span className="text-sm font-bold text-[#1B4B43]">
+                                                                            {selectedPhotos.length} Photo{selectedPhotos.length > 1 ? 's' : ''} Selected for Round 2
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="space-y-4">
+                                                                        {selectedPhotos.map((photo, idx) => (
+                                                                            <div key={idx} className="bg-white rounded-xl p-4 border border-[#1B4B43]/20 shadow-sm">
+                                                                                <div className="flex gap-4">
+                                                                                    <div className="shrink-0">
+                                                                                        <img 
+                                                                                            src={photo.url.replace('/upload/', '/upload/w_120,h_120,c_fill,q_auto,f_auto/')} 
+                                                                                            alt={`Selected photo ${idx + 1}`}
+                                                                                            className="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover border-2 border-[#1B4B43]/30"
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="flex-1 min-w-0">
+                                                                                        <div className="flex items-center gap-2 mb-2">
+                                                                                            <span className="px-2 py-0.5 bg-[#1B4B43] text-white text-[10px] font-bold rounded-full">
+                                                                                                Photo #{idx + 1}
+                                                                                            </span>
+                                                                                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full flex items-center gap-1">
+                                                                                                <CheckCircle2 className="w-3 h-3" /> Selected
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        <p className="text-sm text-gray-600 italic line-clamp-3">"{photo.story}"</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="mt-4 p-3 bg-[#1B4B43]/10 rounded-lg">
+                                                                        <p className="text-sm font-bold text-[#1B4B43]">
+                                                                            Fee Calculation: {selectedPhotos.length} photo{selectedPhotos.length > 1 ? 's' : ''} × 300 BDT = <span className="text-lg">{fee} BDT</span>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            
                                                             <p className="text-xs md:text-sm text-gray-700 mb-6 font-medium leading-relaxed">
                                                                 {comp.status === 'rejected'
                                                                     ? `Your previous ${roundLabel} payment verification failed. Please re-check your Transaction ID and submit the correct details below to continue.`
-                                                                    : `Congratulations! To proceed to ${roundLabel}, please complete the payment of ${fee} BDT via bKash or Nagad.`}
+                                                                    : comp.type === 'eco-capture' && selectedPhotos.length > 0
+                                                                        ? `Congratulations! Your photos have been selected. To proceed to ${roundLabel}, please complete the payment of ${fee} BDT (300 BDT per selected photo) via bKash or Nagad.`
+                                                                        : `Congratulations! To proceed to ${roundLabel}, please complete the payment of ${fee} BDT via bKash or Nagad.`}
                                                             </p>
 
                                                             {fee > 0 ? (
