@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
     FileText, Camera, Video, Zap, User, Users, Phone, Mail,
-    ChevronRight, X, Star, ArrowLeft, GraduationCap
+    ChevronRight, X, Star, ArrowLeft, GraduationCap, ChevronDown
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -21,6 +21,19 @@ export default function CompetitionAdmin() {
     const [fullscreenImage, setFullscreenImage] = useState(null);
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
+    const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
+    const exportDropdownRef = useRef(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target)) {
+                setExportDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const fetchCompetitors = async () => {
         setLoading(true);
@@ -118,6 +131,259 @@ export default function CompetitionAdmin() {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Competitors");
         XLSX.writeFile(wb, `eswc_competitors_${filterType}_${Date.now()}.xlsx`);
+        setExportDropdownOpen(false);
+    };
+
+    // Complete JSON export with ALL MongoDB data - nothing missed
+    const handleExportJSON = () => {
+        // Group competitors by type for organized export
+        const groupedData = {
+            exportedAt: new Date().toISOString(),
+            filterApplied: filterType,
+            totalCount: filteredCompetitors.length,
+            competitions: {}
+        };
+
+        // Initialize all competition types
+        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch'];
+        types.forEach(type => {
+            groupedData.competitions[type] = {
+                count: 0,
+                entries: []
+            };
+        });
+
+        // Process each competitor with complete data
+        filteredCompetitors.forEach(c => {
+            const completeEntry = {
+                // MongoDB ID
+                _id: c._id,
+                
+                // Competition type
+                type: c.type,
+                
+                // Basic info (applicable to all)
+                name: c.name || null,
+                teamName: c.teamName || null,
+                email: c.email,
+                phone: c.phone || null,
+                universityName: c.universityName || null,
+                
+                // Campus Ambassador Reference
+                caReference: c.caReference || null,
+                
+                // Team members (for eco-buzzers, green-story, eco-pitch)
+                members: c.members?.map(m => ({
+                    name: m.name || null,
+                    email: m.email || null,
+                    phone: m.phone || null,
+                    studentId: m.studentId || null,
+                    universityName: m.universityName || null
+                })) || [],
+                
+                // Eco Capture specific - photos with stories
+                photos: c.type === 'eco-capture' ? (c.photos?.map(p => ({
+                    url: p.url || null,
+                    publicId: p.publicId || null,
+                    story: p.story || null
+                })) || []) : undefined,
+                
+                // Green Story specific - video link
+                videoLink: c.type === 'green-story' ? (c.videoLink || null) : undefined,
+                
+                // Eco Pitch specific - PDF document
+                pdfUrl: c.type === 'eco-pitch' ? (c.pdfUrl || null) : undefined,
+                pdfPublicId: c.type === 'eco-pitch' ? (c.pdfPublicId || null) : undefined,
+                
+                // Status and round
+                status: c.status,
+                round: c.round || 1,
+                
+                // Round 1 Payment
+                bkashTxId: c.bkashTxId || null,
+                paymentMethod: c.paymentMethod || 'bkash',
+                paymentVerified: c.paymentVerified || false,
+                
+                // Round 2 Payment
+                bkashTxIdRound2: c.bkashTxIdRound2 || null,
+                paymentMethodRound2: c.paymentMethodRound2 || 'bkash',
+                paymentVerifiedRound2: c.paymentVerifiedRound2 || false,
+                
+                // Timestamps
+                createdAt: c.createdAt,
+                createdAtFormatted: new Date(c.createdAt).toLocaleString()
+            };
+
+            // Remove undefined fields for cleaner export
+            Object.keys(completeEntry).forEach(key => {
+                if (completeEntry[key] === undefined) {
+                    delete completeEntry[key];
+                }
+            });
+
+            groupedData.competitions[c.type].entries.push(completeEntry);
+            groupedData.competitions[c.type].count++;
+        });
+
+        // Remove empty competition types if filtering by specific type
+        if (filterType !== 'all') {
+            Object.keys(groupedData.competitions).forEach(type => {
+                if (groupedData.competitions[type].count === 0) {
+                    delete groupedData.competitions[type];
+                }
+            });
+        }
+
+        // Create and download JSON file
+        const jsonString = JSON.stringify(groupedData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `eswc_competitions_complete_${filterType}_${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.success(`Exported ${filteredCompetitors.length} entries as JSON`);
+        setExportDropdownOpen(false);
+    };
+
+    // Export single competition type with all data
+    const handleExportSingleTypeJSON = (type) => {
+        const typeData = filteredCompetitors.filter(c => c.type === type);
+        
+        if (typeData.length === 0) {
+            toast.error(`No ${type} entries found`);
+            return;
+        }
+
+        const typeLabels = {
+            'eco-capture': 'Eco Capture',
+            'eco-buzzers': 'Green Buzzers Battle',
+            'green-story': 'Green Story',
+            'eco-pitch': 'Eco Pitch 180'
+        };
+
+        const exportData = {
+            competitionType: type,
+            competitionName: typeLabels[type],
+            exportedAt: new Date().toISOString(),
+            totalEntries: typeData.length,
+            entries: typeData.map(c => {
+                const entry = {
+                    _id: c._id,
+                    
+                    // Basic info
+                    ...(type === 'eco-capture' ? {
+                        // Eco Capture is individual
+                        participantName: c.name,
+                        email: c.email,
+                        phone: c.phone,
+                        universityName: c.universityName,
+                        caReference: c.caReference || null,
+                        photos: c.photos?.map(p => ({
+                            imageUrl: p.url,
+                            cloudinaryPublicId: p.publicId,
+                            story: p.story
+                        })) || []
+                    } : {}),
+                    
+                    ...(type === 'eco-buzzers' ? {
+                        // Eco Buzzers is team (1-2 members)
+                        teamName: c.teamName,
+                        teamLeaderEmail: c.email,
+                        teamLeaderPhone: c.phone,
+                        universityName: c.universityName,
+                        caReference: c.caReference || null,
+                        teamMembers: c.members?.map((m, idx) => ({
+                            memberNumber: idx + 1,
+                            name: m.name,
+                            email: m.email,
+                            phone: m.phone,
+                            studentId: m.studentId,
+                            universityName: m.universityName
+                        })) || []
+                    } : {}),
+                    
+                    ...(type === 'green-story' ? {
+                        // Green Story is team (1-3 members) with video
+                        teamName: c.teamName,
+                        teamLeaderEmail: c.email,
+                        teamLeaderPhone: c.phone,
+                        universityName: c.universityName,
+                        caReference: c.caReference || null,
+                        videoSubmissionLink: c.videoLink,
+                        teamMembers: c.members?.map((m, idx) => ({
+                            memberNumber: idx + 1,
+                            name: m.name,
+                            email: m.email,
+                            phone: m.phone,
+                            studentId: m.studentId,
+                            universityName: m.universityName
+                        })) || []
+                    } : {}),
+                    
+                    ...(type === 'eco-pitch' ? {
+                        // Eco Pitch is team (1-3 members) with PDF
+                        teamName: c.teamName,
+                        teamLeaderEmail: c.email,
+                        teamLeaderPhone: c.phone,
+                        caReference: c.caReference || null,
+                        abstractDocumentUrl: c.pdfUrl,
+                        abstractDocumentPublicId: c.pdfPublicId,
+                        teamMembers: c.members?.map((m, idx) => ({
+                            memberNumber: idx + 1,
+                            name: m.name,
+                            email: m.email,
+                            phone: m.phone,
+                            studentId: m.studentId,
+                            universityName: m.universityName
+                        })) || []
+                    } : {}),
+                    
+                    // Status & Round
+                    status: c.status,
+                    currentRound: c.round || 1,
+                    
+                    // Payment info (Round 1)
+                    round1Payment: {
+                        transactionId: c.bkashTxId || null,
+                        paymentMethod: c.paymentMethod || 'bkash',
+                        verified: c.paymentVerified || false
+                    },
+                    
+                    // Payment info (Round 2)
+                    round2Payment: {
+                        transactionId: c.bkashTxIdRound2 || null,
+                        paymentMethod: c.paymentMethodRound2 || 'bkash',
+                        verified: c.paymentVerifiedRound2 || false
+                    },
+                    
+                    // Timestamps
+                    registeredAt: c.createdAt,
+                    registeredAtFormatted: new Date(c.createdAt).toLocaleString()
+                };
+
+                return entry;
+            })
+        };
+
+        // Create and download JSON file
+        const jsonString = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `eswc_${type}_complete_${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.success(`Exported ${typeData.length} ${typeLabels[type]} entries as JSON`);
+        setExportDropdownOpen(false);
     };
 
     const filteredCompetitors = competitors
@@ -242,8 +508,102 @@ export default function CompetitionAdmin() {
                         </select>
 
                         <button onClick={handleExport} className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" disabled={loading || filteredCompetitors.length === 0}>
-                            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
+                            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export XLSX</span>
                         </button>
+
+                        {/* Export Dropdown */}
+                        <div className="relative" ref={exportDropdownRef}>
+                            <button 
+                                onClick={() => setExportDropdownOpen(!exportDropdownOpen)} 
+                                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" 
+                                disabled={loading || filteredCompetitors.length === 0}
+                            >
+                                <FileText className="w-4 h-4" /> 
+                                <span className="hidden sm:inline">Export JSON</span>
+                                <ChevronDown className={`w-4 h-4 transition-transform ${exportDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            
+                            {exportDropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-100 z-50 overflow-hidden">
+                                    <div className="p-2">
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Export Complete JSON Data</p>
+                                        
+                                        {/* Export All */}
+                                        <button
+                                            onClick={handleExportJSON}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-emerald-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center">
+                                                <Download className="w-4 h-4 text-slate-600 group-hover:text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">All Competitions</p>
+                                                <p className="text-[10px] text-slate-400">Export all {filteredCompetitors.length} entries</p>
+                                            </div>
+                                        </button>
+
+                                        <div className="h-px bg-slate-100 my-2"></div>
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">By Competition Type</p>
+
+                                        {/* Eco Capture */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('eco-capture')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-cyan-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                                                <Camera className="w-4 h-4 text-cyan-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Eco Capture</p>
+                                                <p className="text-[10px] text-slate-400">Photos, stories, participant info</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Eco Buzzers */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('eco-buzzers')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-amber-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                                                <Zap className="w-4 h-4 text-amber-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Green Buzzers Battle</p>
+                                                <p className="text-[10px] text-slate-400">Team info, members, payments</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Green Story */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('green-story')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-green-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                                                <Video className="w-4 h-4 text-green-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Green Story</p>
+                                                <p className="text-[10px] text-slate-400">Video links, team members</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Eco Pitch */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('eco-pitch')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-pink-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
+                                                <FileText className="w-4 h-4 text-pink-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Eco Pitch 180</p>
+                                                <p className="text-[10px] text-slate-400">PDF URLs, team info, universities</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
