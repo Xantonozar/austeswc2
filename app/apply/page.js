@@ -238,19 +238,9 @@ export default function ApplyPage() {
                                 </select>
                             </motion.div>
 
-                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Why do you want to apply? *</label>
-                                <textarea 
-                                    name="motivation" required rows="4"
-                                    value={formData.motivation} onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
-                                    placeholder="Tell us about your motivation..."
-                                ></textarea>
-                            </motion.div>
-
                             <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">Facebook ID Link *</label>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Facebook ID Link</label>
                                     <input 
                                         type="url" name="fbLink" required
                                         value={formData.fbLink} onChange={handleChange}
@@ -269,6 +259,16 @@ export default function ApplyPage() {
                                         <option value="Yes">Yes</option>
                                     </select>
                                 </div>
+                            </motion.div>
+
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Why do you want to apply? *</label>
+                                <textarea 
+                                    name="motivation" required rows="4"
+                                    value={formData.motivation} onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
+                                    placeholder="Tell us about your motivation..."
+                                ></textarea>
                             </motion.div>
 
                             <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
