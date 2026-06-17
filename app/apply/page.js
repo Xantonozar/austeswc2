@@ -22,7 +22,10 @@ export default function ApplyPage() {
         section: "",
         role: "Batch Ambassador",
         motivation: "",
-        experience: ""
+        experience: "",
+        fbLink: "",
+        isOtherClubAmbassador: "No",
+        convinceStrategy: ""
     });
 
     const yearOptions = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2", "5-1", "5-2"];
@@ -101,15 +104,12 @@ export default function ApplyPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-20 px-4 sm:px-6 lg:px-8 font-sans">
+        <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans">
             <Toaster position="top-center" />
             <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center p-4 bg-emerald-100 rounded-full mb-6">
-                        <Briefcase className="w-8 h-8 text-emerald-600" />
-                    </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">Join Our Team</h1>
-                    <p className="text-lg text-slate-600">Apply for a role and become a part of our amazing journey.</p>
+                <div className="text-center mb-6">
+                    <h1 className="text-3xl font-black text-emerald-700 tracking-tight mb-1">Apply Now</h1>
+                    <p className="text-sm text-slate-500">Fill in the details to submit your application.</p>
                 </div>
 
                 <motion.div 
@@ -127,10 +127,10 @@ export default function ApplyPage() {
                     }}
                     className="bg-white rounded-[2rem] shadow-xl overflow-hidden"
                 >
-                    <div className="p-8 md:p-12">
-                        <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="p-6 md:p-8">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             
-                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">Full Name *</label>
                                     <input 
@@ -151,7 +151,7 @@ export default function ApplyPage() {
                                 </div>
                             </motion.div>
 
-                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">Phone Number *</label>
                                     <input 
@@ -172,7 +172,7 @@ export default function ApplyPage() {
                                 </div>
                             </motion.div>
 
-                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">Department *</label>
                                     <select 
@@ -248,10 +248,43 @@ export default function ApplyPage() {
                                 ></textarea>
                             </motion.div>
 
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Facebook ID Link *</label>
+                                    <input 
+                                        type="url" name="fbLink" required
+                                        value={formData.fbLink} onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                                        placeholder="https://facebook.com/your.profile"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Ambassador of Any Other Club?</label>
+                                    <select 
+                                        name="isOtherClubAmbassador" required
+                                        value={formData.isOtherClubAmbassador} onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                                    >
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </motion.div>
+
                             <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Previous Experience</label>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">How will you convince others to join? *</label>
                                 <textarea 
-                                    name="experience" required rows="4"
+                                    name="convinceStrategy" required rows="3"
+                                    value={formData.convinceStrategy} onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
+                                    placeholder="Explain your strategy to convince others..."
+                                ></textarea>
+                            </motion.div>
+
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Previous Experience (Optional)</label>
+                                <textarea 
+                                    name="experience" rows="2"
                                     value={formData.experience} onChange={handleChange}
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
                                     placeholder="Any previous experience in volunteering, clubs, etc."

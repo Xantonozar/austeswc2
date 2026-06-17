@@ -14,7 +14,10 @@ const ApplicationSchema = new mongoose.Schema({
         enum: ['Batch Ambassador', 'Junior Executive', 'Sub Executive']
     },
     motivation: { type: String, required: true },
-    experience: { type: String, required: true },
+    experience: { type: String }, // Optional
+    fbLink: { type: String, required: true },
+    isOtherClubAmbassador: { type: String, enum: ['Yes', 'No'], default: 'No' },
+    convinceStrategy: { type: String, required: true },
     status: {
         type: String,
         enum: ['Pending', 'Accepted', 'Rejected'],

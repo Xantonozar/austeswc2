@@ -22,11 +22,14 @@ export async function POST(request) {
             role,
             section,
             motivation,
-            experience
+            experience,
+            fbLink,
+            isOtherClubAmbassador,
+            convinceStrategy
         } = body;
 
         // Basic validation
-        if (!name || !email || !phone || !studentId || !department || !semester || !role || !motivation || !experience) {
+        if (!name || !email || !phone || !studentId || !department || !semester || !role || !motivation || !fbLink || !convinceStrategy) {
             return NextResponse.json(
                 { success: false, message: 'All fields are required.' },
                 { status: 400 }
@@ -51,7 +54,10 @@ export async function POST(request) {
             role,
             section,
             motivation,
-            experience
+            experience,
+            fbLink,
+            isOtherClubAmbassador,
+            convinceStrategy
         });
 
         await application.save();

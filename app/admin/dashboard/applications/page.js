@@ -150,14 +150,28 @@ export default function ApplicationsAdmin() {
                                             </span>
                                             <p className="text-xs font-medium text-slate-600">{app.department} • {app.semester}</p>
                                         </td>
-                                        <td className="px-6 py-4 max-w-[200px]">
-                                            <div className="text-xs text-slate-600">
-                                                <p className="line-clamp-3" title={app.motivation}>{app.motivation}</p>
+                                        <td className="px-6 py-4 max-w-[250px]">
+                                            <div className="text-xs text-slate-600 space-y-2">
+                                                <div>
+                                                    <strong className="text-slate-800">Motivation:</strong>
+                                                    <p className="line-clamp-2" title={app.motivation}>{app.motivation}</p>
+                                                </div>
+                                                <div>
+                                                    <strong className="text-slate-800">Strategy:</strong>
+                                                    <p className="line-clamp-2" title={app.convinceStrategy}>{app.convinceStrategy}</p>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 max-w-[200px]">
-                                            <div className="text-xs text-slate-600">
-                                                <p className="line-clamp-3" title={app.experience}>{app.experience || "None provided"}</p>
+                                        <td className="px-6 py-4 max-w-[250px]">
+                                            <div className="text-xs text-slate-600 space-y-2">
+                                                <div>
+                                                    <strong className="text-slate-800">Experience:</strong>
+                                                    <p className="line-clamp-2" title={app.experience}>{app.experience || "None"}</p>
+                                                </div>
+                                                <div className="flex gap-4">
+                                                    <p><strong className="text-slate-800">Other Club:</strong> {app.isOtherClubAmbassador}</p>
+                                                    <a href={app.fbLink} target="_blank" rel="noreferrer" className="text-indigo-600 font-bold hover:underline">FB Link</a>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
