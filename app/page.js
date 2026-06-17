@@ -15,11 +15,9 @@ import MojarSchool from "@/components/mojar-school";
 import UsnotarHasi from "@/components/usnotar-hasi";
 import LatestActivities from "@/components/latest-activities";
 import { InteractiveGridPatternDemo } from "@/components/grid";
-import LandingPopup from "@/components/landing-popup";
 export default function Home() {
   return (
     <div className="w-full relative flex flex-col">
-      <LandingPopup />
       <InteractiveGridPatternDemo />
       <br />
       <Environmental />

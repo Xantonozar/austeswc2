@@ -180,6 +180,18 @@ export default function AdminDashboardOverview() {
                     />
                 </section>
 
+                {/* Additional Action Navigation */}
+                <section className="grid md:grid-cols-2 gap-8">
+                    <NavCard
+                        title="Application Management"
+                        description="Review and manage applications for Batch Ambassador, Junior Executive, and Sub Executive roles."
+                        href="/admin/dashboard/applications"
+                        icon={FileText}
+                        color="bg-sky-600"
+                        stats="Applications"
+                    />
+                </section>
+
                 {/* Secondary Data Views */}
                 <div className="grid lg:grid-cols-3 gap-10">
 

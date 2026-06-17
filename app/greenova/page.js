@@ -16,7 +16,7 @@ const competitions = [
         description: "Capture the essence of nature and environmental impact in 5 stunning photographs along with their stories.",
         delay: 0.1,
         image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: true
+        isOpen: false
     },
     {
         id: "eco-buzzers",
@@ -28,7 +28,7 @@ const competitions = [
         description: "Test your environmental knowledge in this fast-paced, team-based buzzer competition.",
         delay: 0.2,
         image: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: true
+        isOpen: false
     },
     {
         id: "green-story",
@@ -40,7 +40,7 @@ const competitions = [
         description: "Create a compelling video advertisement that promotes sustainability and green living.",
         delay: 0.3,
         image: "https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: true
+        isOpen: false
     },
     {
         id: "eco-pitch",
@@ -52,7 +52,7 @@ const competitions = [
         description: "Pitch your innovative environmental research or thesis in just 3 minutes to our panel of judges. Registration fee: 300 BDT.",
         delay: 0.4,
         image: "https://images.unsplash.com/photo-1475721025582-eb06b251ce72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        isOpen: true
+        isOpen: false
     },
 ];
 
