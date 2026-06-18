@@ -25,7 +25,8 @@ export async function POST(request) {
             experience,
             fbLink,
             isOtherClubAmbassador,
-            convinceStrategy
+            convinceStrategy,
+            imageUrl
         } = body;
 
         // Basic validation
@@ -57,7 +58,8 @@ export async function POST(request) {
             experience,
             fbLink,
             isOtherClubAmbassador,
-            convinceStrategy
+            convinceStrategy,
+            imageUrl
         });
 
         await application.save();

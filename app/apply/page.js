@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Loader2, ArrowRight, CheckCircle, Briefcase } from "lucide-react";
+import { Loader2, ArrowRight, CheckCircle, Briefcase, Upload, X, ImageIcon } from "lucide-react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,10 @@ export default function ApplyPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageUploading, setImageUploading] = useState(false);
+    const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -45,15 +49,76 @@ export default function ApplyPage() {
         });
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select a valid image file.');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image must be smaller than 5MB.');
+            return;
+        }
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+    };
+
+    const removeImage = () => {
+        setImageFile(null);
+        setImagePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const uploadToCloudinary = async (file) => {
+        const signRes = await fetch('/api/cloudinary/sign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ folder: 'eswc_applications' })
+        });
+        const { timestamp, signature, folder, apiKey, cloudName } = await signRes.json();
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('api_key', apiKey);
+        formData.append('timestamp', timestamp);
+        formData.append('signature', signature);
+        formData.append('folder', folder);
+
+        const uploadRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+            { method: 'POST', body: formData }
+        );
+        const uploadData = await uploadRes.json();
+        if (!uploadData.secure_url) throw new Error('Image upload failed');
+        return uploadData.secure_url;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
+            let imageUrl = null;
+            if (imageFile) {
+                setImageUploading(true);
+                toast.loading('Uploading photo...', { id: 'img-upload' });
+                try {
+                    imageUrl = await uploadToCloudinary(imageFile);
+                    toast.success('Photo uploaded!', { id: 'img-upload' });
+                } catch (err) {
+                    toast.error('Failed to upload photo. Please try again.', { id: 'img-upload' });
+                    setLoading(false);
+                    setImageUploading(false);
+                    return;
+                }
+                setImageUploading(false);
+            }
+
             const res = await fetch("/api/applications/apply", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ ...formData, imageUrl }),
             });
 
             const data = await res.json();
@@ -289,6 +354,49 @@ export default function ApplyPage() {
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all resize-none"
                                     placeholder="Any previous experience in volunteering, clubs, etc."
                                 ></textarea>
+                            </motion.div>
+
+                            {/* Photo Upload */}
+                            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Your Photo (Optional)</label>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="hidden"
+                                />
+                                {!imagePreview ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl py-8 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-emerald-600 transition-all group"
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-slate-50 group-hover:bg-emerald-50 flex items-center justify-center transition-colors">
+                                            <ImageIcon className="w-6 h-6" />
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-sm font-bold">Click to upload a photo</p>
+                                            <p className="text-xs">PNG, JPG, WEBP — max 5MB</p>
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                                        <img src={imagePreview} alt="Preview" className="w-full max-h-56 object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={removeImage}
+                                            className="absolute top-2 right-2 bg-white/90 hover:bg-red-50 text-slate-500 hover:text-red-600 p-1.5 rounded-full shadow transition-colors"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/40 to-transparent px-4 py-3">
+                                            <p className="text-white text-xs font-bold truncate flex items-center gap-1.5">
+                                                <Upload className="w-3 h-3" /> {imageFile?.name}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </motion.div>
 
                             <motion.button 

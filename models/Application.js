@@ -18,6 +18,7 @@ const ApplicationSchema = new mongoose.Schema({
     fbLink: { type: String, required: true },
     isOtherClubAmbassador: { type: String, enum: ['Yes', 'No'], default: 'No' },
     convinceStrategy: { type: String, required: true },
+    imageUrl: { type: String }, // Optional uploaded photo URL
     status: {
         type: String,
         enum: ['Pending', 'Accepted', 'Rejected'],
