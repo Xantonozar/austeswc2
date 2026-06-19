@@ -264,9 +264,8 @@ export default function ApplyPage() {
                                     >
                                         <option value="">Select Semester</option>
                                         {yearOptions.map(opt => {
-                                            const isDisabled = ['5-1', '5-2'].includes(opt) && formData.department !== 'Architecture';
-                                            if (isDisabled) return null;
-                                            return <option key={opt} value={opt}>{opt}</option>;
+                                            const isDisabled = !['1-1', '1-2'].includes(opt);
+                                            return <option key={opt} value={opt} disabled={isDisabled}>{opt}</option>;
                                         })}
                                     </select>
                                 </div>

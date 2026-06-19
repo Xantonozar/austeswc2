@@ -89,20 +89,7 @@ function Navbar() {
             </ul>
           </div>
 
-          {/* Right Section: Buttons - Visible on MD+ with Responsive Sizing */}
-          <div className="hidden md:flex flex-1 justify-end">
-            <div className="flex space-x-2 lg:space-x-4">
-              <Link href="/greenova" className="flex flex-col items-center justify-center hover:scale-105 hover:opacity-80 transition-all">
-                <Image
-                  src="/greenova.png"
-                  alt="Greenova"
-                  width={150}
-                  height={45}
-                  className="h-8 w-auto object-contain"
-                />
-              </Link>
-            </div>
-          </div>
+          {/* Right Section: Buttons - Removed */}
 
           {/* Mobile Menu Button - Visible Only on Small Screens */}
           <div className="md:hidden">
@@ -192,17 +179,7 @@ function Navbar() {
                 )}
               </li>
             </ul>
-            <div className="mt-8 flex flex-col items-center gap-6 w-full px-4">
-              <Link href="/greenova" className="flex flex-col items-center justify-center hover:scale-105 hover:opacity-80 transition-all active:scale-95" onClick={toggleMenu}>
-                <Image
-                  src="/greenova.png"
-                  alt="Greenova"
-                  width={200}
-                  height={60}
-                  className="h-12 w-auto object-contain"
-                />
-              </Link>
-            </div>
+            {/* Removed greenova logo from mobile menu */}
           </div>
         </div>
       )}
