@@ -1,80 +1,68 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Users, Trophy, ArrowRight, TrendingUp,
-    PieChart, Activity, ShieldCheck, Mail,
-    Zap, Camera, Video, FileText, ChevronRight,
-    Loader2, LogOut
+    PieChart, Activity, Zap, Camera, Video, FileText, ChevronRight,
+    Loader2, LogOut, Calendar, GraduationCap, Building2, Check, AlertTriangle
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import { getSemesterFromDate, getSemestersFromItems } from "@/components/dashboard/SemesterTabs";
 
 export default function AdminDashboardOverview() {
-    const [stats, setStats] = useState({
-        totalMembers: 0,
-        totalCompetitors: 0,
-        compBreakdown: {},
-        deptBreakdown: {},
-        recentMembers: [],
-        loading: true
-    });
+    const [members, setMembers] = useState([]);
+    const [competitors, setCompetitors] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState(getSemesterFromDate(new Date()));
     const router = useRouter();
-
-    const fetchAllStats = async () => {
-        try {
-            // Fetch Members
-            const memRes = await fetch('/api/admin/members');
-            if (memRes.status === 401) {
-                router.push('/admin/login');
-                return;
-            }
-            const memData = await memRes.json();
-            const members = memData.members || [];
-
-            // Fetch Competitors
-            const compRes = await fetch('/api/admin/competition?type=all');
-            const compData = await compRes.json();
-            const competitors = compData.data || [];
-
-            // Process Breakdown
-            const compBreakdown = competitors.reduce((acc, curr) => {
-                acc[curr.type] = (acc[curr.type] || 0) + 1;
-                return acc;
-            }, {});
-
-            const deptBreakdown = members.reduce((acc, curr) => {
-                acc[curr.department] = (acc[curr.department] || 0) + 1;
-                return acc;
-            }, {});
-
-            setStats({
-                totalMembers: members.length,
-                totalCompetitors: competitors.length,
-                compBreakdown,
-                deptBreakdown,
-                recentMembers: members.slice(0, 5),
-                loading: false
-            });
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to sync dashboard stats");
-            setStats(prev => ({ ...prev, loading: false }));
-        }
-    };
 
     useEffect(() => {
         fetchAllStats();
     }, []);
+
+    const fetchAllStats = async () => {
+        try {
+            const memRes = await fetch('/api/admin/members');
+            if (memRes.status === 401) { router.push('/admin/login'); return; }
+            const memData = await memRes.json();
+            const m = memData.members || [];
+
+            const compRes = await fetch('/api/admin/competition?type=all');
+            const compData = await compRes.json();
+            const c = compData.data || [];
+
+            setMembers(m);
+            setCompetitors(c);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to load dashboard");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogout = async () => {
         await fetch('/api/auth/logout', { method: 'POST' });
         router.push('/admin/login');
     };
 
-    if (stats.loading) {
+    const semesters = getSemestersFromItems(members);
+
+    const filtered = activeTab === "all" ? members : members.filter(m => getSemesterFromDate(m.createdAt) === activeTab);
+    const filteredCount = filtered.length;
+
+    const filteredCompetitions = activeTab === "all" ? competitors : competitors.filter(c => getSemesterFromDate(c.createdAt) === activeTab);
+    const compBreakdown = filteredCompetitions.reduce((acc, curr) => { acc[curr.type] = (acc[curr.type] || 0) + 1; return acc; }, {});
+
+    const deptBreakdown = filtered.reduce((acc, m) => { acc[m.department] = (acc[m.department] || 0) + 1; return acc; }, {});
+    const sortedDepts = Object.entries(deptBreakdown).sort((a, b) => b[1] - a[1]);
+    const maxDept = sortedDepts[0] || ['N/A', 0];
+    const minDept = sortedDepts[sortedDepts.length - 1] || ['N/A', 0];
+
+    if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
                 <Loader2 className="w-10 h-10 animate-spin text-emerald-600 mb-4" />
@@ -82,19 +70,6 @@ export default function AdminDashboardOverview() {
             </div>
         );
     }
-
-    const container = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
-
-    const item = {
-        hidden: { y: 20, opacity: 0 },
-        show: { y: 0, opacity: 1 }
-    };
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans">
@@ -116,75 +91,112 @@ export default function AdminDashboardOverview() {
                 </div>
             </nav>
 
-            <motion.main
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="max-w-7xl mx-auto px-6 py-10 space-y-12"
-            >
-                {/* Hero Stats Section */}
+            <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+
+                {/* Semester Tabs */}
                 <section>
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Executive Summary</h2>
-                        <p className="text-slate-500 font-medium text-sm">Real-time engagement metrics across club verticals.</p>
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Calendar className="w-6 h-6 text-emerald-600" />
+                                Semester Overview
+                            </h2>
+                            <p className="text-slate-500 font-medium text-sm">Select a semester to view its stats.</p>
+                        </div>
                     </div>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <StatCard
-                            icon={Users}
-                            title="Total Members"
-                            count={stats.totalMembers}
-                            color="indigo"
-                            sub="Official club registrations"
-                        />
-                        <StatCard
-                            icon={Trophy}
-                            title="Competitors"
-                            count={stats.totalCompetitors}
-                            color="emerald"
-                            sub="Event participants"
-                        />
-                        <StatCard
-                            icon={TrendingUp}
-                            title="Active Events"
-                            count={4}
-                            color="amber"
-                            sub="Current competitions"
-                        />
-                        <StatCard
-                            icon={Activity}
-                            title="Club Health"
-                            count="Stable"
-                            color="rose"
-                            sub="System status: Operational"
-                        />
+
+                    <div className="flex flex-wrap gap-3">
+                        <button
+                            onClick={() => setActiveTab("all")}
+                            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${
+                                activeTab === "all"
+                                    ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20"
+                                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                            }`}
+                        >
+                            All Time ({members.length})
+                        </button>
+                        {semesters.map(sem => (
+                            <button
+                                key={sem}
+                                onClick={() => setActiveTab(sem)}
+                                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${
+                                    activeTab === sem
+                                        ? sem.includes("Fall")
+                                            ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/20"
+                                            : "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20"
+                                        : "bg-white text-slate-600 border-slate-200 hover:border-emerald-400"
+                                }`}
+                            >
+                                {sem} ({members.filter(m => getSemesterFromDate(m.createdAt) === sem).length})
+                            </button>
+                        ))}
                     </div>
                 </section>
 
-                {/* Primary Action Navigation */}
-                <section className="grid md:grid-cols-2 gap-8">
+                {/* Stats Grid for selected semester */}
+                <AnimatePresence mode="wait">
+                    <motion.section
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <StatCard
+                                icon={Users}
+                                title="Members"
+                                count={filteredCount}
+                                color="indigo"
+                                sub={activeTab === "all" ? "All-time registrations" : `Joined in ${activeTab}`}
+                            />
+                            <StatCard
+                                icon={Building2}
+                                title="Top Dept"
+                                count={maxDept[0]}
+                                color="emerald"
+                                sub={`${maxDept[1]} members`}
+                            />
+                            <StatCard
+                                icon={Check}
+                                title="Departments"
+                                count={sortedDepts.length}
+                                color="amber"
+                                sub="Active departments"
+                            />
+                            <StatCard
+                                icon={TrendingUp}
+                                title="Growth"
+                                count={`${Math.round((filteredCount / members.length) * 100)}%`}
+                                color="rose"
+                                sub="Of total members"
+                            />
+                        </div>
+                    </motion.section>
+                </AnimatePresence>
+
+                {/* Navigation Cards */}
+                <section className="grid md:grid-cols-3 gap-8">
                     <NavCard
                         title="Member Management"
-                        description="View full list of registered club members, verify their payment IDs, export student data, and handle deletions."
+                        description="View registered club members, verify payments, export data, and manage deletions."
                         href="/admin/dashboard/members"
                         icon={Users}
                         color="bg-indigo-600"
-                        stats={`${stats.totalMembers} Records`}
+                        stats={`${members.length} Records`}
                     />
                     <NavCard
                         title="Competition Control"
-                        description="Review contest submissions, watch videos, browse galleries, and manage Round 1 & Round 2 selection status."
+                        description="Review contest submissions, browse galleries, and manage Round 1 & Round 2 status."
                         href="/admin/dashboard/competition"
                         icon={Trophy}
                         color="bg-emerald-600"
-                        stats={`${stats.totalCompetitors} Entries`}
+                        stats={`${competitors.length} Entries`}
                     />
-                </section>
-
-                {/* Additional Action Navigation */}
-                <section className="grid md:grid-cols-2 gap-8">
                     <NavCard
-                        title="Application Management"
-                        description="Review and manage applications for Batch Ambassador, Junior Executive, and Sub Executive roles."
+                        title="Applications"
+                        description="Review Batch Ambassador, Junior Executive, and Sub Executive applications."
                         href="/admin/dashboard/applications"
                         icon={FileText}
                         color="bg-sky-600"
@@ -192,61 +204,93 @@ export default function AdminDashboardOverview() {
                     />
                 </section>
 
-                {/* Secondary Data Views */}
-                <div className="grid lg:grid-cols-3 gap-10">
-
-                    {/* Competition Mix */}
-                    <motion.div variants={item} className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                                    <PieChart className="w-5 h-5 text-emerald-600" /> Event Participation Mix
-                                </h3>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">Registrations Count</div>
-                            </div>
-
-                            <div className="space-y-6 mb-8">
-                                <ProgBar label="Eco Capture" count={stats.compBreakdown['eco-capture'] || 0} total={stats.totalCompetitors} color="bg-cyan-500" icon={Camera} />
-                                <ProgBar label="Eco Buzzers" count={stats.compBreakdown['eco-buzzers'] || 0} total={stats.totalCompetitors} color="bg-amber-500" icon={Zap} />
-                                <ProgBar label="Green Story" count={stats.compBreakdown['green-story'] || 0} total={stats.totalCompetitors} color="bg-green-500" icon={Video} />
-                                <ProgBar label="Eco Pitch" count={stats.compBreakdown['eco-pitch'] || 0} total={stats.totalCompetitors} color="bg-pink-500" icon={FileText} />
-                            </div>
+                {/* Bottom Grid: Dept Breakdown + Competition Mix */}
+                <div className="grid lg:grid-cols-2 gap-8">
+                    {/* Department Breakdown */}
+                    <motion.div
+                        key={`dept-${activeTab}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                        className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                                <Building2 className="w-5 h-5 text-indigo-500" />
+                                Department Breakdown
+                            </h3>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+                                {activeTab === "all" ? "All Time" : activeTab}
+                            </span>
                         </div>
 
-                        <Link href="/admin/dashboard/competition" className="w-full py-4 bg-slate-50 hover:bg-slate-100 rounded-2xl flex items-center justify-center gap-2 group transition-all">
-                            <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900">Open detailed competition management</span>
-                            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </motion.div>
-
-                    {/* Recent Growth */}
-                    <motion.div variants={item} className="lg:col-span-1 bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-900/10 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                        <h3 className="text-xl font-extrabold mb-6 tracking-tight flex items-center gap-2">
-                            <Users className="w-5 h-5 text-emerald-400" /> Recent Joinees
-                        </h3>
-                        <div className="space-y-4 mb-8">
-                            {stats.recentMembers.length > 0 ? stats.recentMembers.map((m, i) => (
-                                <div key={i} className="flex items-center gap-4 group cursor-default">
-                                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs uppercase border border-white/5 group-hover:bg-white/20 transition-colors">
-                                        {m.name[0]}
+                        <div className="space-y-3">
+                            {sortedDepts.length > 0 ? sortedDepts.map(([dept, count]) => {
+                                const pct = filteredCount > 0 ? (count / filteredCount) * 100 : 0;
+                                return (
+                                    <div key={dept} className="flex items-center gap-3">
+                                        <span className="w-12 text-xs font-black text-slate-500 uppercase">{dept}</span>
+                                        <div className="flex-1 h-5 bg-slate-100 rounded-full overflow-hidden">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${pct}%` }}
+                                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                                className="h-full bg-indigo-500 rounded-full"
+                                            />
+                                        </div>
+                                        <span className="w-8 text-xs font-black text-slate-700 text-right">{count}</span>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-white leading-none">{m.name}</p>
-                                        <p className="text-[10px] text-white/40 font-medium mt-1">{m.department} • {m.studentId}</p>
-                                    </div>
+                                );
+                            }) : (
+                                <div className="flex flex-col items-center gap-2 py-8">
+                                    <Building2 className="w-8 h-8 text-slate-200" />
+                                    <p className="text-slate-400 text-sm font-medium">No member data in {activeTab === 'all' ? 'any semester' : activeTab}</p>
                                 </div>
-                            )) : (
-                                <p className="text-white/30 text-sm font-medium italic">No recent members found.</p>
                             )}
                         </div>
-                        <Link href="/admin/dashboard/members" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors">
-                            View All Members <ChevronRight className="w-4 h-4" />
+
+                        {sortedDepts.length > 0 && (
+                            <div className="flex gap-4 mt-6 pt-4 border-t border-slate-100">
+                                <div className="flex items-center gap-2 text-xs">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                    <span className="text-slate-500">Highest: <span className="font-bold text-slate-800">{maxDept[0]}</span> ({maxDept[1]})</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs">
+                                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                                    <span className="text-slate-500">Lowest: <span className="font-bold text-slate-800">{minDept[0]}</span> ({minDept[1]})</span>
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
+
+                    {/* Competition Mix */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.2 }}
+                        className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col justify-between"
+                    >
+                        <div>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                                    <PieChart className="w-5 h-5 text-emerald-600" /> Competition Mix
+                                </h3>
+                            </div>
+                            <div className="space-y-5">
+                                <ProgBar label="Eco Capture" count={compBreakdown['eco-capture'] || 0} total={filteredCompetitions.length} color="bg-cyan-500" icon={Camera} />
+                                <ProgBar label="Eco Buzzers" count={compBreakdown['eco-buzzers'] || 0} total={filteredCompetitions.length} color="bg-amber-500" icon={Zap} />
+                                <ProgBar label="Green Story" count={compBreakdown['green-story'] || 0} total={filteredCompetitions.length} color="bg-green-500" icon={Video} />
+                                <ProgBar label="Eco Pitch" count={compBreakdown['eco-pitch'] || 0} total={filteredCompetitions.length} color="bg-pink-500" icon={FileText} />
+                            </div>
+                        </div>
+                        <Link href="/admin/dashboard/competition" className="w-full py-3 mt-6 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center gap-2 group transition-all">
+                            <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900">Open Competition Management</span>
+                            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </motion.div>
                 </div>
 
-            </motion.main>
+            </div>
         </div>
     );
 }
@@ -258,37 +302,36 @@ function StatCard({ icon: Icon, title, count, color, sub }) {
         amber: "bg-amber-50 text-amber-600 border-amber-100",
         rose: "bg-rose-50 text-rose-600 border-rose-100"
     };
-
     return (
-        <motion.div variants={{ hidden: { y: 20, opacity: 0 }, show: { y: 0, opacity: 1 } }} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-300/50 transition-all group">
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl transition-all group">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colorStyles[color]} mb-4 transition-transform group-hover:scale-110`}>
                 <Icon className="w-6 h-6" />
             </div>
             <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{title}</h4>
             <p className="text-3xl font-black text-slate-900 mb-1">{count}</p>
             <p className="text-[10px] text-slate-500 font-bold italic">{sub}</p>
-        </motion.div>
+        </div>
     );
 }
 
 function NavCard({ title, description, href, icon: Icon, color, stats }) {
     return (
-        <motion.div variants={{ hidden: { y: 20, opacity: 0 }, show: { y: 0, opacity: 1 } }}>
-            <Link href={href} className="flex flex-col h-full bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-slate-300 hover:shadow-2xl hover:shadow-slate-400/20 transition-all group relative overflow-hidden">
+        <div>
+            <Link href={href} className="flex flex-col h-full bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-slate-300 hover:shadow-2xl transition-all group relative overflow-hidden">
                 <div className={`absolute top-0 right-0 w-48 h-48 ${color} opacity-[0.03] rounded-full -mr-24 -mt-24 pointer-events-none`}></div>
-                <div className="flex items-center justify-between mb-8 relative z-10">
+                <div className="flex items-center justify-between mb-6 relative z-10">
                     <div className={`w-14 h-14 rounded-2xl ${color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                         <Icon className="w-7 h-7" />
                     </div>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">{stats}</span>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-amber-600 transition-colors">{title}</h3>
-                <p className="text-slate-500 text-sm font-medium leading-relaxed mb-8 flex-1">{description}</p>
+                <h3 className="text-xl font-black text-slate-900 mb-3 group-hover:text-amber-600 transition-colors">{title}</h3>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed mb-6 flex-1">{description}</p>
                 <div className="flex items-center gap-2 font-black text-xs uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-                    Enter Platform <ArrowRight className="w-4 h-4" />
+                    Enter <ArrowRight className="w-4 h-4" />
                 </div>
             </Link>
-        </motion.div>
+        </div>
     );
 }
 
@@ -296,16 +339,14 @@ function ProgBar({ label, count, total, color, icon: Icon }) {
     const percentage = total > 0 ? (count / total) * 100 : 0;
     return (
         <div>
-            <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-slate-900 transition-colors border border-slate-100">
-                        <Icon className="w-4 h-4" />
-                    </div>
+            <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                    <Icon className="w-4 h-4 text-slate-400" />
                     <span className="text-xs font-black text-slate-700 uppercase tracking-tight">{label}</span>
                 </div>
                 <span className="text-xs font-black text-slate-900">{count} <span className="text-[10px] text-slate-400 font-bold">({percentage.toFixed(0)}%)</span></span>
             </div>
-            <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/50">
+            <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}

@@ -9,11 +9,14 @@ import {
     ChevronDown, FileSpreadsheet, FileText, FileJson,
     Smartphone, Trash2, AlertTriangle, X, Check,
     ExternalLink, CreditCard, User, Building2, MapPin, RefreshCw, Clock,
-    ArrowLeft
+    ArrowLeft, LayoutGrid, Calendar
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import { Skeleton } from "@/components/ui/skeleton";
+import SemesterTabs, { getSemesterFromDate, getSemestersFromItems } from '@/components/dashboard/SemesterTabs';
+
+const currentSemester = getSemesterFromDate(new Date());
 
 export default function AdminDashboard() {
     // State
@@ -26,6 +29,7 @@ export default function AdminDashboard() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [refreshInterval, setRefreshInterval] = useState(10000);
     const [fullscreenImage, setFullscreenImage] = useState(null);
+    const [semesterFilter, setSemesterFilter] = useState(currentSemester);
 
     // Refs & Hooks
     const exportMenuRef = useRef(null);
@@ -159,6 +163,7 @@ export default function AdminDashboard() {
             'Department': m.department,
             'Year': m.yearSemester,
             'Lab Group': m.labGroup || '-',
+            'Semester': getSemesterFromDate(m.createdAt) || '-',
             'Transaction ID': m.bkashId || 'N/A',
             'Payment Method': m.paymentMethod || 'Online',
             'Image Link': m.imageUrl || 'No Photo',
@@ -183,11 +188,25 @@ export default function AdminDashboard() {
         toast.success(`Exported ${exportData.length} records`);
     };
 
-    const filteredMembers = members.filter(m =>
-        m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredMembers = members.filter(m => {
+        const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            m.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            m.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSemester = semesterFilter === 'all' || getSemesterFromDate(m.createdAt) === semesterFilter;
+        return matchesSearch && matchesSemester;
+    });
+
+    // Derive available semesters from member data
+    const availableSemesters = getSemestersFromItems(members);
+
+    // Count members per semester
+    const semesterCounts = {
+        'all': members.length,
+        ...availableSemesters.reduce((acc, sem) => {
+            acc[sem] = members.filter(m => getSemesterFromDate(m.createdAt) === sem).length;
+            return acc;
+        }, {})
+    };
 
     // Render Helpers
     const StatCard = ({ title, value, icon: Icon, color, sub }) => (
@@ -274,13 +293,35 @@ export default function AdminDashboard() {
             {/* Main Content */}
             <main className="max-w-[1600px] mx-auto px-2 md:px-4 xl:px-8 py-8 space-y-8">
 
+                {/* Semester Tabs */}
+                <section>
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Calendar className="w-5 h-5 text-emerald-600" />
+                                Filter by Semester
+                            </h2>
+                            <p className="text-slate-500 font-medium text-xs">Select a semester to view its members.</p>
+                        </div>
+                        <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 tracking-widest">
+                            {filteredMembers.length} Shown
+                        </span>
+                    </div>
+                    <SemesterTabs
+                        semesters={availableSemesters}
+                        activeTab={semesterFilter}
+                        onTabChange={setSemesterFilter}
+                        counts={semesterCounts}
+                    />
+                </section>
+
                 {/* Toolbar */}
                 <div className="flex gap-3">
                     <div className="flex-1 flex bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
                         <Search className="w-5 h-5 text-slate-400 m-3" />
                         <input
                             type="text"
-                            placeholder="Search members..."
+                            placeholder="Search members by name, ID, or email..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             className="flex-1 outline-none text-slate-700 font-medium placeholder:text-slate-400 bg-transparent"
@@ -321,7 +362,7 @@ export default function AdminDashboard() {
                 {/* Table Container */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[70vh]">
                     <div className="overflow-auto flex-1">
-                        <table className="w-full text-left border-collapse min-w-[1000px]">
+                        <table className="w-full text-left border-collapse min-w-[1100px]">
                             <thead className="sticky top-0 z-20 bg-slate-100/95 backdrop-blur shadow-sm text-xs font-bold text-slate-600 uppercase tracking-wider">
                                 <tr>
                                     <th className="sticky left-0 z-30 bg-slate-100 px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Photo</th>
@@ -331,6 +372,7 @@ export default function AdminDashboard() {
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Ref</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Dept</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Year</th>
+                                    <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Semester</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Lab Group</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Payment</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 text-right border-b border-slate-200">Action</th>
@@ -354,9 +396,14 @@ export default function AdminDashboard() {
                                     ))
                                 ) : filteredMembers.length === 0 ? (
                                     <tr>
-                                        <td colSpan="10" className="px-6 py-20 text-center text-slate-400">
-                                            <User className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                            No members found
+                                        <td colSpan="10" className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center gap-3">
+                                                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+                                                    <User className="w-8 h-8 text-slate-300" />
+                                                </div>
+                                                <p className="text-slate-500 font-bold text-lg">No members in {semesterFilter === 'all' ? 'any semester' : semesterFilter}</p>
+                                                <p className="text-slate-400 text-sm">Members will appear here once registered for this semester.</p>
+                                            </div>
                                         </td>
                                     </tr>
                                 ) : (
@@ -401,6 +448,7 @@ export default function AdminDashboard() {
                                             <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3"><span className="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-medium text-xs shadow-sm">{member.department}</span></td>
 
                                             <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3 text-slate-600">{member.yearSemester}</td>
+                                            <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3"><span className="inline-flex items-center px-2.5 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-medium text-xs shadow-sm">{getSemesterFromDate(member.createdAt) || '-'}</span></td>
                                             <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3"><span className="inline-flex items-center px-2.5 py-1 rounded-full font-medium text-purple-700 bg-purple-50 border border-purple-200 text-xs shadow-sm">{member.labGroup || '-'}</span></td>
 
                                             <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3">
@@ -430,7 +478,7 @@ export default function AdminDashboard() {
                         </table>
                     </div>
                     <div className="bg-slate-50 border-t border-slate-200 px-6 py-3 text-xs text-slate-500 font-medium flex justify-between">
-                        <span>Showing {filteredMembers.length} records</span>
+                        <span>Showing {filteredMembers.length} of {members.length} records{semesterFilter !== 'all' ? ` (${semesterFilter})` : ''}</span>
                         <span className="flex items-center gap-1">
                             {refreshInterval > 0 && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
                             {refreshInterval > 0 ? `Auto-refresh: ${refreshInterval / 1000}s` : 'Auto-refresh: Off'}

@@ -6,11 +6,14 @@ import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
     FileText, Camera, Video, Zap, User, Users, Phone, Mail,
-    ChevronRight, X, Star, ArrowLeft, GraduationCap, ChevronDown
+    ChevronRight, X, Star, ArrowLeft, GraduationCap, ChevronDown, Calendar, LayoutGrid
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import * as XLSX from "xlsx";
 import Link from "next/link";
+import SemesterTabs, { getSemesterFromDate, getSemestersFromItems } from "@/components/dashboard/SemesterTabs";
+
+const currentSemester = getSemesterFromDate(new Date());
 
 export default function CompetitionAdmin() {
     const [competitors, setCompetitors] = useState([]);
@@ -24,6 +27,7 @@ export default function CompetitionAdmin() {
     const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
     const exportDropdownRef = useRef(null);
     const [photoSelectionLoading, setPhotoSelectionLoading] = useState(null);
+    const [semesterFilter, setSemesterFilter] = useState(currentSemester);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -432,12 +436,18 @@ export default function CompetitionAdmin() {
 
     const filteredCompetitors = competitors
         .filter(c => {
+            // Search filter
             const query = searchQuery.toLowerCase();
             const matchName = (c.name || '').toLowerCase().includes(query);
             const matchTeam = (c.teamName || '').toLowerCase().includes(query);
             const matchEmail = (c.email || '').toLowerCase().includes(query);
             const matchPhone = (c.phone || '').toLowerCase().includes(query);
-            return matchName || matchTeam || matchEmail || matchPhone;
+            const matchSearch = matchName || matchTeam || matchEmail || matchPhone;
+
+            // Semester filter
+            const matchSemester = semesterFilter === 'all' || getSemesterFromDate(c.createdAt) === semesterFilter;
+
+            return matchSearch && matchSemester;
         })
         .sort((a, b) => {
             let valA, valB;
@@ -467,6 +477,18 @@ export default function CompetitionAdmin() {
             setSortBy(field);
             setSortOrder("desc");
         }
+    };
+
+    // Derive available semesters from competition data
+    const availableSemesters = getSemestersFromItems(competitors);
+
+    // Count competitors per semester
+    const semesterCounts = {
+        'all': competitors.length,
+        ...availableSemesters.reduce((acc, sem) => {
+            acc[sem] = competitors.filter(c => getSemesterFromDate(c.createdAt) === sem).length;
+            return acc;
+        }, {})
     };
 
     const getStatusBadge = (status) => {
@@ -652,6 +674,28 @@ export default function CompetitionAdmin() {
                 </div>
             </div>
 
+            {/* Semester Tabs */}
+            <section className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-emerald-600" />
+                            Filter by Semester
+                        </h2>
+                        <p className="text-slate-500 font-medium text-xs">Select a semester to view its competitions.</p>
+                    </div>
+                    <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 tracking-widest">
+                        {filteredCompetitors.length} Entries Shown
+                    </span>
+                </div>
+                <SemesterTabs
+                    semesters={availableSemesters}
+                    activeTab={semesterFilter}
+                    onTabChange={setSemesterFilter}
+                    counts={semesterCounts}
+                />
+            </section>
+
             {/* Table Section */}
             <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden relative">
                 <div className="overflow-x-auto">
@@ -685,8 +729,13 @@ export default function CompetitionAdmin() {
                             ) : filteredCompetitors.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="py-32 text-center text-slate-400 bg-white">
-                                        <Filter className="w-12 h-12 mx-auto text-slate-200 mb-4" />
-                                        <p className="font-bold uppercase tracking-widest text-xs">No entries reached the surface</p>
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+                                                <Filter className="w-8 h-8 text-slate-300" />
+                                            </div>
+                                            <p className="text-slate-500 font-bold text-lg">No entries in {semesterFilter === 'all' ? 'any semester' : semesterFilter}</p>
+                                            <p className="text-slate-400 text-sm">Competition entries will appear here once submitted for this semester.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (

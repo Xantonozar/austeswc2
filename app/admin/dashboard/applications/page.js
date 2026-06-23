@@ -6,11 +6,14 @@ import {
     ChevronLeft, Loader2, CheckCircle, XCircle, Trash2,
     ImageIcon, ExternalLink, Users, Clock, ThumbsUp, ThumbsDown,
     X, Phone, Mail, Hash, BookOpen, Layers, Facebook,
-    MessageSquare, Star, Search, Filter, Eye
+    MessageSquare, Star, Search, Filter, Eye, Calendar, LayoutGrid
 } from "lucide-react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import SemesterTabs, { getSemesterFromDate, getSemestersFromItems } from "@/components/dashboard/SemesterTabs";
+
+const currentSemester = getSemesterFromDate(new Date());
 
 /* ─── Status & Role helpers ───────────────────── */
 const STATUS_META = {
@@ -156,6 +159,7 @@ export default function ApplicationsAdmin() {
     const [filterStatus, setFilterStatus] = useState("All");
     const [search, setSearch]             = useState("");
     const [selected, setSelected]         = useState(null);
+    const [semesterFilter, setSemesterFilter] = useState(currentSemester);
     const router = useRouter();
 
     const fetchApplications = async () => {
@@ -200,6 +204,18 @@ export default function ApplicationsAdmin() {
         Rejected: applications.filter(a => a.status === "Rejected").length,
     };
 
+    // Derive available semesters from application data
+    const availableSemesters = getSemestersFromItems(applications);
+
+    // Count applications per semester
+    const semesterCounts = {
+        'all': applications.length,
+        ...availableSemesters.reduce((acc, sem) => {
+            acc[sem] = applications.filter(a => getSemesterFromDate(a.createdAt) === sem).length;
+            return acc;
+        }, {})
+    };
+
     const filtered = applications.filter(app => {
         const roleMatch   = filterRole   === "All" || app.role   === filterRole;
         const statusMatch = filterStatus === "All" || app.status === filterStatus;
@@ -209,7 +225,8 @@ export default function ApplicationsAdmin() {
             || app.email.toLowerCase().includes(q)
             || app.studentId.toLowerCase().includes(q)
             || app.department.toLowerCase().includes(q);
-        return roleMatch && statusMatch && searchMatch;
+        const semesterMatch = semesterFilter === "all" || getSemesterFromDate(app.createdAt) === semesterFilter;
+        return roleMatch && statusMatch && searchMatch && semesterMatch;
     });
 
     if (loading) return (
@@ -238,7 +255,7 @@ export default function ApplicationsAdmin() {
 
             {/* Navbar */}
             <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div className="max-w-[1600px] mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Link href="/admin/dashboard" className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-500">
                             <ChevronLeft className="w-5 h-5" />
@@ -254,7 +271,7 @@ export default function ApplicationsAdmin() {
                 </div>
             </nav>
 
-            <main className="max-w-7xl mx-auto px-6 py-10 space-y-7">
+            <main className="max-w-[1600px] mx-auto px-2 md:px-4 xl:px-8 py-10 space-y-7">
 
                 {/* ── Stat cards ── */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -278,6 +295,28 @@ export default function ApplicationsAdmin() {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* ── Semester Tabs ── */}
+                <section>
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                                <Calendar className="w-5 h-5 text-indigo-600" />
+                                Filter by Semester
+                            </h2>
+                            <p className="text-slate-500 font-medium text-xs">Select a semester to view its applications.</p>
+                        </div>
+                        <span className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 tracking-widest">
+                            {filtered.length} Shown
+                        </span>
+                    </div>
+                    <SemesterTabs
+                        semesters={availableSemesters}
+                        activeTab={semesterFilter}
+                        onTabChange={setSemesterFilter}
+                        counts={semesterCounts}
+                    />
+                </section>
 
                 {/* ── Search + Filters ── */}
                 <div className="flex flex-col lg:flex-row gap-3">
@@ -322,8 +361,8 @@ export default function ApplicationsAdmin() {
                             <div className="w-20 h-20 rounded-3xl bg-slate-100 flex items-center justify-center">
                                 <Users className="w-9 h-9 text-slate-300" />
                             </div>
-                            <p className="text-slate-500 font-bold text-lg">No applications found</p>
-                            <p className="text-slate-400 text-sm">Try adjusting the filters or search.</p>
+                            <p className="text-slate-500 font-bold text-lg">No applications in {semesterFilter === 'all' ? 'any semester' : semesterFilter}</p>
+                            <p className="text-slate-400 text-sm">Applications will appear here once submitted for this semester.</p>
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
