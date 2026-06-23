@@ -89,7 +89,13 @@ function Navbar() {
             </ul>
           </div>
 
-          {/* Right Section: Buttons - Removed */}
+          {/* Right Section: Admin Login Button */}
+          <div className="flex-1 flex justify-end">
+            <Link href="/admin/login" className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 transition-all">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+              Admin
+            </Link>
+          </div>
 
           {/* Mobile Menu Button - Visible Only on Small Screens */}
           <div className="md:hidden">
@@ -179,7 +185,12 @@ function Navbar() {
                 )}
               </li>
             </ul>
-            {/* Removed greenova logo from mobile menu */}
+            <div className="mt-8 pt-6 border-t border-green-200">
+              <Link href="/admin/login" className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-all" onClick={toggleMenu}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                Admin Login
+              </Link>
+            </div>
           </div>
         </div>
       )}
