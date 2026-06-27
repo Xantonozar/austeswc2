@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Eco Investor",
+    "phone": "01704765781",
+    "email": "tanjimjamiataj9@gmail.com",
+    "transactionId": "DCQ9HJS7X5",
+    "paymentAmount": 400,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Eco Investor",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Tanjim Jamia Taj",
+        "email": "tanjimjamiataj9@gmail.com",
+        "phone": "01704765781",
+        "studentId": "",
+        "university": "AUST"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-03-25T18:24:53.124Z"
+  }
+]

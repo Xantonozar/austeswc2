@@ -1,0 +1,321 @@
+[
+  {
+    "name": "VERDANT",
+    "phone": "01718868407",
+    "email": "nurunnahar05051@gmail.com",
+    "transactionId": "01718868407",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "VERDANT",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Nurun nahar Nupur",
+        "email": "nurunnahar05051@gmail.com",
+        "phone": "01718868407",
+        "studentId": "",
+        "university": "North South University"
+      },
+      {
+        "name": "Rufaida hossain Chowdhury",
+        "email": "rufaida.chowdhury@northsouth.edu",
+        "phone": "+8801408964213",
+        "studentId": "",
+        "university": "North South University"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-02T17:24:46.093Z"
+  },
+  {
+    "name": "ExcelliStitch",
+    "phone": "01955294249",
+    "email": "zunayedks11@gmail.com",
+    "transactionId": "DD21Q7FI3H",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "ExcelliStitch",
+    "universityName": "",
+    "members": [
+      {
+        "name": "MD. Zunayed Khan Sifat",
+        "email": "zunayedks11@gmail.com",
+        "phone": "01955294249",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      },
+      {
+        "name": "Shifat Hasan",
+        "email": "shifat31256@gmail.com",
+        "phone": "01576524137",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-02T16:25:49.197Z"
+  },
+  {
+    "name": "Genius Squad",
+    "phone": "01333887673",
+    "email": "ahshanhabib811@gmail.com",
+    "transactionId": "DD22Q6D2FA",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Genius Squad",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Ahsan Habib",
+        "email": "ahshanhabib811@gmail.com",
+        "phone": "01333887673",
+        "studentId": "",
+        "university": "BGMEA UNIVERSITY FASHION AND TECHNOLOGY"
+      },
+      {
+        "name": "Shadman Nakib",
+        "email": "shadmannakibkgf@gmail.com",
+        "phone": "01707492644",
+        "studentId": "",
+        "university": "BGMEA UNIVERSITY FASHION AND TECHNOLOGY"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-02T16:01:03.400Z"
+  },
+  {
+    "name": "EcoTex",
+    "phone": "+8801314445444",
+    "email": "tasdikahmed999@gmail.com",
+    "transactionId": "DD27Q557YP",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "EcoTex",
+    "universityName": "",
+    "members": [
+      {
+        "name": "TASDIK AHMED",
+        "email": "tasdikahmed999@gmail.com",
+        "phone": "+8801314445444",
+        "studentId": "",
+        "university": "BGMEA UNIVERSITY OF FASHION & TECHNOLOGY"
+      },
+      {
+        "name": "MOHIMINUL ALAM",
+        "email": "rawfun.alam2004@gmail.com",
+        "phone": "+8801757310912",
+        "studentId": "",
+        "university": "BGMEA UNIVERSITY OF FASHION & TECHNOLOGY"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-02T15:33:41.701Z"
+  },
+  {
+    "name": "Babushka",
+    "phone": "01795111957",
+    "email": "zakwan6012003@gmail.com",
+    "transactionId": "DD27PYHCSV",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Babushka",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Zakwan Masud",
+        "email": "zakwan6012003@gmail.com",
+        "phone": "01795111957",
+        "studentId": "",
+        "university": "Islamic University of Technology(IUT)"
+      },
+      {
+        "name": "Soptomi Debnath",
+        "email": "debnathsoptomi2004@gmail.com",
+        "phone": "+8801611035904",
+        "studentId": "",
+        "university": "BGMEA University of Fashion & Technology (BUFT)"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-02T13:24:59.042Z"
+  },
+  {
+    "name": "Eco Bloom",
+    "phone": "01975608070",
+    "email": "efaadiba499@gmail.com",
+    "transactionId": "DD24PGUBMU",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Eco Bloom",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Afra Adiba",
+        "email": "efaadiba499@gmail.com",
+        "phone": "01975608070",
+        "studentId": "",
+        "university": "BGMEA University of Fashion & Technology"
+      },
+      {
+        "name": "Rafia Al Raji",
+        "email": "srafia637@gmai.com",
+        "phone": "01798293547",
+        "studentId": "",
+        "university": "BGMEA University of Fashion & Technology"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-02T05:42:37.382Z"
+  },
+  {
+    "name": "Vogen",
+    "phone": "01777606954",
+    "email": "mahirdhali6@gmail.com",
+    "transactionId": "DD16P5GRWQ",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Vogen",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Md. Mahir Kabir Dhali",
+        "email": "mahirdhali6@gmail.com",
+        "phone": "01777606954",
+        "studentId": "",
+        "university": "Ahsanullah University of Science & Technology"
+      },
+      {
+        "name": "Yasir Khan Siam",
+        "email": "yasirsiam0@gmail.com",
+        "phone": "01771411582",
+        "studentId": "",
+        "university": "Ahsanullah University of Science & Technology"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-04-01T17:42:00.154Z"
+  },
+  {
+    "name": "Nature Nexus",
+    "phone": "01819458285",
+    "email": "ahmad.quoreshi.253@northsouth.edu",
+    "transactionId": "DCU4LSCYP4",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Nature Nexus",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Ahmad Mustafa Quoreshi",
+        "email": "ahmad.quoreshi.253@northsouth.edu",
+        "phone": "01819458285",
+        "studentId": "",
+        "university": "North South University"
+      },
+      {
+        "name": "YEASIN ARAFAT TASIM",
+        "email": "yeasin.te.00724214121253@aust.edu",
+        "phone": "01540667560",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-03-29T19:49:02.181Z"
+  },
+  {
+    "name": "Green Storm",
+    "phone": "01890048440",
+    "email": "nusratmahrin9@gmail.com",
+    "transactionId": "DCR3IJOFIJ",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Green Storm",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Nusrat Jahan Mahrin",
+        "email": "nusratmahrin9@gmail.com",
+        "phone": "01890048440",
+        "studentId": "",
+        "university": "Ahsanullah university of science and technology"
+      },
+      {
+        "name": "Sanzida Azgar",
+        "email": "sazida01azgar@gmail.com",
+        "phone": "01324375472",
+        "studentId": "",
+        "university": "Ahsanullah university of science and technology"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-03-26T18:16:56.865Z"
+  },
+  {
+    "name": "The Green Minds",
+    "phone": "01814219200",
+    "email": "bushrafabiha61@gmail.com",
+    "transactionId": "DCP3HIRTX9",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "The Green Minds",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Fabiha Bushra Takiya",
+        "email": "bushrafabiha61@gmail.com",
+        "phone": "01814219200",
+        "studentId": "",
+        "university": "Ahsanullah University of science and technology"
+      },
+      {
+        "name": "Kazi Tajmil Ahmed",
+        "email": "tajmil.kazi@gmail.com",
+        "phone": "01327226630",
+        "studentId": "",
+        "university": "Ahsanullah University of science and technology"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-03-25T17:32:00.856Z"
+  },
+  {
+    "name": "Green-Stavers",
+    "phone": "01727881981",
+    "email": "rubayetnabil@gmail.com",
+    "transactionId": "DCP2H8MK7S",
+    "paymentAmount": 720,
+    "paymentMethod": "BKASH",
+    "paidRound": 1,
+    "teamName": "Green-Stavers",
+    "universityName": "",
+    "members": [
+      {
+        "name": "Md. Rubayet  Islam Nabil",
+        "email": "rubayetnabil@gmail.com",
+        "phone": "01727881981",
+        "studentId": "",
+        "university": "Jagannath University"
+      },
+      {
+        "name": "Mahathir Mohammad",
+        "email": "mmaditto.2003@gmail.com",
+        "phone": "01796787472",
+        "studentId": "",
+        "university": "Jagannath University"
+      }
+    ],
+    "status": "registered",
+    "registeredAt": "2026-03-25T13:09:31.993Z"
+  }
+]

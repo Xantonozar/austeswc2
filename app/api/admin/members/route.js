@@ -19,7 +19,7 @@ export async function GET(req) {
         }
 
         await connectDB();
-        const members = await Member.find({}, 'name studentId email phone department yearSemester labGroup paymentMethod bkashId imageUrl createdAt reference')
+        const members = await Member.find({}, 'name studentId email phone department yearSemester labGroup paymentMethod bkashId imageUrl createdAt reference recruitmentSemester')
             .sort({ createdAt: -1 })
             .lean();
 

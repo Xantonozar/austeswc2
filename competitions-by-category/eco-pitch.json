@@ -1,0 +1,417 @@
+[
+  {
+    "teamName": "Planet Hacker",
+    "email": "jannatulalamsafa@gmail.com",
+    "phone": "01745691709",
+    "status": "selected",
+    "registeredAt": "2026-03-31T17:46:17.263Z",
+    "members": [
+      {
+        "name": "Jannatul Alam Safa",
+        "email": "jannatulalamsafa@gmail.com",
+        "phone": "01745691709",
+        "studentId": "",
+        "university": "AUST"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DD35RAFQGB",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": false,
+      "amount": 0,
+      "transactionId": "",
+      "paymentMethod": "BKASH",
+      "verified": false
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774979176/eswc_competition/etmaatgygzyblw4mtuyq.pdf"
+  },
+  {
+    "teamName": "Crimson",
+    "email": "mahirdhali6@gmail.com",
+    "phone": "+8801777606954",
+    "status": "paid",
+    "registeredAt": "2026-03-31T15:53:56.284Z",
+    "members": [
+      {
+        "name": "Md. Mahir Kabir Dhali",
+        "email": "mahirdhali6@gmail.com",
+        "phone": "+8801777606954",
+        "studentId": "",
+        "university": "Ahsanullah University of Science & Technology"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCV0NXGB48",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DD40SAK4BW",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774972435/eswc_competition/mzjb12iiwyzcks20isnj.pdf"
+  },
+  {
+    "teamName": "EcoVision",
+    "email": "adnan.cse.20230104019@aust.edu",
+    "phone": "01729998600",
+    "status": "paid",
+    "registeredAt": "2026-03-31T15:41:34.564Z",
+    "members": [
+      {
+        "name": "Md Adnan Mia",
+        "email": "adnan.cse.20230104019@aust.edu",
+        "phone": "01729998600",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCV2NWU926",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DD47S4KNKR",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774971693/eswc_competition/xzs7gjhzqwrxjccrjsb5.pdf"
+  },
+  {
+    "teamName": "NBA trio",
+    "email": "anikicon123456@gmail.com",
+    "phone": "01767309661",
+    "status": "selected",
+    "registeredAt": "2026-03-31T15:26:22.815Z",
+    "members": [
+      {
+        "name": "Riadul Islam",
+        "email": "anikicon123456@gmail.com",
+        "phone": "01767309661",
+        "studentId": "",
+        "university": "BUET"
+      },
+      {
+        "name": "Nadia Islam Bristy",
+        "email": "bristynadia1070@gmail.com",
+        "phone": "01409708190",
+        "studentId": "",
+        "university": "BUET"
+      },
+      {
+        "name": "Zannaty Tazrin",
+        "email": "zeeteans@gmail.com",
+        "phone": "01533338896",
+        "studentId": "",
+        "university": "BUET"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCV8NW6L9M",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": false,
+      "amount": 0,
+      "transactionId": "",
+      "paymentMethod": "BKASH",
+      "verified": false
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774970781/eswc_competition/i6we2ryg9dsnfuxkvxqo.pdf"
+  },
+  {
+    "teamName": "CARBONLOOP",
+    "email": "nurun.nahar02@northsouth.edu",
+    "phone": "01718868407",
+    "status": "selected",
+    "registeredAt": "2026-03-31T11:53:20.163Z",
+    "members": [
+      {
+        "name": "Nurun Nahar Nupur",
+        "email": "nurun.nahar02@northsouth.edu",
+        "phone": "01718868407",
+        "studentId": "",
+        "university": "North South University"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "01718868407",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": false,
+      "amount": 0,
+      "transactionId": "",
+      "paymentMethod": "BKASH",
+      "verified": false
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774957999/eswc_competition/ryzcydosgqqlf1uomviq.pdf"
+  },
+  {
+    "teamName": "Saturnine Spectre",
+    "email": "fairuz.bba.00724204081005@aust.edu",
+    "phone": "01766561608",
+    "status": "paid",
+    "registeredAt": "2026-03-24T17:48:20.298Z",
+    "members": [
+      {
+        "name": "Fairuz Shams",
+        "email": "fairuz.bba.00724204081005@aust.edu",
+        "phone": "01766561608",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCO1GHT5SL",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DD36QVN72W",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774374499/eswc_competition/lpzeo05ztsuxdgmdvdtc.pdf"
+  },
+  {
+    "teamName": "ReViva",
+    "email": "raisashazzad78@gmail.com",
+    "phone": "01862411129",
+    "status": "paid",
+    "registeredAt": "2026-03-24T10:42:09.690Z",
+    "members": [
+      {
+        "name": "Raisa Shazzad",
+        "email": "raisashazzad78@gmail.com",
+        "phone": "01862411129",
+        "studentId": "",
+        "university": "Jahangirnagar University"
+      },
+      {
+        "name": "Afia Fahmida Huma",
+        "email": "afiafahmida85@gmail.com",
+        "phone": "01915500752",
+        "studentId": "",
+        "university": "Jahangirnagar University"
+      },
+      {
+        "name": "F. A. Twoha",
+        "email": "fahimabrar740@gmail.com",
+        "phone": "01724548338",
+        "studentId": "",
+        "university": "Jahangirnagar University"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCO4G1QAY2",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DD36QIZL6U",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774348928/eswc_competition/rr3wd5vcdpv7espcgyrb.pdf"
+  },
+  {
+    "teamName": "BuildHive",
+    "email": "adityachowdhury0176@gmail.com",
+    "phone": "01765899733",
+    "status": "paid",
+    "registeredAt": "2026-03-24T09:51:37.418Z",
+    "members": [
+      {
+        "name": "Aditya Chowdhury",
+        "email": "adityachowdhury0176@gmail.com",
+        "phone": "01765899733",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      },
+      {
+        "name": "Shreyoshi Sarkar",
+        "email": "shreyoshibd2019@gmail.com",
+        "phone": "01301774439",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCO2G058SU",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DD35R89L2D",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774345896/eswc_competition/dzpgtbzfqwakzf59qhas.pdf"
+  },
+  {
+    "teamName": "WindWhisper",
+    "email": "anupomahhq@gmail.com",
+    "phone": "01707060384",
+    "status": "selected",
+    "registeredAt": "2026-03-22T15:59:32.379Z",
+    "members": [
+      {
+        "name": "Anupoma Haque Anika",
+        "email": "anupomahhq@gmail.com",
+        "phone": "01707060384",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      },
+      {
+        "name": "Zarin Tasnim Fema",
+        "email": "zarintasnimfema@gmail.com",
+        "phone": "01300357092",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCM7EI10HH",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": false,
+      "amount": 0,
+      "transactionId": "",
+      "paymentMethod": "BKASH",
+      "verified": false
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1774195171/eswc_competition/oswhjay22h1ajguufzog.pdf"
+  },
+  {
+    "teamName": "FinWrap",
+    "email": "mushfiquddinrafid@gmail.com",
+    "phone": "01920471702",
+    "status": "selected",
+    "registeredAt": "2026-03-18T16:08:40.245Z",
+    "members": [
+      {
+        "name": "Mushfiquddin Rafid",
+        "email": "mushfiquddinrafid@gmail.com",
+        "phone": "01920471702",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      },
+      {
+        "name": "Md. Ariful Islam",
+        "email": "islamariful384@gmail.com",
+        "phone": "01758767967",
+        "studentId": "",
+        "university": "Ahsanullah University of Science and Technology"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "DCI89V7G1E",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": false,
+      "amount": 0,
+      "transactionId": "",
+      "paymentMethod": "BKASH",
+      "verified": false
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1773850119/eswc_competition/tm00ehqycyx9neir8kg9.pdf"
+  },
+  {
+    "teamName": "EcoNerds",
+    "email": "atanjila89@gmail.com",
+    "phone": "01738362499",
+    "status": "selected",
+    "registeredAt": "2026-03-15T14:57:57.027Z",
+    "members": [
+      {
+        "name": "Tanjila Akter",
+        "email": "atanjila89@gmail.com",
+        "phone": "01738362499",
+        "studentId": "",
+        "university": "Jahangirnagar University"
+      },
+      {
+        "name": "Fatama Akter",
+        "email": "xenxedxen628@gmail.com",
+        "phone": "01871329961",
+        "studentId": "",
+        "university": "Jahangirnagar University"
+      },
+      {
+        "name": "Tasfia Khanom Maria",
+        "email": "tasfia502861@gmail.com",
+        "phone": "01898940912",
+        "studentId": "",
+        "university": "Jahangirnagar University"
+      }
+    ],
+    "round1": {
+      "paid": true,
+      "amount": 300,
+      "transactionId": "01738362499",
+      "paymentMethod": "BKASH",
+      "verified": true
+    },
+    "round2": {
+      "selected": true,
+      "paid": false,
+      "amount": 0,
+      "transactionId": "",
+      "paymentMethod": "BKASH",
+      "verified": false
+    },
+    "pdfUrl": "https://res.cloudinary.com/chirkut/raw/upload/v1773586676/eswc_competition/cjp3tscnq27kr0tsc2wd.pdf"
+  }
+]

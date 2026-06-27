@@ -356,7 +356,7 @@ export default function CheckStatusPage() {
                                                                         <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
                                                                             <div className="flex flex-col items-center sm:items-start">
                                                                                 <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Send Money To ({paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</span>
-                                                                                <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-[#1B4B43]">01853259598</span>
+                                                                                <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-[#1B4B43]">01639802823</span>
                                                                             </div>
                                                                             <div className="flex flex-col items-center sm:items-end">
                                                                                 <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Amount</span>

@@ -1,0 +1,26 @@
+[
+  {
+    "category": "eco-buzzers",
+    "total": 11,
+    "paid": 11,
+    "amountPerEntry": 720
+  },
+  {
+    "category": "eco-capture",
+    "total": 29,
+    "paid": 11,
+    "amountPerEntry": 300
+  },
+  {
+    "category": "eco-pitch",
+    "total": 11,
+    "paid": 11,
+    "amountPerEntry": 300
+  },
+  {
+    "category": "green-story",
+    "total": 1,
+    "paid": 1,
+    "amountPerEntry": 400
+  }
+]

@@ -13,6 +13,7 @@ import PanelMembers from "@/components/panel";
 import { Cards } from "@/components/card";
 import MojarSchool from "@/components/mojar-school";
 import UsnotarHasi from "@/components/usnotar-hasi";
+import Greenova from "@/components/greenova";
 import LatestActivities from "@/components/latest-activities";
 import { InteractiveGridPatternDemo } from "@/components/grid";
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
       <Cards />
       <MojarSchool />
       <UsnotarHasi />
+      <Greenova />
       <LatestActivities />
       <LowSection />
       <Spotlight />

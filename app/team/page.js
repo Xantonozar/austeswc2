@@ -5,8 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 
 export default function PanelMembers() {
-  // Current members (Fall 24)
-  const spring25Members = [
+  // Current members (Fall 25)
+  const fall25Members = [
     {
       fullName: "MS Saida Sultana",
       designation: "Advisor",
@@ -134,6 +134,9 @@ export default function PanelMembers() {
       social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
     }
   ];
+
+  // Spring 25 members
+  const spring25Members = [];
 
   // Fall 24 members
   const fall24Members = [
@@ -509,12 +512,18 @@ export default function PanelMembers() {
         </motion.div>
 
         <Tabs defaultValue="current" className="w-full">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8 bg-gray-100 p-1 rounded-lg">
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-6 mb-8 bg-gray-100 p-1 rounded-lg">
             <TabsTrigger
               value="current"
               className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
             >
               Current
+            </TabsTrigger>
+            <TabsTrigger
+              value="fall25"
+              className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+            >
+              Fall 25
             </TabsTrigger>
             <TabsTrigger
               value="spring25"
@@ -548,7 +557,17 @@ export default function PanelMembers() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              {renderMemberCards(spring25Members)}
+              {renderMemberCards(fall25Members)}
+            </motion.div>
+          </TabsContent>
+
+          <TabsContent value="fall25">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {renderMemberCards(fall25Members)}
             </motion.div>
           </TabsContent>
 

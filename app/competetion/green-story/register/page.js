@@ -289,7 +289,7 @@ export default function GreenStoryRegister() {
                             <div className="bg-white rounded-xl p-4 flex items-center justify-between border border-gray-100">
                                 <div>
                                     <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">bKash / Nagad</p>
-                                    <p className="text-xl font-bold text-[#1B4B43] tracking-wide">01853259598</p>
+                                    <p className="text-xl font-bold text-[#1B4B43] tracking-wide">01639802823</p>
                                 </div>
                                 <Smartphone className="w-8 h-8 text-[#1B4B43]/50" />
                             </div>

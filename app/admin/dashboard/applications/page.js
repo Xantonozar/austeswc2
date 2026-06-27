@@ -6,11 +6,12 @@ import {
     ChevronLeft, Loader2, CheckCircle, XCircle, Trash2,
     ImageIcon, ExternalLink, Users, Clock, ThumbsUp, ThumbsDown,
     X, Phone, Mail, Hash, BookOpen, Layers, Facebook,
-    MessageSquare, Star, Search, Filter, Eye, Calendar, LayoutGrid
+    MessageSquare, Star, Search, Filter, Eye, Calendar, LayoutGrid, Download
 } from "lucide-react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import * as XLSX from "xlsx";
 import SemesterTabs, { getSemesterFromDate, getSemestersFromItems } from "@/components/dashboard/SemesterTabs";
 
 const currentSemester = getSemesterFromDate(new Date());
@@ -229,6 +230,51 @@ export default function ApplicationsAdmin() {
         return roleMatch && statusMatch && searchMatch && semesterMatch;
     });
 
+    const handleExport = () => {
+        if (filtered.length === 0) {
+            toast.error("No data to export");
+            return;
+        }
+
+        const exportData = filtered.map(app => ({
+            "Name": app.name,
+            "Semester": app.semester,
+            "Department": app.department,
+            "Lab Group": app.section || "—",
+            "Student ID": app.studentId,
+            "Email": app.email,
+            "Phone Number": app.phone,
+            "Image Link": app.imageUrl || "No Image"
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        
+        // Add clickable hyperlinks to the 'Image Link' column (Column H)
+        for (let i = 0; i < filtered.length; i++) {
+            const cellAddress = `H${i + 2}`; // Row 1 is header, data starts at Row 2
+            const cell = ws[cellAddress];
+            if (cell && cell.v !== "No Image") {
+                cell.l = { Target: cell.v, Tooltip: "Click to open image" };
+            }
+        }
+        
+        // Professional spacing
+        ws['!cols'] = [
+            { wch: 30 }, // Name
+            { wch: 15 }, // Semester
+            { wch: 35 }, // Department
+            { wch: 15 }, // Lab Group
+            { wch: 20 }, // Student ID
+            { wch: 35 }, // Email
+            { wch: 20 }, // Phone Number
+            { wch: 60 }  // Image Link
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Applications");
+        XLSX.writeFile(wb, `Applications_${semesterFilter}_${Date.now()}.xlsx`);
+    };
+
     if (loading) return (
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xl shadow-indigo-200 animate-pulse">
@@ -265,9 +311,18 @@ export default function ApplicationsAdmin() {
                         </div>
                         <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">Application Management</h1>
                     </div>
-                    <span className="hidden sm:block text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 tracking-widest">
-                        {applications.length} Total
-                    </span>
+                    <div className="flex items-center gap-3">
+                        <span className="hidden sm:block text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 tracking-widest">
+                            {applications.length} Total
+                        </span>
+                        <button 
+                            onClick={handleExport}
+                            className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl font-bold transition-all text-sm shadow-md active:scale-95"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span className="hidden sm:inline">Export Excel</span>
+                        </button>
+                    </div>
                 </div>
             </nav>
 

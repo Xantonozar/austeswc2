@@ -33,6 +33,9 @@ const MemberSchema = new mongoose.Schema({
             return this.department !== 'BBA';
         },
     },
+    recruitmentSemester: {
+        type: String,
+    },
     studentId: {
         type: String,
         required: [true, 'Please provide a student ID'],

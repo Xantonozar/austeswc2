@@ -288,7 +288,7 @@ export default function ThreePitchRegister() {
                             <Smartphone className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
                             <div>
                                 <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money ({form.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</p>
-                                <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01853259598</span></p>
+                                <p className="font-medium text-yellow-800">No: <span className="font-bold select-all">01639802823</span></p>
                                 <p className="font-medium text-yellow-800">Total: <span className="font-bold text-xl ml-1">300 BDT</span></p>
                             </div>
                         </div>
