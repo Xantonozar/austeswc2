@@ -375,6 +375,7 @@ export default function AdminDashboard() {
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Semester</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Lab Group</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Payment</th>
+                                    <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 border-b border-slate-200">Joined</th>
                                     <th className="px-3 py-3 lg:px-2 lg:py-2 xl:px-6 xl:py-4 text-right border-b border-slate-200">Action</th>
                                 </tr>
                             </thead>
@@ -460,6 +461,22 @@ export default function AdminDashboard() {
                                                 ) : (
                                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-emerald-700 bg-emerald-50 border border-emerald-200 font-bold text-xs shadow-sm">CASH</span>
                                                 )}
+                                            </td>
+
+                                            <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3">
+                                                {member.createdAt ? (() => {
+                                                    const d = new Date(member.createdAt);
+                                                    const date = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                                                    const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+                                                    return (
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium text-slate-700">{date}</span>
+                                                            <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
+                                                                <Clock className="w-2.5 h-2.5" />{time}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })() : <span className="text-slate-300">—</span>}
                                             </td>
 
                                             <td className="px-3 py-2 lg:px-2 lg:py-1.5 xl:px-6 xl:py-3 text-right">

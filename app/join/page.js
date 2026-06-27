@@ -197,12 +197,14 @@ export default function JoinPage() {
                 if (!form.email.trim()) return 'Email is required';
                 const lower = form.email.toLowerCase();
                 const isAust = lower.endsWith('@aust.edu');
-                if (form.yearSemester === '1-1') {
-                    const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
-                    if (!isAust && !domains.some(d => lower.includes(d))) return '1-1 students need @aust.edu or a valid provider';
-                } else if (!isAust) {
+                
+                const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lower);
+                if (!isValidEmail) return 'Please enter a valid email address';
+
+                if (form.yearSemester !== '1-1' && !isAust) {
                     return 'Please use your official @aust.edu email';
                 }
+                
                 if (isDuplicateEmail) return 'This email is already registered';
                 return '';
             }
