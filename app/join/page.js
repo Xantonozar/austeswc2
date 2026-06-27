@@ -30,7 +30,7 @@ export default function JoinPage() {
         labGroup: '',
         studentId: '',
         bkashId: '',
-        paymentMethod: 'Online',
+        paymentMethod: 'Cash',
         reference: '',
         agreeToTerms: false
     });
@@ -45,6 +45,8 @@ export default function JoinPage() {
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
     const [loading, setLoading] = useState(false);
+    const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+    const [isLabGroupDropdownOpen, setIsLabGroupDropdownOpen] = useState(false);
 
     const router = useRouter();
     const fileInputRef = useRef(null);
@@ -201,6 +203,7 @@ export default function JoinPage() {
                 } else if (!isAust) {
                     return 'Please use your official @aust.edu email';
                 }
+                if (isDuplicateEmail) return 'This email is already registered';
                 return '';
             }
             case 'studentId': {
@@ -231,7 +234,7 @@ export default function JoinPage() {
             department: true, yearSemester: true, labGroup: true,
             bkashId: true, agreeToTerms: true, photo: true
         });
-        return Object.keys(newErrors).length === 0;
+        return newErrors;
     };
 
     // Compute errors for display
@@ -241,7 +244,6 @@ export default function JoinPage() {
     });
     if (touched.photo && !imageUrl && !isUploadingImage) displayErrors.photo = 'Profile photo is required';
     if (uploadError) displayErrors.photo = uploadError;
-    if (isDuplicateEmail && touched.email) displayErrors.email = 'This email is already registered';
 
     const isFormValid =
         form.name.trim() &&
@@ -262,9 +264,17 @@ export default function JoinPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateAll()) {
-            const firstError = document.querySelector('.field-error');
-            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const formErrors = validateAll();
+        const errorKeys = Object.keys(formErrors);
+        
+        if (errorKeys.length > 0) {
+            const firstErrorKey = errorKeys[0];
+            toast.error(formErrors[firstErrorKey]);
+            
+            setTimeout(() => {
+                const firstError = document.querySelector('.field-error');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
             return;
         }
 
@@ -330,7 +340,7 @@ export default function JoinPage() {
     };
 
     const inputClass = (name) =>
-        `w-full bg-slate-50 border rounded-xl px-4 py-3.5 text-slate-900 font-medium focus:ring-2 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 ${
+        `w-full bg-slate-50 border rounded-xl px-3 md:px-4 py-2.5 md:py-3.5 text-slate-900 text-sm md:text-base font-medium focus:ring-2 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 ${
             displayErrors[name] ? 'border-red-300 focus:ring-red-500' : 'border-slate-200 focus:ring-emerald-500'
         }`;
 
@@ -350,7 +360,7 @@ export default function JoinPage() {
                 </div>
             </div>
 
-            <div className="bg-emerald-600 text-white pt-8 pb-16 px-4 -mt-[1px] relative overflow-hidden">
+            <div className="bg-emerald-600 text-white pt-6 pb-12 px-4 -mt-[1px] relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <Leaf className="w-32 h-32 rotate-12" />
                 </div>
@@ -368,15 +378,15 @@ export default function JoinPage() {
                 transition={{ duration: 0.4 }}
                 className="max-w-xl mx-auto px-4 -mt-8 relative z-20"
             >
-                <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-xl p-6 md:p-8 space-y-8">
+                <form onSubmit={handleSubmit} className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 sm:p-6 md:p-8 space-y-6 md:space-y-8">
 
                     {/* Personal Info */}
-                    <div className="space-y-5">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 bg-emerald-100 rounded-lg">
-                                <User className="w-5 h-5 text-emerald-600" />
+                    <div className="space-y-4 md:space-y-5">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                            <div className="p-1.5 md:p-2 bg-emerald-100 rounded-lg">
+                                <User className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
                             </div>
-                            <h3 className="font-bold text-slate-800 text-lg">Personal Info</h3>
+                            <h3 className="font-bold text-slate-800 text-base md:text-lg">Personal Info</h3>
                         </div>
 
                         <div className="space-y-4">
@@ -406,12 +416,12 @@ export default function JoinPage() {
                     <hr className="border-slate-100" />
 
                     {/* Academic Info */}
-                    <div className="space-y-5">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                                <BookOpen className="w-5 h-5 text-blue-600" />
+                    <div className="space-y-4 md:space-y-5">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                            <div className="p-1.5 md:p-2 bg-blue-100 rounded-lg">
+                                <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                             </div>
-                            <h3 className="font-bold text-slate-800 text-lg">Academic Info</h3>
+                            <h3 className="font-bold text-slate-800 text-base md:text-lg">Academic Info</h3>
                         </div>
 
                         <div className="space-y-4">
@@ -438,41 +448,108 @@ export default function JoinPage() {
                                 <FieldError name="department" />
                             </div>
 
-                            <div>
+                            <div className="relative">
                                 <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Year & Semester *</label>
-                                <div className="grid grid-cols-5 gap-2">
-                                    {yearOptions.map(opt => {
-                                        const isDisabled = ['5-1', '5-2'].includes(opt) && form.department !== 'Architecture';
-                                        const isSelected = form.yearSemester === opt;
-                                        return (
-                                            <button key={opt} type="button"
-                                                onClick={() => { if (!isDisabled) { setForm(p => ({ ...p, yearSemester: opt })); setTouched(p => ({ ...p, yearSemester: true })); setErrors(p => ({ ...p, yearSemester: '' })); } }}
-                                                disabled={isDisabled}
-                                                className={`py-2 rounded-lg text-sm font-semibold transition-all touch-manipulation border ${isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105' : isDisabled ? 'bg-slate-100 text-slate-300 border-transparent cursor-not-allowed' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400'}`}>
-                                                {opt}
-                                            </button>
-                                        )
-                                    })}
-                                </div>
+                                
+                                <button
+                                    type="button"
+                                    onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                                    onBlur={() => setTimeout(() => setIsYearDropdownOpen(false), 200)}
+                                    className={`w-full bg-slate-50 border rounded-xl px-3 md:px-4 py-2.5 md:py-3.5 text-left text-sm md:text-base font-medium flex items-center justify-between outline-none transition-all ${
+                                        displayErrors.yearSemester ? 'border-red-300 focus:ring-red-500 ring-2 ring-red-500/20' : 'border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 hover:border-emerald-400'
+                                    } ${form.yearSemester ? 'text-slate-900' : 'text-slate-400'}`}
+                                >
+                                    <span>{form.yearSemester || "Select Year & Semester"}</span>
+                                    <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isYearDropdownOpen ? '-rotate-90' : 'rotate-90'}`} />
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                {isYearDropdownOpen && (
+                                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden py-2 max-h-60 overflow-y-auto">
+                                        {yearOptions.map(opt => {
+                                            const isDisabled = ['5-1', '5-2'].includes(opt) && form.department !== 'Architecture';
+                                            const isSelected = form.yearSemester === opt;
+                                            return (
+                                                <button
+                                                    key={opt}
+                                                    type="button"
+                                                    disabled={isDisabled}
+                                                    onClick={() => {
+                                                        if (!isDisabled) {
+                                                            setForm(p => ({ ...p, yearSemester: opt }));
+                                                            setTouched(p => ({ ...p, yearSemester: true }));
+                                                            setErrors(p => ({ ...p, yearSemester: '' }));
+                                                            setIsYearDropdownOpen(false);
+                                                        }
+                                                    }}
+                                                    className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex items-center justify-between ${
+                                                        isSelected 
+                                                            ? 'bg-blue-50 text-blue-700' 
+                                                            : isDisabled 
+                                                                ? 'text-slate-300 cursor-not-allowed bg-slate-50/50' 
+                                                                : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600'
+                                                    }`}
+                                                >
+                                                    {opt}
+                                                    {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                                 <FieldError name="yearSemester" />
                             </div>
 
                             {form.department !== 'BBA' && (
-                                <div>
+                                <div className="relative">
                                     <label className="block text-sm font-semibold text-slate-700 mb-2 ml-1">Lab Group *</label>
-                                    <div className="grid grid-cols-6 gap-2">
-                                        {labGroups.map(grp => {
-                                            const isDisabled = ['D-1', 'D-2'].includes(grp) && form.department !== 'EEE';
-                                            const isSelected = form.labGroup === grp;
-                                            return (
-                                                <button key={grp} type="button" disabled={isDisabled}
-                                                    onClick={() => { if (!isDisabled) { setForm(p => ({ ...p, labGroup: grp })); setTouched(p => ({ ...p, labGroup: true })); setErrors(p => ({ ...p, labGroup: '' })); } }}
-                                                    className={`py-2 rounded-lg text-sm font-semibold transition-all touch-manipulation border ${isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105' : isDisabled ? 'bg-slate-100 text-slate-300 border-transparent cursor-not-allowed' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400'}`}>
-                                                    {grp}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsLabGroupDropdownOpen(!isLabGroupDropdownOpen)}
+                                        onBlur={() => setTimeout(() => setIsLabGroupDropdownOpen(false), 200)}
+                                        className={`w-full bg-slate-50 border rounded-xl px-3 md:px-4 py-2.5 md:py-3.5 text-left text-sm md:text-base font-medium flex items-center justify-between outline-none transition-all ${
+                                            displayErrors.labGroup ? 'border-red-300 focus:ring-red-500 ring-2 ring-red-500/20' : 'border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 hover:border-emerald-400'
+                                        } ${form.labGroup ? 'text-slate-900' : 'text-slate-400'}`}
+                                    >
+                                        <span>{form.labGroup || "Select Lab Group"}</span>
+                                        <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${isLabGroupDropdownOpen ? '-rotate-90' : 'rotate-90'}`} />
+                                    </button>
+
+                                    {/* Dropdown Menu */}
+                                    {isLabGroupDropdownOpen && (
+                                        <div className="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden py-2 max-h-60 overflow-y-auto">
+                                            {labGroups.map(grp => {
+                                                const isDisabled = ['D-1', 'D-2'].includes(grp) && form.department !== 'EEE';
+                                                const isSelected = form.labGroup === grp;
+                                                return (
+                                                    <button
+                                                        key={grp}
+                                                        type="button"
+                                                        disabled={isDisabled}
+                                                        onClick={() => {
+                                                            if (!isDisabled) {
+                                                                setForm(p => ({ ...p, labGroup: grp }));
+                                                                setTouched(p => ({ ...p, labGroup: true }));
+                                                                setErrors(p => ({ ...p, labGroup: '' }));
+                                                                setIsLabGroupDropdownOpen(false);
+                                                            }
+                                                        }}
+                                                        className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors flex items-center justify-between ${
+                                                            isSelected 
+                                                                ? 'bg-blue-50 text-blue-700' 
+                                                                : isDisabled 
+                                                                    ? 'text-slate-300 cursor-not-allowed bg-slate-50/50' 
+                                                                    : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600'
+                                                        }`}
+                                                    >
+                                                        {grp}
+                                                        {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                     <FieldError name="labGroup" />
                                 </div>
                             )}
@@ -482,39 +559,60 @@ export default function JoinPage() {
                     <hr className="border-slate-100" />
 
                     {/* Payment & Upload */}
-                    <div className="space-y-5">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 bg-pink-100 rounded-lg">
-                                <CreditCard className="w-5 h-5 text-pink-600" />
+                    <div className="space-y-4 md:space-y-5">
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                            <div className="p-1.5 md:p-2 bg-pink-100 rounded-lg">
+                                <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-pink-600" />
                             </div>
-                            <h3 className="font-bold text-slate-800 text-lg">Payment Method</h3>
+                            <h3 className="font-bold text-slate-800 text-base md:text-lg">Payment Method</h3>
                         </div>
 
-                        <div className="bg-pink-50 border border-pink-100 rounded-xl p-5 mb-6">
-                            <div className="flex items-start gap-4">
-                                <div className="p-3 bg-white rounded-full shadow-sm text-pink-600">
-                                    <Smartphone className="w-6 h-6" />
+                        <div className="flex gap-4 mb-4">
+                            <label className={`flex-1 flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${form.paymentMethod === 'Online' ? 'border-pink-500 bg-pink-50' : 'border-slate-200 hover:border-pink-300'}`}>
+                                <input type="radio" name="paymentMethod" value="Online" checked={form.paymentMethod === 'Online'} onChange={handleChange} className="hidden" />
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${form.paymentMethod === 'Online' ? 'border-pink-500' : 'border-slate-300'}`}>
+                                    {form.paymentMethod === 'Online' && <div className="w-2.5 h-2.5 rounded-full bg-pink-500" />}
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-pink-900 text-lg">Send Money (bKash)</h4>
-                                    <div className="mt-1 space-y-1 text-pink-800">
-                                        <p className="font-medium">Number: <span className="font-bold text-xl select-all">01639802823</span></p>
-                                        <p className="font-medium">Amount: <span className="font-bold text-xl">102 TK</span></p>
+                                <span className="font-semibold text-slate-700">bKash</span>
+                            </label>
+                            <label className={`flex-1 flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${form.paymentMethod === 'Cash' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-emerald-300'}`}>
+                                <input type="radio" name="paymentMethod" value="Cash" checked={form.paymentMethod === 'Cash'} onChange={handleChange} className="hidden" />
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${form.paymentMethod === 'Cash' ? 'border-emerald-500' : 'border-slate-300'}`}>
+                                    {form.paymentMethod === 'Cash' && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
+                                </div>
+                                <span className="font-semibold text-slate-700">Cash</span>
+                            </label>
+                        </div>
+
+                        {form.paymentMethod === 'Online' && (
+                            <div className="bg-pink-50 border border-pink-100 rounded-xl p-5 mb-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="p-3 bg-white rounded-full shadow-sm text-pink-600">
+                                        <Smartphone className="w-6 h-6" />
                                     </div>
-                                    <p className="text-xs text-pink-600 mt-2">
-                                        *Please use "Send Money" option from your bKash app.
-                                    </p>
+                                    <div>
+                                        <h4 className="font-bold text-pink-900 text-lg">Send Money (bKash)</h4>
+                                        <div className="mt-1 space-y-1 text-pink-800">
+                                            <p className="font-medium">Number: <span className="font-bold text-xl select-all">01639802823</span></p>
+                                            <p className="font-medium">Amount: <span className="font-bold text-xl">100 TK</span></p>
+                                        </div>
+                                        <p className="text-xs text-pink-600 mt-2">
+                                            *Please use "Send Money" option from your bKash app.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">bKash Transaction ID *</label>
-                                <input name="bkashId" value={form.bkashId} onChange={handleChange} onBlur={() => handleBlur('bkashId')}
-                                    className={inputClass('bkashId') + ' font-mono uppercase'} placeholder="TRX123456" />
-                                <FieldError name="bkashId" />
-                            </div>
+                            {form.paymentMethod === 'Online' && (
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">bKash Transaction ID *</label>
+                                    <input name="bkashId" value={form.bkashId} onChange={handleChange} onBlur={() => handleBlur('bkashId')}
+                                        className={inputClass('bkashId') + ' font-mono uppercase'} placeholder="TRX123456" />
+                                    <FieldError name="bkashId" />
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Profile Photo *</label>
@@ -556,7 +654,7 @@ export default function JoinPage() {
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Reference (Optional)</label>
                                 <input name="reference" value={form.reference} onChange={handleChange}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-medium focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-all placeholder:text-slate-400"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 md:px-4 py-2.5 md:py-3.5 text-slate-900 text-sm md:text-base font-medium focus:ring-2 focus:ring-slate-500 focus:border-slate-500 outline-none transition-all placeholder:text-slate-400"
                                     placeholder="Did anyone refer you?" />
                             </div>
                         </div>
@@ -575,14 +673,16 @@ export default function JoinPage() {
                         </label>
                         <FieldError name="agreeToTerms" />
 
-                        <button type="submit" disabled={!isFormValid}
+                        <button type="submit" disabled={loading || isUploadingImage}
                             className={`w-full text-white text-lg font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all transform mt-4 ${
-                                isFormValid
+                                !(loading || isUploadingImage)
                                     ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 shadow-emerald-600/30 hover:-translate-y-1 active:scale-[0.98]'
-                                    : 'bg-slate-400 cursor-not-allowed opacity-70'
+                                    : 'bg-emerald-400 cursor-not-allowed opacity-70'
                             }`}>
                             {loading ? (
-                                <Loader2 className="w-6 h-6 animate-spin" />
+                                <><Loader2 className="w-6 h-6 animate-spin" /> Submitting...</>
+                            ) : isUploadingImage ? (
+                                <><Loader2 className="w-6 h-6 animate-spin" /> Uploading Photo...</>
                             ) : (
                                 <>Complete Registration <ChevronRight className="w-5 h-5" /></>
                             )}

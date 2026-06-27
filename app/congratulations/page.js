@@ -98,24 +98,24 @@ export default function CongratulationsPage() {
       </div>
 
       {/* Content container */}
-      <div className="relative z-10 container mx-auto px-4 py-16 flex flex-col items-center justify-center">
+      <div className="relative z-10 container mx-auto px-4 py-8 md:py-12 flex flex-col items-center justify-center min-h-[80vh]">
         <motion.div
-          className="max-w-2xl mx-auto text-center"
+          className="max-w-xl mx-auto text-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Success icon */}
           <motion.div
-            className="w-24 h-24 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-8"
+            className="w-16 h-16 md:w-20 md:h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6"
             variants={iconVariants}
           >
-            <Check className="text-white w-12 h-12" />
+            <Check className="text-white w-8 h-8 md:w-10 md:h-10" />
           </motion.div>
 
           {/* Heading */}
           <motion.h1 
-            className="text-4xl md:text-5xl font-bold text-green-800 mb-4"
+            className="text-3xl md:text-4xl font-bold text-green-800 mb-3"
             variants={itemVariants}
           >
             Congratulations!
@@ -123,7 +123,7 @@ export default function CongratulationsPage() {
 
           {/* Subheading */}
           <motion.p 
-            className="text-xl text-green-700 mb-8"
+            className="text-lg md:text-xl text-green-700 mb-6"
             variants={itemVariants}
           >
             Your application has been successfully submitted.
@@ -131,10 +131,10 @@ export default function CongratulationsPage() {
 
           {/* Card with benefits */}
           <motion.div
-            className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-8 mb-8"
+            className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-5 md:p-8 mb-6"
             variants={itemVariants}
           >
-            <h2 className="text-xl font-semibold text-green-700 mb-4 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-green-700 mb-4 flex items-center">
               <Leaf className="mr-2 h-5 w-5" />
               Your ESWC Membership Benefits
             </h2>
@@ -159,7 +159,7 @@ export default function CongratulationsPage() {
 
           {/* Next steps */}
           <motion.p 
-            className="text-green-700 mb-8"
+            className="text-sm md:text-base text-green-700 mb-6 px-2"
             variants={itemVariants}
           >
             We'll review your application and get back to you soon. Meanwhile, explore our website to learn more about our activities.
@@ -168,7 +168,7 @@ export default function CongratulationsPage() {
           {/* Buttons */}
           <motion.div 
             variants={itemVariants}
-            className="flex flex-row gap-2 md:gap-4 justify-center items-center px-2 md:px-4"
+            className="flex flex-row gap-3 md:gap-4 justify-center items-center px-2"
           >
             <Link href="/join">
               <motion.button
