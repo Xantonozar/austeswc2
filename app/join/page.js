@@ -196,14 +196,9 @@ export default function JoinPage() {
             case 'email': {
                 if (!form.email.trim()) return 'Email is required';
                 const lower = form.email.toLowerCase();
-                const isAust = lower.endsWith('@aust.edu');
                 
                 const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lower);
                 if (!isValidEmail) return 'Please enter a valid email address';
-
-                if (form.yearSemester !== '1-1' && !isAust) {
-                    return 'Please use your official @aust.edu email';
-                }
                 
                 if (isDuplicateEmail) return 'This email is already registered';
                 return '';
@@ -409,7 +404,7 @@ export default function JoinPage() {
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">Email Address *</label>
                                 <input name="email" value={form.email} onChange={handleChange} onBlur={() => handleBlur('email')} type="email"
-                                    className={inputClass('email')} placeholder="aust.student@aust.edu" />
+                                    className={inputClass('email')} placeholder="your.email@example.com" />
                                 <FieldError name="email" />
                             </div>
                         </div>

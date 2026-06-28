@@ -510,7 +510,7 @@ export default function AdminDashboard() {
                         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between group hover:shadow-md transition-all">
                             <div>
                                 <p className="text-slate-500 text-sm font-medium">Total Members</p>
-                                <h4 className="text-2xl font-bold text-slate-900">{members.length}</h4>
+                                <h4 className="text-2xl font-bold text-slate-900">{filteredMembers.length}</h4>
                             </div>
                             <div className="p-3 rounded-xl bg-slate-100 text-slate-600 group-hover:scale-110 transition-transform">
                                 <Users className="w-6 h-6" />
@@ -518,7 +518,7 @@ export default function AdminDashboard() {
                         </div>
 
                         {(() => {
-                            const deptCounts = members.reduce((acc, m) => {
+                            const deptCounts = filteredMembers.reduce((acc, m) => {
                                 acc[m.department] = (acc[m.department] || 0) + 1;
                                 return acc;
                             }, {});
@@ -563,7 +563,7 @@ export default function AdminDashboard() {
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             {(() => {
-                                const deptCounts = members.reduce((acc, m) => {
+                                const deptCounts = filteredMembers.reduce((acc, m) => {
                                     acc[m.department] = (acc[m.department] || 0) + 1;
                                     return acc;
                                 }, {});
