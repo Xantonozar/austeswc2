@@ -156,24 +156,50 @@ export default function AdminDashboard() {
     const handleExport = (type) => {
         const origin = typeof window !== 'undefined' ? window.location.origin : '';
         const exportData = filteredMembers.map(m => ({
-            'Name': m.name,
-            'Student ID': m.studentId,
-            'Email': m.email,
-            'Phone': m.phone,
-            'Department': m.department,
-            'Year': m.yearSemester,
+            'Name': m.name || 'N/A',
+            'Student ID': m.studentId || 'N/A',
+            'Email': m.email || 'N/A',
+            'Phone': m.phone || 'N/A',
+            'Reference': m.reference || 'N/A',
+            'Department': m.department || 'N/A',
+            'Year': m.yearSemester || 'N/A',
             'Lab Group': m.labGroup || '-',
             'Semester': getSemesterFromDate(m.createdAt) || '-',
             'Transaction ID': m.bkashId || 'N/A',
             'Payment Method': m.paymentMethod || 'Online',
             'Image Link': m.imageUrl || 'No Photo',
-            'Joined': new Date(m.createdAt).toLocaleString()
+            'Joined Date': new Date(m.createdAt).toLocaleDateString(),
+            'Joined Time': new Date(m.createdAt).toLocaleTimeString(),
+            'Timestamp': m.createdAt,
+            'DB ID': m._id
         }));
 
-        const filename = `ESWC_Members_${new Date().toISOString().split('T')[0]}`;
+        const filename = `ESWC_Members_${new Date().toISOString().split('T')[0]}_${Date.now()}`;
 
         if (type === 'json') {
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const jsonPayload = {
+                exportedAt: new Date().toISOString(),
+                totalCount: filteredMembers.length,
+                semesterFilter: semesterFilter,
+                members: filteredMembers.map(m => ({
+                    _id: m._id,
+                    name: m.name || null,
+                    studentId: m.studentId || null,
+                    email: m.email || null,
+                    phone: m.phone || null,
+                    reference: m.reference || null,
+                    department: m.department || null,
+                    yearSemester: m.yearSemester || null,
+                    labGroup: m.labGroup || null,
+                    semester: getSemesterFromDate(m.createdAt) || null,
+                    bkashId: m.bkashId || null,
+                    paymentMethod: m.paymentMethod || 'Online',
+                    imageUrl: m.imageUrl || null,
+                    createdAt: m.createdAt,
+                    createdAtFormatted: new Date(m.createdAt).toLocaleString()
+                }))
+            };
+            const blob = new Blob([JSON.stringify(jsonPayload, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url; a.download = `${filename}.json`;

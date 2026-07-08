@@ -21,23 +21,23 @@ export async function POST(request) {
             semester,
             role,
             section,
-            motivation,
             experience,
             fbLink,
-            isOtherClubAmbassador,
-            convinceStrategy,
+            isOtherClubExecutive,
+            teamPreferences,
+            skillHelp,
             imageUrl
         } = body;
 
         // Basic validation
-        if (!name || !email || !phone || !studentId || !department || !semester || !role || !motivation || !fbLink || !convinceStrategy) {
+        if (!name || !email || !phone || !studentId || !department || !semester || !role || !fbLink || !teamPreferences || teamPreferences.length < 3 || !skillHelp || !imageUrl) {
             return NextResponse.json(
-                { success: false, message: 'All fields are required.' },
+                { success: false, message: 'All fields are required, at least 3 teams must be selected, and a photo is mandatory.' },
                 { status: 400 }
             );
         }
 
-        const validRoles = ['Batch Ambassador', 'Junior Executive', 'Sub Executive'];
+        const validRoles = ['Junior Executive', 'Sub Executive'];
         if (!validRoles.includes(role)) {
              return NextResponse.json(
                 { success: false, message: 'Invalid role selected.' },
@@ -54,11 +54,11 @@ export async function POST(request) {
             semester,
             role,
             section,
-            motivation,
             experience,
             fbLink,
-            isOtherClubAmbassador,
-            convinceStrategy,
+            isOtherClubExecutive,
+            teamPreferences,
+            skillHelp,
             imageUrl
         });
 

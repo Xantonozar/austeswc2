@@ -6,7 +6,7 @@ import {
     ChevronLeft, Loader2, CheckCircle, XCircle, Trash2,
     ImageIcon, ExternalLink, Users, Clock, ThumbsUp, ThumbsDown,
     X, Phone, Mail, Hash, BookOpen, Layers, Facebook,
-    MessageSquare, Star, Search, Filter, Eye, Calendar, LayoutGrid, Download
+    Star, Search, Filter, Eye, Calendar, LayoutGrid, Download
 } from "lucide-react";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
@@ -90,7 +90,7 @@ function ApplicationModal({ app, onClose, onAccept, onReject, onDelete }) {
                                 { icon: Hash,     label: "Student ID", val: app.studentId },
                                 { icon: BookOpen, label: "Dept / Sem", val: `${app.department} · ${app.semester}` },
                                 { icon: Layers,   label: "Section",    val: app.section || "—" },
-                                { icon: Star,     label: "Other Club", val: app.isOtherClubAmbassador },
+                                { icon: Star,     label: "Other Club", val: app.isOtherClubExecutive },
                             ].map(({ icon: Icon, label, val }) => (
                                 <div key={label} className="flex items-start gap-3 bg-slate-50 rounded-2xl p-3.5 border border-slate-100">
                                     <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0">
@@ -114,8 +114,8 @@ function ApplicationModal({ app, onClose, onAccept, onReject, onDelete }) {
 
                         {/* Text blocks */}
                         {[
-                            { icon: MessageSquare, label: "Motivation",        val: app.motivation },
-                            { icon: Star,          label: "Convince Strategy", val: app.convinceStrategy },
+                            { icon: List,          label: "Team Preferences", val: app.teamPreferences?.join(", ") || "N/A" },
+                            { icon: Star,          label: "Skills & Help",     val: app.skillHelp },
                             { icon: BookOpen,      label: "Experience",        val: app.experience || "No experience mentioned." },
                         ].map(({ icon: Icon, label, val }) => (
                             <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
@@ -474,19 +474,19 @@ export default function ApplicationsAdmin() {
                                                             {app.role}
                                                         </span>
                                                         <p className="text-xs font-bold text-slate-600">{app.department}</p>
-                                                        <p className="text-xs text-slate-400">{app.semester} {app.section && `· ${app.section}`}</p>
+                                                        <div className="mt-1">
+                                                            <p className="text-[10px] font-black text-slate-400 uppercase">Preferences:</p>
+                                                            <p className="text-xs text-slate-600 font-medium">{app.teamPreferences?.join(", ") || "None"}</p>
+                                                        </div>
+                                                        <p className="text-xs text-slate-400 mt-1">{app.semester} {app.section && `· ${app.section}`}</p>
                                                     </td>
 
-                                                    {/* Motivation / Strategy */}
+                                                    {/* Skills */}
                                                     <td className="px-5 py-4 max-w-[220px]">
                                                         <div className="space-y-2 text-xs text-slate-600">
                                                             <div>
-                                                                <p className="font-black text-slate-800 text-[10px] uppercase tracking-widest mb-0.5">Motivation</p>
-                                                                <p className="line-clamp-2 leading-relaxed" title={app.motivation}>{app.motivation}</p>
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-black text-slate-800 text-[10px] uppercase tracking-widest mb-0.5">Strategy</p>
-                                                                <p className="line-clamp-2 leading-relaxed" title={app.convinceStrategy}>{app.convinceStrategy}</p>
+                                                                <p className="font-black text-slate-800 text-[10px] uppercase tracking-widest mb-0.5">Skills</p>
+                                                                <p className="line-clamp-2 leading-relaxed" title={app.skillHelp}>{app.skillHelp}</p>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -499,7 +499,7 @@ export default function ApplicationsAdmin() {
                                                                 <p className="line-clamp-2 leading-relaxed">{app.experience || "None"}</p>
                                                             </div>
                                                             <div className="flex flex-col gap-1 mt-1">
-                                                                <p className="text-[10px] font-bold text-slate-400">Other Club: <span className={`font-black ${app.isOtherClubAmbassador === "Yes" ? "text-rose-500" : "text-emerald-500"}`}>{app.isOtherClubAmbassador}</span></p>
+                                                                <p className="text-[10px] font-bold text-slate-400">Other Club: <span className={`font-black ${app.isOtherClubExecutive === "Yes" ? "text-rose-500" : "text-emerald-500"}`}>{app.isOtherClubExecutive}</span></p>
                                                                 <a href={app.fbLink} target="_blank" rel="noreferrer"
                                                                     className="inline-flex items-center gap-1 text-[10px] font-black text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg border border-blue-100 transition-colors w-fit">
                                                                     <Facebook className="w-3 h-3" /> FB Link

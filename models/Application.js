@@ -11,14 +11,17 @@ const ApplicationSchema = new mongoose.Schema({
     role: { 
         type: String, 
         required: true,
-        enum: ['Batch Ambassador', 'Junior Executive', 'Sub Executive']
+        enum: ['Junior Executive', 'Sub Executive']
     },
-    motivation: { type: String, required: true },
     experience: { type: String }, // Optional
     fbLink: { type: String, required: true },
-    isOtherClubAmbassador: { type: String, enum: ['Yes', 'No'], default: 'No' },
-    convinceStrategy: { type: String, required: true },
-    imageUrl: { type: String }, // Optional uploaded photo URL
+    isOtherClubExecutive: { type: String, enum: ['Yes', 'No'], default: 'No' },
+    teamPreferences: { 
+        type: [String], 
+        validate: [v => v && v.length >= 3 && v.length <= 7, 'Must select at least 3 teams']
+    },
+    skillHelp: { type: String, required: true },
+    imageUrl: { type: String, required: true }, // Mandatory uploaded photo URL
     status: {
         type: String,
         enum: ['Pending', 'Accepted', 'Rejected'],

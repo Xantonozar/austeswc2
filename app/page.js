@@ -16,15 +16,11 @@ import UsnotarHasi from "@/components/usnotar-hasi";
 import Greenova from "@/components/greenova";
 import LatestActivities from "@/components/latest-activities";
 import { InteractiveGridPatternDemo } from "@/components/grid";
-import RecruitmentBanner from "@/components/recruitment-banner";
 
 export default function Home() {
   return (
     <div className="w-full relative flex flex-col">
       <InteractiveGridPatternDemo />
-
-      {/* Recruitment Section */}
-      <RecruitmentBanner />
 
       <Environmental />
       <Highlight />
