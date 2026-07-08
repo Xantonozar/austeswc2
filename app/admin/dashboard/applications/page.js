@@ -198,27 +198,33 @@ export default function ApplicationsAdmin() {
         } catch { toast.error("Error deleting"); }
     };
 
-    const counts = {
-        All:      applications.length,
-        Pending:  applications.filter(a => a.status === "Pending").length,
-        Accepted: applications.filter(a => a.status === "Accepted").length,
-        Rejected: applications.filter(a => a.status === "Rejected").length,
-    };
-
     // Derive available semesters from application data
     const availableSemesters = getSemestersFromItems(applications);
 
+    // Pre-filter by role and semester for counts
+    const roleSemesterFiltered = applications.filter(app => {
+        const roleMatch = filterRole === "All" || app.role === filterRole;
+        const semesterMatch = semesterFilter === "all" || getSemesterFromDate(app.createdAt) === semesterFilter;
+        return roleMatch && semesterMatch;
+    });
+
+    const counts = {
+        All:      roleSemesterFiltered.length,
+        Pending:  roleSemesterFiltered.filter(a => a.status === "Pending").length,
+        Accepted: roleSemesterFiltered.filter(a => a.status === "Accepted").length,
+        Rejected: roleSemesterFiltered.filter(a => a.status === "Rejected").length,
+    };
+
     // Count applications per semester
     const semesterCounts = {
-        'all': applications.length,
+        'all': roleSemesterFiltered.length,
         ...availableSemesters.reduce((acc, sem) => {
-            acc[sem] = applications.filter(a => getSemesterFromDate(a.createdAt) === sem).length;
+            acc[sem] = roleSemesterFiltered.filter(a => getSemesterFromDate(a.createdAt) === sem).length;
             return acc;
         }, {})
     };
 
-    const filtered = applications.filter(app => {
-        const roleMatch   = filterRole   === "All" || app.role   === filterRole;
+    const filtered = roleSemesterFiltered.filter(app => {
         const statusMatch = filterStatus === "All" || app.status === filterStatus;
         const q = search.toLowerCase();
         const searchMatch = !q
@@ -226,8 +232,7 @@ export default function ApplicationsAdmin() {
             || app.email.toLowerCase().includes(q)
             || app.studentId.toLowerCase().includes(q)
             || app.department.toLowerCase().includes(q);
-        const semesterMatch = semesterFilter === "all" || getSemesterFromDate(app.createdAt) === semesterFilter;
-        return roleMatch && statusMatch && searchMatch && semesterMatch;
+        return statusMatch && searchMatch;
     });
 
     const handleExport = () => {
@@ -395,18 +400,22 @@ export default function ApplicationsAdmin() {
                     </div>
                     {/* Role */}
                     <div className="flex gap-1.5 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm self-start flex-wrap">
-                        {["All","Batch Ambassador","Junior Executive","Sub Executive"].map(r => (
-                            <button key={r} onClick={() => setFilterRole(r)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all whitespace-nowrap ${filterRole === r ? "bg-slate-900 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
-                                {r === "All" ? "All Roles" : r}
-                            </button>
-                        ))}
+                        {["All","Batch Ambassador","Junior Executive","Sub Executive"].map(r => {
+                            const roleCount = r === "All" ? applications.length : applications.filter(a => a.role === r).length;
+                            return (
+                                <button key={r} onClick={() => setFilterRole(r)}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all whitespace-nowrap ${filterRole === r ? "bg-slate-900 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
+                                    {r === "All" ? "All Roles" : r} <span className="opacity-60 text-[10px]">{roleCount}</span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
                 <p className="flex items-center gap-1.5 text-xs font-bold text-slate-400 -mt-2">
                     <Filter className="w-3.5 h-3.5" />
                     Showing <span className="text-slate-700 mx-1">{filtered.length}</span> of {applications.length} applications
+                    {filterRole !== "All" && <span className="text-indigo-600">({filterRole})</span>}
                 </p>
 
                 {/* ── Table ── */}

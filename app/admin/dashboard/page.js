@@ -15,6 +15,7 @@ import { getSemesterFromDate, getSemestersFromItems } from "@/components/dashboa
 export default function AdminDashboardOverview() {
     const [members, setMembers] = useState([]);
     const [competitors, setCompetitors] = useState([]);
+    const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(getSemesterFromDate(new Date()));
     const router = useRouter();
@@ -33,6 +34,12 @@ export default function AdminDashboardOverview() {
             const compRes = await fetch('/api/admin/competition?type=all');
             const compData = await compRes.json();
             const c = compData.data || [];
+
+            const appRes = await fetch('/api/admin/applications');
+            if (appRes.ok) {
+                const appData = await appRes.json();
+                setApplications(appData.applications || []);
+            }
 
             setMembers(m);
             setCompetitors(c);
@@ -196,11 +203,11 @@ export default function AdminDashboardOverview() {
                     />
                     <NavCard
                         title="Applications"
-                        description="Review Batch Ambassador, Junior Executive, and Sub Executive applications."
+                        description="Review Junior Executive and Sub Executive applications."
                         href="/admin/dashboard/applications"
                         icon={FileText}
                         color="bg-sky-600"
-                        stats="Applications"
+                        stats={`${applications.length} Applications`}
                     />
                 </section>
 
