@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useDashboard } from './components/PanelDashboardProvider';
-import { Users, Building2, Medal, FileText, ArrowRight, Trophy, GraduationCap, LogOut } from 'lucide-react';
+import { Users, Building2, Medal, FileText, ArrowRight, Trophy, GraduationCap, LogOut, TrendingUp, Clock, Star, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Avatar from './components/Avatar';
@@ -37,22 +37,10 @@ export default function DashboardHome() {
 
     const currentMonth = new Date().getMonth();
     const evalsThisMonth = allActivities.filter(a => new Date(a.date).getMonth() === currentMonth).length;
-
     const alumniCount = alumni.length;
-    const kickedCount = alumni.filter(m => m.status === 'kicked').length;
-    const retiredCount = alumni.filter(m => m.status === 'alumni').length;
+    const avgScore = totalMembers > 0 ? Math.round(displayMembers.reduce((sum, m) => sum + m.score, 0) / totalMembers) : 0;
 
-    const getDaysAgo = (dateString) => {
-        const diffTime = Math.abs(new Date() - new Date(dateString));
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays === 0) return 'Today';
-        if (diffDays === 1) return 'Yesterday';
-        return `${diffDays}d ago`;
-    };
-
-    const getTodayDate = () => {
-        return new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    };
+    const getTodayDate = () => new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 
     const handleSelfRetire = async () => {
         await selfRetire();
@@ -63,151 +51,183 @@ export default function DashboardHome() {
         <div className="p-6 lg:p-8 w-full space-y-6 animate-in fade-in duration-500">
 
             {/* Header */}
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-6">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Good day, {currentUser?.name?.split(' ')[0]} 🌿</h1>
-                    <p className="text-slate-500 font-medium tracking-wide">
-                        {currentUser?.designation} &middot; {currentUser?.department ? currentUser.department : 'All Departments'}
-                    </p>
+                    <h1 className="text-3xl font-bold text-slate-900">
+                        Welcome back, <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">{currentUser?.name?.split(' ')[0]}</span>
+                    </h1>
+                    <p className="text-slate-400 font-medium mt-1">{currentUser?.designation} · {getTodayDate()}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="bg-blue-50 px-4 py-2 rounded-xl text-sm font-semibold text-blue-700 border border-blue-100">
-                        Today: {getTodayDate()}
+                    <div className="px-4 py-2 rounded-xl text-sm font-semibold text-blue-600 bg-blue-50 border border-blue-100">
+                        {totalMembers} Active
                     </div>
                     <button onClick={() => setShowRetireConfirm(true)}
                         className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-red-500 bg-red-50 border border-red-100 hover:bg-red-100 transition-colors">
-                        <LogOut className="w-4 h-4" /> Leave Panel
+                        <LogOut className="w-4 h-4" /> Leave
                     </button>
                 </div>
             </header>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/60 flex items-center justify-between group hover:shadow-md transition-shadow">
-                    <div>
-                        <p className="text-3xl font-bold text-slate-900 mb-1">{totalMembers}</p>
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Active Members</p>
-                    </div>
-                    <div className="bg-blue-50 p-3 rounded-xl text-blue-600 group-hover:bg-blue-100 transition-colors"><Users className="w-7 h-7" /></div>
-                </div>
+            {/* Bento Grid */}
+            <div className="grid grid-cols-12 gap-4 auto-rows-[140px]">
 
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/60 flex items-center justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <p className="text-3xl font-bold text-slate-900 mb-1">{totalDepartments}</p>
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Departments</p>
-                    </div>
-                    <div className="bg-blue-50 p-3 rounded-xl text-blue-600"><Building2 className="w-7 h-7" /></div>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 shadow-lg text-white hover:shadow-xl transition-shadow relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-white rounded-full opacity-10 -mr-8 -mt-8 blur-xl"></div>
-                    <div className="flex items-start justify-between relative z-10">
+                {/* Top Scorer — Large Card */}
+                <div className="col-span-12 md:col-span-5 row-span-2 bg-gradient-to-br from-blue-600 via-blue-700 to-violet-800 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-blue-600/20">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-violet-500/20 rounded-full -ml-8 -mb-8 blur-xl"></div>
+                    <div className="relative z-10 h-full flex flex-col justify-between">
                         <div>
-                            <p className="text-xl font-bold mb-1 truncate max-w-[120px]">{topScorer?.name}</p>
-                            <p className="text-xs text-blue-200 font-medium uppercase tracking-wider">Top Scorer</p>
-                            <p className="text-sm font-bold text-blue-100 mt-1">Score: {topScorer?.score}</p>
+                            <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+                                <Medal className="w-4 h-4" /> Top Performer
+                            </p>
+                            <div className="flex items-center gap-4">
+                                <Avatar name={topScorer?.name} rankLevel={topScorer?.rankLevel} imageUrl={topScorer?.imageUrl} className="w-16 h-16 text-xl border-2 border-white/20 shadow-lg" />
+                                <div>
+                                    <p className="text-2xl font-bold">{topScorer?.name}</p>
+                                    <p className="text-blue-200 text-sm">{topScorer?.designation}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm"><Medal className="w-6 h-6 text-yellow-300 fill-yellow-300/20" /></div>
+                        <div className="flex items-end justify-between">
+                            <div>
+                                <p className="text-5xl font-black">{topScorer?.score}</p>
+                                <p className="text-blue-200 text-xs font-medium uppercase tracking-wider">Points</p>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
+                                <p className="text-sm font-bold">{topScorer?.department || 'Core Council'}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/60 flex items-center justify-between hover:shadow-md transition-shadow">
-                    <div>
-                        <p className="text-3xl font-bold text-slate-900 mb-1">{evalsThisMonth}</p>
-                        <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Evals This Month</p>
+                {/* Stats Row */}
+                <div className="col-span-6 md:col-span-3 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                            <Users className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <TrendingUp className="w-4 h-4 text-emerald-500" />
                     </div>
-                    <div className="bg-blue-50 p-3 rounded-xl text-blue-600"><FileText className="w-7 h-7" /></div>
+                    <p className="text-3xl font-black text-slate-900">{totalMembers}</p>
+                    <p className="text-xs text-slate-400 font-medium mt-1">Active Members</p>
                 </div>
 
-                {/* Alumni Card */}
-                <Link href="/panel/alumni" className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 shadow-sm border border-amber-200 flex items-center justify-between hover:shadow-md transition-shadow group">
-                    <div>
-                        <p className="text-3xl font-bold text-amber-700 mb-1">{alumniCount}</p>
-                        <p className="text-xs text-amber-600 font-medium uppercase tracking-wider">Alumni & Left</p>
-                        {kickedCount > 0 && <p className="text-[10px] text-red-400 font-bold mt-1">{kickedCount} kicked</p>}
-                        {retiredCount > 0 && <p className="text-[10px] text-amber-500 font-bold mt-0.5">{retiredCount} retired</p>}
+                <div className="col-span-6 md:col-span-3 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center group-hover:bg-violet-100 transition-colors">
+                            <Building2 className="w-5 h-5 text-violet-600" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{totalDepartments}</span>
                     </div>
-                    <div className="bg-amber-100 p-3 rounded-xl text-amber-600 group-hover:scale-110 transition-transform">
-                        <GraduationCap className="w-7 h-7" />
+                    <p className="text-3xl font-black text-slate-900">{DEPARTMENTS.length}</p>
+                    <p className="text-xs text-slate-400 font-medium mt-1">Departments</p>
+                </div>
+
+                {/* Evals This Month */}
+                <div className="col-span-6 md:col-span-3 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl p-5 text-white shadow-lg shadow-cyan-500/20 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-5 -mt-5 blur-lg"></div>
+                    <div className="relative z-10">
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-3">
+                            <Zap className="w-5 h-5 text-white" />
+                        </div>
+                        <p className="text-3xl font-black">{evalsThisMonth}</p>
+                        <p className="text-cyan-100 text-xs font-medium mt-1">Evals This Month</p>
+                    </div>
+                </div>
+
+                {/* Avg Score */}
+                <div className="col-span-6 md:col-span-3 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                            <Star className="w-5 h-5 text-amber-500" />
+                        </div>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900">{avgScore}</p>
+                    <p className="text-xs text-slate-400 font-medium mt-1">Average Score</p>
+                </div>
+
+                {/* Alumni Link */}
+                <Link href="/panel/alumni" className="col-span-12 md:col-span-6 bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 text-white relative overflow-hidden hover:shadow-xl transition-shadow group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full -mr-8 -mt-8 blur-xl"></div>
+                    <div className="relative z-10 flex items-center justify-between h-full">
+                        <div>
+                            <p className="text-4xl font-black mb-1">{alumniCount}</p>
+                            <p className="text-slate-400 text-sm font-medium">Alumni & Former Members</p>
+                            <p className="text-xs text-slate-500 mt-1">Click to view all →</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl group-hover:scale-110 transition-transform">
+                            <GraduationCap className="w-8 h-8 text-amber-400" />
+                        </div>
                     </div>
                 </Link>
-            </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
-
-                {/* Recent Activity Feed */}
-                <div className="lg:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200/60 flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-blue-500" /> Recent Activity
+                {/* Top 5 Leaderboard */}
+                <div className="col-span-12 lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <Trophy className="w-4 h-4 text-amber-500" /> Top 5 Leaderboard
                         </h2>
+                        <Link href="/panel/rankings" className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                            View All <ArrowRight className="w-3 h-3" />
+                        </Link>
                     </div>
-                    <div className="p-6 flex-1 overflow-y-auto max-h-[460px] space-y-6">
-                        {allActivities.length === 0 ? (
-                            <div className="py-12 text-center text-slate-300 text-sm">No evaluations yet</div>
-                        ) : allActivities.slice(0, 6).map((activity, idx) => (
-                            <div key={idx} className="flex gap-4 relative">
-                                {idx !== 5 && <div className="absolute left-[1.125rem] top-10 bottom-[-1.5rem] w-px bg-slate-200 z-0 border-dashed"></div>}
-                                <Avatar name={activity.evaluator.name} rankLevel={activity.evaluator.rankLevel} imageUrl={activity.evaluator.imageUrl} className="w-9 h-9 text-xs z-10" />
-                                <div className="flex-1 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm relative z-10 transition-colors hover:bg-white hover:shadow-md">
-                                    <div className="flex justify-between items-start mb-1 gap-2">
-                                        <p className="text-sm text-slate-700 leading-snug">
-                                            <span className="font-bold text-blue-600">{activity.evaluator.name}</span>
-                                            <span className="text-slate-400 mx-1">evaluated</span>
-                                            <span className="font-semibold text-slate-900">{activity.targetMember.name}</span>
-                                            <span className="text-xs text-slate-400 block sm:inline sm:ml-2">({activity.targetMember.department || 'Core'})</span>
-                                        </p>
-                                        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold leading-none tracking-wide ${activity.points > 0 ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'bg-red-50 text-red-600 ring-1 ring-red-200'}`}>
-                                            {activity.points > 0 ? '+' : ''}{activity.points} pts
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 italic border-l-2 border-blue-400 pl-3 mt-3">&quot;{activity.note}&quot;</p>
-                                    <p className="text-xs text-slate-400 font-medium mt-3 text-right tabular-nums">{getDaysAgo(activity.date)}</p>
+                    <div className="p-4 space-y-2">
+                        {top5.map((member, index) => (
+                            <div key={member._id} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-colors group">
+                                <div className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-sm shrink-0">
+                                    {index === 0 ? <span className="text-lg">🥇</span> : index === 1 ? <span className="text-lg">🥈</span> : index === 2 ? <span className="text-lg">🥉</span> : <span className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-xs text-slate-500">{index + 1}</span>}
                                 </div>
+                                <Avatar name={member.name} rankLevel={member.rankLevel} imageUrl={member.imageUrl} className="w-9 h-9 text-xs shadow-sm" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">{member.name}</p>
+                                    <p className="text-[10px] text-slate-400 truncate">{member.designation}</p>
+                                </div>
+                                <span className="font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-lg text-sm tabular-nums">{member.score}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Mini Leaderboard Widget */}
-                <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200/60 flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <Trophy className="w-5 h-5 text-yellow-500" /> Top 5 Leaderboard
+                {/* Recent Activity */}
+                <div className="col-span-12 lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-blue-500" /> Recent Activity
                         </h2>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{allActivities.length} total</span>
                     </div>
-                    <div className="p-6 flex-1 flex flex-col">
-                        <div className="space-y-4 flex-1">
-                            {top5.map((member, index) => (
-                                <div key={member._id} className="flex items-center gap-4 group p-2 -mx-2 rounded-xl hover:bg-slate-50 transition-colors">
-                                    <div className="w-6 font-bold text-lg text-center">
-                                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : <span className="text-slate-400">{index + 1}</span>}
-                                    </div>
-                                    <Avatar name={member.name} rankLevel={member.rankLevel} imageUrl={member.imageUrl} className="w-10 h-10 text-xs shadow-sm" />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">{member.name}</p>
-                                        <p className="text-xs text-slate-400 truncate">{member.designation} {member.department ? `· ${member.department}` : ''}</p>
-                                    </div>
-                                    <div className="font-bold text-blue-700 tabular-nums bg-blue-50 px-3 py-1 rounded-lg text-sm">{member.score}</div>
+                    <div className="p-4 space-y-2 max-h-[360px] overflow-y-auto">
+                        {allActivities.length === 0 ? (
+                            <div className="py-12 text-center text-slate-300 text-sm">No evaluations yet</div>
+                        ) : allActivities.slice(0, 8).map((activity, idx) => (
+                            <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-colors">
+                                <Avatar name={activity.evaluator.name} rankLevel={activity.evaluator.rankLevel} imageUrl={activity.evaluator.imageUrl} className="w-8 h-8 text-[10px] shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-slate-600 truncate">
+                                        <span className="font-bold text-slate-900">{activity.evaluator.name}</span>
+                                        {' evaluated '}
+                                        <span className="font-semibold text-slate-900">{activity.targetMember.name}</span>
+                                    </p>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="mt-8 pt-4 border-t border-slate-100">
-                            <Link href="/panel/rankings" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-50 text-blue-600 font-bold hover:bg-blue-50 transition-colors group">
-                                View Full Rankings <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        </div>
+                                <span className={`shrink-0 text-xs font-bold px-2 py-1 rounded-lg ${activity.points > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-500 bg-red-50'}`}>
+                                    {activity.points > 0 ? '+' : ''}{activity.points}
+                                </span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* Self-Retire Confirmation Modal */}
+            {/* Self-Retire Modal */}
             {showRetireConfirm && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 space-y-5 border border-slate-200">
-                        <h3 className="text-xl font-bold text-slate-900">Leave Panel?</h3>
-                        <p className="text-slate-600 text-sm">You will be moved to Alumni and can no longer access the panel. This action cannot be undone by you.</p>
+                    <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 space-y-5">
+                        <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mx-auto">
+                            <LogOut className="w-7 h-7 text-red-500" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 text-center">Leave Panel?</h3>
+                        <p className="text-slate-500 text-sm text-center">You will be moved to Alumni and can no longer access the panel.</p>
                         <div className="flex gap-3 pt-2">
                             <button onClick={() => setShowRetireConfirm(false)} className="flex-1 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">Cancel</button>
                             <button onClick={handleSelfRetire} className="flex-1 py-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 transition-colors shadow-md">Yes, Leave</button>

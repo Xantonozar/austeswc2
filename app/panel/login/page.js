@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useDashboard } from '../components/PanelDashboardProvider';
 import { useRouter } from 'next/navigation';
-import { Leaf, LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, Shield, Users, BarChart3, ArrowRight } from 'lucide-react';
 
 export default function PanelLoginPage() {
     const { login, isLoggedIn } = useDashboard();
@@ -24,7 +24,6 @@ export default function PanelLoginPage() {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-
         const result = await login(username, password);
         if (result.success) {
             router.push('/panel');
@@ -35,95 +34,138 @@ export default function PanelLoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen flex">
 
-            {/* Decorative background elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-500 opacity-10 rounded-full blur-[120px]"></div>
-                <div className="absolute bottom-[-30%] left-[-15%] w-[500px] h-[500px] bg-indigo-500 opacity-15 rounded-full blur-[100px]"></div>
-                <div className="absolute top-[20%] left-[10%] w-[200px] h-[200px] bg-white opacity-[0.03] rounded-full blur-[60px]"></div>
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyem0wLTRWMjhIMjR2Mmgxem0tMS0xOS44MTgsMS42MTgtMS4yNzZMMjUuNDE4IDExbC0xLjA0LTIuMjIyYS41LjUgMCAwMS40NDItLjY1OGwyLjQxNy4zNDYgMS4wNDEtMi4yMjNhLjUuNSAwIDAxLjkyNy4yMTRsLTEuMDQxIDIuMjIzIDIuNDE3LS4zNDZhLjUuNSAwIDAxLjQ0Mi42NThsLTEuMDQxIDIuMjIzTDM0LjM0NSA5LjgyMWEuNS41IDAgMDEtLjkyNy0uMjE0eiIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
+            {/* Left Side — Animated Illustration */}
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 items-center justify-center">
+
+                {/* Animated background orbs */}
+                <div className="absolute inset-0">
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-[120px] animate-pulse"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/25 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-400/15 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+                </div>
+
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCBmaWxsPSJ1cmwoI2dyaWQpIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+')] opacity-50"></div>
+
+                {/* Content */}
+                <div className="relative z-10 text-center px-12">
+                    {/* Logo */}
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-violet-600 rounded-2xl shadow-2xl shadow-blue-500/40 mb-8 rotate-3 hover:rotate-0 transition-transform duration-500">
+                        <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                    </div>
+
+                    <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">EcoClub</h1>
+                    <p className="text-blue-200/60 text-lg font-medium mb-12">Environmental Club Panel Management</p>
+
+                    {/* Feature cards */}
+                    <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+                        {[
+                            { icon: Shield, label: 'Role-Based Access', color: 'from-blue-500 to-blue-600' },
+                            { icon: Users, label: 'Member Management', color: 'from-violet-500 to-violet-600' },
+                            { icon: BarChart3, label: 'Performance Tracking', color: 'from-cyan-500 to-cyan-600' },
+                        ].map((feature, i) => (
+                            <div key={i} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-all hover:scale-105 cursor-default">
+                                <div className={`w-10 h-10 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg`}>
+                                    <feature.icon className="w-5 h-5 text-white" />
+                                </div>
+                                <p className="text-xs text-blue-100/80 font-medium">{feature.label}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            <div className="w-full max-w-md relative z-10">
+            {/* Right Side — Login Form */}
+            <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 relative">
+                {/* Subtle background pattern */}
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImRvdHMiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4wNCkiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IGZpbGw9InVybCgjZG90cykiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiLz48L3N2Zz4=')]"></div>
 
-                {/* Brand Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                        <div className="bg-blue-500/20 backdrop-blur-md p-3 rounded-2xl border border-blue-400/20 shadow-lg">
-                            <Leaf className="w-8 h-8 text-blue-400" />
+                <div className="w-full max-w-md relative z-10">
+
+                    {/* Mobile brand (shown on small screens) */}
+                    <div className="lg:hidden text-center mb-8">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-violet-600 rounded-2xl shadow-lg shadow-blue-500/30 mb-4">
+                            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
                         </div>
+                        <h1 className="text-3xl font-bold text-slate-900">EcoClub</h1>
+                        <p className="text-slate-400 text-sm">Panel Management System</p>
                     </div>
-                    <h1 className="text-4xl font-bold text-white tracking-wide mb-2">EcoClub</h1>
-                    <p className="text-blue-300/60 text-sm font-medium tracking-widest uppercase">Panel Management System</p>
-                </div>
 
-                {/* Login Card */}
-                <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
-                    <h2 className="text-xl font-bold text-white mb-6 text-center">Sign in to your account</h2>
-
-                    {error && (
-                        <div className="mb-6 bg-red-500/10 border border-red-400/30 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-                            <p className="text-sm text-red-300 font-medium">{error}</p>
+                    {/* Login Card */}
+                    <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
+                        <div className="mb-8">
+                            <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
+                            <p className="text-slate-400 text-sm mt-1">Sign in to access the panel</p>
                         </div>
-                    )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
-                            <label className="block text-xs font-bold text-blue-200/60 uppercase tracking-widest mb-2">Username</label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => { setUsername(e.target.value); setError(''); }}
-                                placeholder="Enter your username"
-                                required
-                                autoFocus
-                                className="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-sm"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-blue-200/60 uppercase tracking-widest mb-2">Password</label>
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={password}
-                                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                                    placeholder="Enter your password"
-                                    required
-                                    className="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 pr-12 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all text-sm"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 transition-colors p-1"
-                                >
-                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
+                        {error && (
+                            <div className="mb-6 bg-red-50 border border-red-100 rounded-xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                                <p className="text-sm text-red-600 font-medium">{error}</p>
                             </div>
-                        </div>
+                        )}
 
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-600/30 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] mt-2"
-                        >
-                            {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            ) : (
-                                <>
-                                    <LogIn className="w-4 h-4" />
-                                    Sign In
-                                </>
-                            )}
-                        </button>
-                    </form>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Username</label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => { setUsername(e.target.value); setError(''); }}
+                                    placeholder="Enter your username"
+                                    required
+                                    autoFocus
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={password}
+                                        onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                                        placeholder="Enter your password"
+                                        required
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 pr-12 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                                    >
+                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] mt-2"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                ) : (
+                                    <>
+                                        Sign In
+                                        <ArrowRight className="w-4 h-4" />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+
+                    <p className="text-center text-slate-400 text-xs mt-6">
+                        Use your assigned panel credentials to log in.
+                    </p>
                 </div>
-
-                {/* Footer hint */}
-                <p className="text-center text-blue-400/40 text-xs mt-6">
-                    Use your assigned panel credentials to log in.
-                </p>
             </div>
         </div>
     );
