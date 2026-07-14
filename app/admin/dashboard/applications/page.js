@@ -205,6 +205,8 @@ export default function ApplicationsAdmin() {
 
     // Pre-filter by role and semester for counts
     const roleSemesterFiltered = applications.filter(app => {
+        // "All" hides Junior Executive by default
+        if (filterRole === "All" && app.role === "Junior Executive") return false;
         const roleMatch = filterRole === "All" || app.role === filterRole;
         const semesterMatch = semesterFilter === "all" || getSemesterFromDate(app.createdAt) === semesterFilter;
         return roleMatch && semesterMatch;
@@ -356,7 +358,7 @@ export default function ApplicationsAdmin() {
                 </div>
             </nav>
 
-            <main className="w-full px-2 md:px-4 xl:px-8 py-10 space-y-7">
+            <main className="w-full px-2 md:px-4 xl:px-8 py-10 space-y-7 overflow-x-auto">
 
                 {/* ── Stat cards ── */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -455,10 +457,10 @@ export default function ApplicationsAdmin() {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse min-w-[1800px]">
+                            <table className="w-full text-left border-collapse min-w-[1900px]">
                                 <thead>
                                     <tr className="bg-slate-50/80 border-b border-slate-100">
-                                        {["Photo","Name","Email","Phone","Student ID","Role","Department","Semester","Section","Team Preferences","Skills","Experience","Other Club","FB","Status","Actions"].map(h => (
+                                        {["Photo","Name","Email","Phone","Student ID","Department","Semester","Section","Team Preferences","Skills","Experience","Other Club","FB","Status","Actions"].map(h => (
                                             <th key={h} className="px-4 py-5 text-xs font-black uppercase tracking-wider text-slate-500 whitespace-nowrap">
                                                 {h}
                                             </th>
@@ -505,8 +507,8 @@ export default function ApplicationsAdmin() {
                                                     </td>
 
                                                     {/* Email */}
-                                                    <td className="px-4 py-4">
-                                                        <p className="text-sm text-slate-600 break-all">{app.email}</p>
+                                                    <td className="px-4 py-4 min-w-[280px]">
+                                                        <p className="text-sm text-slate-600 whitespace-nowrap">{app.email}</p>
                                                     </td>
 
                                                     {/* Phone */}
@@ -517,13 +519,6 @@ export default function ApplicationsAdmin() {
                                                     {/* Student ID */}
                                                     <td className="px-4 py-4">
                                                         <p className="text-sm font-bold text-indigo-600">#{app.studentId}</p>
-                                                    </td>
-
-                                                    {/* Role */}
-                                                    <td className="px-4 py-4">
-                                                        <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border ${rm.bg} ${rm.text} ${rm.border}`}>
-                                                            {app.role}
-                                                        </span>
                                                     </td>
 
                                                     {/* Department */}
