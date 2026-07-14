@@ -98,7 +98,10 @@ export default function MembersPage() {
         const showScore = canViewScore(currentUser, member);
         const isAlumniOrKicked = member.status === 'alumni' || member.status === 'kicked';
         return (
-            <tr className="hover:bg-gray-50/50 transition-colors group border-b border-gray-50 last:border-0">
+            <tr
+                onClick={() => router.push(`/panel/members/${member._id}`)}
+                className="hover:bg-gray-50/50 transition-colors group border-b border-gray-50 last:border-0 cursor-pointer"
+            >
                 <td className="py-4 px-6 whitespace-nowrap">
                     <div className="flex items-center gap-4">
                         <Avatar name={member.name} rankLevel={member.rankLevel} imageUrl={member.imageUrl} className="w-10 h-10 text-xs shadow-sm" />
@@ -125,57 +128,10 @@ export default function MembersPage() {
                 <td className="py-4 px-6 whitespace-nowrap hidden md:table-cell">
                     <DeptBadge department={member.department} />
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap text-right flex items-center justify-end gap-3">
+                <td className="py-4 px-6 whitespace-nowrap text-right">
                     <span className={`font-bold tabular-nums px-3 py-1 rounded-lg ${showScore ? 'text-[#2E5940] bg-[#EBF4E6]' : 'text-gray-300'}`}>
                         {showScore ? member.score : '——'}
                     </span>
-                    {isAdmin && member._id !== 'env-admin' && (
-                        <div className="flex items-center gap-1">
-                            {activeTab === 'active' && (
-                                <>
-                                    <button
-                                        onClick={() => openEditModal(member)}
-                                        className="p-2 hover:bg-blue-50 text-gray-300 hover:text-blue-500 rounded-lg transition-all"
-                                        title="Edit / Promote"
-                                    >
-                                        <Edit3 className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setResettingMember(member);
-                                            setIsResetModalOpen(true);
-                                        }}
-                                        className="p-2 hover:bg-[#EBF4E6] text-gray-300 hover:text-[#4A7C59] rounded-lg transition-all"
-                                        title="Reset Password"
-                                    >
-                                        <Key className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            if (window.confirm(`Retire ${member.name} to alumni?`)) {
-                                                await retireMember(member._id, 'retired');
-                                            }
-                                        }}
-                                        className="p-2 hover:bg-amber-50 text-gray-300 hover:text-amber-600 rounded-lg transition-all"
-                                        title="Retire to Alumni"
-                                    >
-                                        <GraduationCap className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            if (window.confirm(`Remove ${member.name} from the club? This is different from retirement.`)) {
-                                                await kickMember(member._id);
-                                            }
-                                        }}
-                                        className="p-2 hover:bg-red-50 text-gray-300 hover:text-red-500 rounded-lg transition-all"
-                                        title="Remove from Club"
-                                    >
-                                        <UserX className="w-4 h-4" />
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    )}
                 </td>
             </tr>
         );
