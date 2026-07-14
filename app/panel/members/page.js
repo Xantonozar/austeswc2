@@ -26,7 +26,7 @@ export default function MembersPage() {
     const [alumniList, setAlumniList] = useState([]);
     const [isLoadingAlumni, setIsLoadingAlumni] = useState(false);
 
-    const isAdmin = currentUser?.isAdmin === true;
+    const isAdmin = currentUser?.isAdmin === true || (currentUser?.rankLevel >= 6);
 
     useEffect(() => {
         if (activeTab === 'alumni') {
