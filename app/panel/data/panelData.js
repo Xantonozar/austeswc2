@@ -18,13 +18,13 @@ export const ROLE_HIERARCHY = {
 
 // Department configurations (matching Junior Executive apply form teams)
 export const DEPARTMENTS = [
-  { id: 'Event Management', name: 'Event Management', color: 'bg-amber-100 text-amber-800' },
-  { id: 'Logistics', name: 'Logistics', color: 'bg-[#F2ECE4] text-[#7D5A3C]' },
-  { id: 'Research & Development', name: 'Research & Development', color: 'bg-cyan-100 text-cyan-800' },
-  { id: 'Public Relationship', name: 'Public Relationship', color: 'bg-blue-100 text-blue-800' },
-  { id: 'Content Writing', name: 'Content Writing', color: 'bg-purple-100 text-purple-800' },
-  { id: 'Graphics', name: 'Graphics', color: 'bg-pink-100 text-pink-800' },
-  { id: 'Web Development', name: 'Web Development', color: 'bg-[#EBF4E6] text-[#2E5940]' },
+  { id: 'Event Management', name: 'Event Management', color: 'bg-orange-100 text-orange-700' },
+  { id: 'Logistics', name: 'Logistics', color: 'bg-amber-100 text-amber-700' },
+  { id: 'Research & Development', name: 'Research & Development', color: 'bg-indigo-100 text-indigo-700' },
+  { id: 'Public Relationship', name: 'Public Relationship', color: 'bg-sky-100 text-sky-700' },
+  { id: 'Content Writing', name: 'Content Writing', color: 'bg-violet-100 text-violet-700' },
+  { id: 'Graphics', name: 'Graphics', color: 'bg-pink-100 text-pink-700' },
+  { id: 'Web Development', name: 'Web Development', color: 'bg-blue-100 text-blue-700' },
 ];
 
 export const isGlobalRole = (rankLevel) => rankLevel >= ROLE_HIERARCHY.OS || rankLevel === ROLE_HIERARCHY.BatchAmbassador;

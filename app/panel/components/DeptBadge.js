@@ -4,7 +4,7 @@ import { DEPARTMENTS } from '../data/panelData';
 export default function DeptBadge({ department }) {
     if (!department) {
         return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#1E3A28]/10 text-[#2E5940] border border-[#2E5940]/20">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
                 Global Scope
             </span>
         );
