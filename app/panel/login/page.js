@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDashboard } from '../components/PanelDashboardProvider';
 import { useRouter } from 'next/navigation';
 import { Leaf, LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
@@ -14,11 +14,11 @@ export default function PanelLoginPage() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // If already logged in, redirect
-    if (isLoggedIn) {
-        router.push('/panel');
-        return null;
-    }
+    useEffect(() => {
+        if (isLoggedIn) router.push('/panel');
+    }, [isLoggedIn, router]);
+
+    if (isLoggedIn) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();

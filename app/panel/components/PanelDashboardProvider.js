@@ -8,14 +8,14 @@ const DashboardContext = createContext(null);
 
 export const DashboardProvider = ({ children }) => {
     const [members, setMembers] = useState([]);
+    const [alumni, setAlumni] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch all panel members from DB
     const fetchMembers = useCallback(async () => {
         try {
-            const res = await fetch('/api/panel/members', { cache: 'no-store' });
+            const res = await fetch('/api/panel/members?status=active', { cache: 'no-store' });
             if (res.status === 401) {
                 setCurrentUser(null);
                 localStorage.removeItem('panel_user');
@@ -28,15 +28,29 @@ export const DashboardProvider = ({ children }) => {
         }
     }, []);
 
+    const fetchAlumni = useCallback(async () => {
+        try {
+            const res = await fetch('/api/panel/members?status=all', { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            setAlumni((data.members || []).filter(m => m.status === 'alumni' || m.status === 'kicked'));
+        } catch (error) {
+            console.error('Error fetching alumni:', error);
+        }
+    }, []);
+
     useEffect(() => {
         setIsMounted(true);
-        // Check localStorage for persisted login
         const savedUser = localStorage.getItem('panel_user');
         if (savedUser) {
             try {
                 const user = JSON.parse(savedUser);
+                if (user.rankLevel < 6) {
+                    localStorage.removeItem('panel_user');
+                    setIsLoading(false);
+                    return;
+                }
                 setCurrentUser(user);
-                // Fetch members since we have a session
                 fetchMembers().finally(() => setIsLoading(false));
             } catch {
                 localStorage.removeItem('panel_user');
@@ -57,12 +71,10 @@ export const DashboardProvider = ({ children }) => {
                 body: JSON.stringify({ username, password }),
             });
             const data = await res.json();
-
             if (data.success && data.user) {
                 setCurrentUser(data.user);
                 localStorage.setItem('panel_user', JSON.stringify(data.user));
                 toast.success(`Welcome, ${data.user.name}!`);
-                // Fetch members after login
                 await fetchMembers();
                 return { success: true };
             }
@@ -81,6 +93,7 @@ export const DashboardProvider = ({ children }) => {
         }
         setCurrentUser(null);
         setMembers([]);
+        setAlumni([]);
         localStorage.removeItem('panel_user');
         toast.success('Logged out successfully');
     };
@@ -94,7 +107,6 @@ export const DashboardProvider = ({ children }) => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-
             toast.success(`Evaluation submitted! ${points > 0 ? '+' : ''}${points}pts`);
             await fetchMembers();
         } catch (error) {
@@ -112,12 +124,82 @@ export const DashboardProvider = ({ children }) => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-
             toast.success(`Member ${newMemberData.name} added!`);
             await fetchMembers();
         } catch (error) {
             console.error('Add member error:', error);
             toast.error(error.message || 'Failed to add member');
+        }
+    };
+
+    const updateMember = async (memberId, updates) => {
+        try {
+            const res = await fetch('/api/panel/members', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId, ...updates }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            toast.success('Member updated successfully');
+            await fetchMembers();
+        } catch (error) {
+            console.error('Update member error:', error);
+            toast.error(error.message || 'Failed to update member');
+        }
+    };
+
+    const retireMember = async (memberId, reason = 'retired') => {
+        try {
+            const res = await fetch('/api/panel/members/retire', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId, reason }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            toast.success(data.message || 'Member retired to alumni');
+            await fetchMembers();
+            await fetchAlumni();
+        } catch (error) {
+            console.error('Retire member error:', error);
+            toast.error(error.message || 'Failed to retire member');
+        }
+    };
+
+    const kickMember = async (memberId) => {
+        try {
+            const res = await fetch('/api/panel/members/kick', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ memberId }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            toast.success(data.message || 'Member removed from the club');
+            await fetchMembers();
+            await fetchAlumni();
+        } catch (error) {
+            console.error('Kick member error:', error);
+            toast.error(error.message || 'Failed to remove member');
+        }
+    };
+
+    const selfRetire = async () => {
+        try {
+            const res = await fetch('/api/panel/members/self-retire', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            toast.success(data.message || 'You have left the panel');
+            setCurrentUser(null);
+            setMembers([]);
+            localStorage.removeItem('panel_user');
+        } catch (error) {
+            console.error('Self retire error:', error);
+            toast.error(error.message || 'Failed to leave panel');
         }
     };
 
@@ -130,7 +212,6 @@ export const DashboardProvider = ({ children }) => {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-
             toast.success("Password updated successfully");
         } catch (error) {
             console.error('Password update error:', error);
@@ -143,7 +224,6 @@ export const DashboardProvider = ({ children }) => {
             const res = await fetch(`/api/panel/members?id=${memberId}`, { method: 'DELETE' });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
-
             toast.success("Member removed successfully");
             await fetchMembers();
         } catch (error) {
@@ -153,30 +233,20 @@ export const DashboardProvider = ({ children }) => {
     };
 
     const getUserById = (id) => {
-        // Handle env-admin
         if (id === 'env-admin' && currentUser?.isAdmin) {
             return currentUser;
         }
-        return members.find(m => m._id === id);
+        return members.find(m => m._id === id) || alumni.find(m => m._id === id);
     };
 
     if (!isMounted) return null;
 
     return (
         <DashboardContext.Provider value={{
-            members,
-            currentUser,
-            isLoggedIn,
-            isLoading,
-            login,
-            logout,
-            submitEvaluation,
-            addMember,
-            removeMember,
-            updatePassword,
-            getUserById,
-            fetchMembers,
-            DEPARTMENTS
+            members, alumni, currentUser, isLoggedIn, isLoading,
+            login, logout, submitEvaluation, addMember, updateMember,
+            retireMember, kickMember, selfRetire, removeMember, updatePassword,
+            getUserById, fetchMembers, fetchAlumni, DEPARTMENTS
         }}>
             {children}
         </DashboardContext.Provider>

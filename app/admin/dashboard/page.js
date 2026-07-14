@@ -184,7 +184,7 @@ export default function AdminDashboardOverview() {
                 </AnimatePresence>
 
                 {/* Navigation Cards */}
-                <section className="grid md:grid-cols-3 gap-8">
+                <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <NavCard
                         title="Member Management"
                         description="View registered club members, verify payments, export data, and manage deletions."
@@ -203,11 +203,19 @@ export default function AdminDashboardOverview() {
                     />
                     <NavCard
                         title="Applications"
-                        description="Review Junior Executive and Sub Executive applications."
+                        description="Review Junior Executive, Sub Executive, and Batch Ambassador applications."
                         href="/admin/dashboard/applications"
                         icon={FileText}
                         color="bg-sky-600"
                         stats={`${applications.length} Applications`}
+                    />
+                    <NavCard
+                        title="Panel Management"
+                        description="Manage panel members, evaluate roles, view rankings, and handle promotions."
+                        href="/panel"
+                        icon={GraduationCap}
+                        color="bg-amber-600"
+                        stats="Open Panel"
                     />
                 </section>
 

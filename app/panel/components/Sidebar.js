@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, BarChart3, Trophy, Leaf, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, Trophy, Leaf, LogOut, LayoutGrid, GraduationCap } from 'lucide-react';
 import { useDashboard } from './PanelDashboardProvider';
 import Avatar from './Avatar';
 import DeptBadge from './DeptBadge';
@@ -10,6 +10,8 @@ import DeptBadge from './DeptBadge';
 const navItems = [
     { href: '/panel', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/panel/members', label: 'Panel Members', icon: Users },
+    { href: '/panel/all-panel', label: 'All Panel', icon: LayoutGrid },
+    { href: '/panel/alumni', label: 'Alumni', icon: GraduationCap },
     { href: '/panel/evaluation', label: 'Evaluation', icon: BarChart3 },
     { href: '/panel/rankings', label: 'Rankings', icon: Trophy },
     { href: '/panel/general-members', label: 'General Members', icon: Users },

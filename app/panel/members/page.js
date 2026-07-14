@@ -1,43 +1,61 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useDashboard } from '../components/PanelDashboardProvider';
 import Avatar from '../components/Avatar';
 import DeptBadge from '../components/DeptBadge';
 import { canViewScore } from '../data/permissions';
-import { Search, Filter, Globe, Users, Plus, X, Trash2, Key } from 'lucide-react';
+import { Search, Filter, Globe, Users, Plus, X, Trash2, Key, Edit3, ArrowUpCircle, UserMinus, UserX, GraduationCap, ArrowLeft } from 'lucide-react';
 import { ROLE_HIERARCHY } from '../data/panelData';
+import { useRouter } from 'next/navigation';
 
 export default function MembersPage() {
-    const { members, currentUser, DEPARTMENTS, addMember, removeMember, updatePassword } = useDashboard();
+    const { members, alumni, currentUser, DEPARTMENTS, addMember, removeMember, updatePassword, updateMember, retireMember, kickMember } = useDashboard();
+    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterDept, setFilterDept] = useState('All');
+    const [activeTab, setActiveTab] = useState('active'); // 'active' | 'alumni'
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
     const [resettingMember, setResettingMember] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingMember, setEditingMember] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadedImageUrl, setUploadedImageUrl] = useState('');
     const fileInputRef = useRef(null);
+    const [alumniList, setAlumniList] = useState([]);
+    const [isLoadingAlumni, setIsLoadingAlumni] = useState(false);
 
     const isAdmin = currentUser?.isAdmin === true;
 
-    const filteredMembers = members.filter(m => {
-        if (m._id === 'env-admin') return false;
+    useEffect(() => {
+        if (activeTab === 'alumni') {
+            setIsLoadingAlumni(true);
+            fetch('/api/panel/members?status=all', { cache: 'no-store' })
+                .then(res => res.json())
+                .then(data => {
+                    setAlumniList((data.members || []).filter(m => m.status === 'alumni' || m.status === 'kicked'));
+                })
+                .catch(console.error)
+                .finally(() => setIsLoadingAlumni(false));
+        }
+    }, [activeTab]);
 
+    const displayMembers = activeTab === 'active' ? members : alumniList;
+
+    const filteredMembers = displayMembers.filter(m => {
+        if (m._id === 'env-admin') return false;
         const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             m.designation.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDept = filterDept === 'All' || m.department === filterDept;
-
         if (filterDept !== 'All' && !m.department && filterDept !== 'Core') return false;
         if (filterDept === 'Core' && m.department) return false;
-
         return matchesSearch && matchesDept;
     });
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         setIsUploading(true);
         try {
             const reader = new FileReader();
@@ -49,7 +67,6 @@ export default function MembersPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ imageBase64: base64 }),
                 });
-
                 const data = await response.json();
                 if (data.url) {
                     setUploadedImageUrl(data.url);
@@ -65,6 +82,12 @@ export default function MembersPage() {
         }
     };
 
+    const openEditModal = (member) => {
+        setEditingMember(member);
+        setUploadedImageUrl(member.imageUrl || '');
+        setIsEditModalOpen(true);
+    };
+
     const coreCouncil = filteredMembers.filter(m => !m.department).sort((a, b) => (b.rankLevel || 0) - (a.rankLevel || 0));
     const byDept = DEPARTMENTS.map(dept => ({
         ...dept,
@@ -73,6 +96,7 @@ export default function MembersPage() {
 
     const MemberRow = ({ member }) => {
         const showScore = canViewScore(currentUser, member);
+        const isAlumniOrKicked = member.status === 'alumni' || member.status === 'kicked';
         return (
             <tr className="hover:bg-gray-50/50 transition-colors group border-b border-gray-50 last:border-0">
                 <td className="py-4 px-6 whitespace-nowrap">
@@ -83,6 +107,15 @@ export default function MembersPage() {
                             <div className="md:hidden mt-1">
                                 <DeptBadge department={member.department} />
                             </div>
+                            {isAlumniOrKicked && (
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                    member.status === 'kicked'
+                                        ? 'text-red-600 bg-red-50 border-red-100'
+                                        : 'text-[#4A7C59] bg-[#EBF4E6] border-[#D6E4D8]'
+                                }`}>
+                                    {member.status === 'kicked' ? 'Removed' : 'Alumni'}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </td>
@@ -98,27 +131,49 @@ export default function MembersPage() {
                     </span>
                     {isAdmin && member._id !== 'env-admin' && (
                         <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => {
-                                    setResettingMember(member);
-                                    setIsResetModalOpen(true);
-                                }}
-                                className="p-2 hover:bg-[#EBF4E6] text-gray-300 hover:text-[#4A7C59] rounded-lg transition-all"
-                                title="Reset Password"
-                            >
-                                <Key className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (window.confirm(`Are you sure you want to remove ${member.name}?`)) {
-                                        removeMember(member._id);
-                                    }
-                                }}
-                                className="p-2 hover:bg-red-50 text-gray-300 hover:text-red-500 rounded-lg transition-all"
-                                title="Remove Member"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
+                            {activeTab === 'active' && (
+                                <>
+                                    <button
+                                        onClick={() => openEditModal(member)}
+                                        className="p-2 hover:bg-blue-50 text-gray-300 hover:text-blue-500 rounded-lg transition-all"
+                                        title="Edit / Promote"
+                                    >
+                                        <Edit3 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setResettingMember(member);
+                                            setIsResetModalOpen(true);
+                                        }}
+                                        className="p-2 hover:bg-[#EBF4E6] text-gray-300 hover:text-[#4A7C59] rounded-lg transition-all"
+                                        title="Reset Password"
+                                    >
+                                        <Key className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            if (window.confirm(`Retire ${member.name} to alumni?`)) {
+                                                await retireMember(member._id, 'retired');
+                                            }
+                                        }}
+                                        className="p-2 hover:bg-amber-50 text-gray-300 hover:text-amber-600 rounded-lg transition-all"
+                                        title="Retire to Alumni"
+                                    >
+                                        <GraduationCap className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            if (window.confirm(`Remove ${member.name} from the club? This is different from retirement.`)) {
+                                                await kickMember(member._id);
+                                            }
+                                        }}
+                                        className="p-2 hover:bg-red-50 text-gray-300 hover:text-red-500 rounded-lg transition-all"
+                                        title="Remove from Club"
+                                    >
+                                        <UserX className="w-4 h-4" />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     )}
                 </td>
@@ -131,12 +186,18 @@ export default function MembersPage() {
 
             <header className="border-b border-[#D6E4D8] pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
+                    <button
+                        onClick={() => router.push('/panel')}
+                        className="flex items-center gap-2 text-sm font-medium text-[#7A9080] hover:text-[#4A7C59] transition-colors mb-3"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+                    </button>
                     <h1 className="text-3xl font-yeseva text-[#1A2B1E]">Panel Members</h1>
                     <p className="text-[#7A9080] font-medium tracking-wide mt-2">
-                        Directory of all active panel members and hierarchy
+                        Directory of all panel members, hierarchy, and lifecycle management
                     </p>
                 </div>
-                {isAdmin && (
+                {isAdmin && activeTab === 'active' && (
                     <button
                         onClick={() => setIsAddModalOpen(true)}
                         className="bg-[#1E3A28] text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-[#2E5940] transition-all shadow-md active:scale-95"
@@ -145,6 +206,27 @@ export default function MembersPage() {
                     </button>
                 )}
             </header>
+
+            {/* Active / Alumni Tabs */}
+            <div className="flex gap-2 bg-white border border-[#D6E4D8] rounded-xl p-1.5 shadow-sm w-fit">
+                {[
+                    { id: 'active', label: 'Active Members', icon: Users },
+                    { id: 'alumni', label: 'Alumni & Former', icon: GraduationCap },
+                ].map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                            activeTab === tab.id
+                                ? 'bg-[#1E3A28] text-white shadow-md'
+                                : 'text-gray-500 hover:bg-gray-50'
+                        }`}
+                    >
+                        <tab.icon className="w-4 h-4" />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
 
             {/* Search and Filter */}
             <div className="flex flex-col md:flex-row gap-4">
@@ -172,71 +254,109 @@ export default function MembersPage() {
                 </div>
             </div>
 
-            {/* Core Council Section */}
-            {coreCouncil.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-sm border border-[#EBF4E6] overflow-hidden">
-                    <div className="p-5 border-b border-gray-100 bg-gray-50/30 flex items-center justify-between">
-                        <h2 className="text-sm font-bold text-[#1A2B1E] uppercase tracking-widest flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-[#4A7C59]" /> Core Council
-                        </h2>
-                        <span className="text-xs font-bold text-[#7A9080] bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">
-                            {coreCouncil.length} Members
-                        </span>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[800px]">
-                            <thead>
-                                <tr className="bg-gray-50/50">
-                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Member</th>
-                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Designation</th>
-                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest hidden md:table-cell">Dept Scope</th>
-                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest text-right">Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {coreCouncil.map(m => <MemberRow key={m._id} member={m} />)}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            {/* Department Sections */}
-            <div className="space-y-12">
-                {byDept.map(dept => {
-                    if (dept.members.length === 0) return null;
-                    return (
-                        <div key={dept.id} className="bg-white rounded-2xl shadow-sm border border-[#EBF4E6] overflow-hidden">
+            {/* Active Members View */}
+            {activeTab === 'active' && (
+                <>
+                    {coreCouncil.length > 0 && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-[#EBF4E6] overflow-hidden">
                             <div className="p-5 border-b border-gray-100 bg-gray-50/30 flex items-center justify-between">
                                 <h2 className="text-sm font-bold text-[#1A2B1E] uppercase tracking-widest flex items-center gap-2">
-                                    <span className={`w-2.5 h-2.5 rounded-full ${dept.color.split(' ')[0]}`}></span>
-                                    {dept.id} — {dept.name}
+                                    <Globe className="w-4 h-4 text-[#4A7C59]" /> Core Council
                                 </h2>
                                 <span className="text-xs font-bold text-[#7A9080] bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">
-                                    {dept.members.length} Members
+                                    {coreCouncil.length} Members
                                 </span>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse min-w-[800px]">
                                     <thead>
                                         <tr className="bg-gray-50/50">
-                                            <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest w-1/3">Member</th>
+                                            <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Member</th>
+                                            <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Designation</th>
+                                            <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest hidden md:table-cell">Dept Scope</th>
+                                            <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest text-right">Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {coreCouncil.map(m => <MemberRow key={m._id} member={m} />)}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-12">
+                        {byDept.map(dept => {
+                            if (dept.members.length === 0) return null;
+                            return (
+                                <div key={dept.id} className="bg-white rounded-2xl shadow-sm border border-[#EBF4E6] overflow-hidden">
+                                    <div className="p-5 border-b border-gray-100 bg-gray-50/30 flex items-center justify-between">
+                                        <h2 className="text-sm font-bold text-[#1A2B1E] uppercase tracking-widest flex items-center gap-2">
+                                            <span className={`w-2.5 h-2.5 rounded-full ${dept.color.split(' ')[0]}`}></span>
+                                            {dept.id} — {dept.name}
+                                        </h2>
+                                        <span className="text-xs font-bold text-[#7A9080] bg-white px-3 py-1 rounded-full border border-gray-100 shadow-sm">
+                                            {dept.members.length} Members
+                                        </span>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse min-w-[800px]">
+                                            <thead>
+                                                <tr className="bg-gray-50/50">
+                                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest w-1/3">Member</th>
+                                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Designation</th>
+                                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest hidden md:table-cell">Dept</th>
+                                                    <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest text-right">Score</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-50">
+                                                {dept.members.map(m => <MemberRow key={m._id} member={m} />)}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </>
+            )}
+
+            {/* Alumni View */}
+            {activeTab === 'alumni' && (
+                <>
+                    {isLoadingAlumni ? (
+                        <div className="py-20 text-center text-[#7A9080]">
+                            <div className="w-8 h-8 border-2 border-[#4A7C59] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-sm font-medium">Loading alumni...</p>
+                        </div>
+                    ) : filteredMembers.length === 0 ? (
+                        <div className="py-20 text-center text-[#7A9080]">
+                            <GraduationCap className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                            <p className="text-lg font-medium">No alumni found.</p>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl shadow-sm border border-[#EBF4E6] overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[800px]">
+                                    <thead>
+                                        <tr className="bg-gray-50/50">
+                                            <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Member</th>
                                             <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest">Designation</th>
                                             <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest hidden md:table-cell">Dept</th>
                                             <th className="py-3 px-6 text-[10px] font-bold text-[#7A9080] uppercase tracking-widest text-right">Score</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-50">
-                                        {dept.members.map(m => <MemberRow key={m._id} member={m} />)}
+                                    <tbody>
+                                        {filteredMembers.map(m => <MemberRow key={m._id} member={m} />)}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
+                    )}
+                </>
+            )}
 
-            {filteredMembers.length === 0 && (
+            {filteredMembers.length === 0 && activeTab === 'active' && (
                 <div className="py-20 text-center text-[#7A9080]">
                     <Search className="w-12 h-12 mx-auto mb-4 opacity-20" />
                     <p className="text-lg font-medium">No panel members found.</p>
@@ -366,6 +486,105 @@ export default function MembersPage() {
                     </div>
                 </div>
             )}
+
+            {/* Edit / Promote Modal */}
+            {isEditModalOpen && editingMember && (
+                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-[#F7F3EE] w-full max-w-lg rounded-3xl shadow-2xl border border-[#D6E4D8] overflow-hidden animate-in zoom-in-95 duration-300">
+                        <div className="p-6 border-b border-[#D6E4D8] flex justify-between items-center bg-white/50">
+                            <div>
+                                <h2 className="text-xl font-yeseva text-[#1A2B1E]">Edit / Promote Member</h2>
+                                <p className="text-sm text-[#7A9080] mt-1">{editingMember.name}</p>
+                            </div>
+                            <button onClick={() => { setIsEditModalOpen(false); setEditingMember(null); setUploadedImageUrl(''); }} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData(e.target);
+                                const newRank = parseInt(formData.get('rankLevel'));
+                                const updates = {
+                                    name: formData.get('name'),
+                                    designation: formData.get('designation'),
+                                    department: formData.get('department') || null,
+                                    rankLevel: newRank,
+                                    imageUrl: uploadedImageUrl || formData.get('imageUrl'),
+                                };
+                                await updateMember(editingMember._id, updates);
+                                setIsEditModalOpen(false);
+                                setEditingMember(null);
+                                setUploadedImageUrl('');
+                            }}
+                            className="p-8 space-y-5"
+                        >
+                            <div className="grid grid-cols-1 gap-5">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-[#4A7C59] uppercase tracking-wider ml-1">Full Name</label>
+                                    <input required name="name" type="text" defaultValue={editingMember.name} className="w-full bg-white border border-[#D6E4D8] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#4A7C59] outline-none shadow-sm" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-[#4A7C59] uppercase tracking-wider ml-1">Profile Picture URL</label>
+                                    <input
+                                        name="imageUrl"
+                                        type="url"
+                                        className="w-full bg-white border border-[#D6E4D8] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#4A7C59] outline-none shadow-sm"
+                                        value={uploadedImageUrl}
+                                        onChange={(e) => setUploadedImageUrl(e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-[#4A7C59] uppercase tracking-wider ml-1">Designation</label>
+                                        <select required name="designation" defaultValue={editingMember.designation} className="w-full bg-white border border-[#D6E4D8] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#4A7C59] outline-none shadow-sm appearance-none">
+                                            {Object.keys(ROLE_HIERARCHY).map(role => (
+                                                <option key={role} value={role}>{role}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-[#4A7C59] uppercase tracking-wider ml-1">Department</label>
+                                        <select name="department" defaultValue={editingMember.department || ''} className="w-full bg-white border border-[#D6E4D8] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#4A7C59] outline-none shadow-sm appearance-none">
+                                            <option value="">Global / None</option>
+                                            {DEPARTMENTS.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-[#4A7C59] uppercase tracking-wider ml-1">Rank Level (Hierarchy)</label>
+                                    <select required name="rankLevel" defaultValue={editingMember.rankLevel} className="w-full bg-white border border-[#D6E4D8] rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#4A7C59] outline-none shadow-sm appearance-none">
+                                        {Object.entries(ROLE_HIERARCHY).sort((a, b) => b[1] - a[1]).map(([role, level]) => (
+                                            <option key={role} value={level}>{role} (Level {level})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                {editingMember.roleHistory && editingMember.roleHistory.length > 0 && (
+                                    <div className="bg-white border border-[#D6E4D8] rounded-xl p-4">
+                                        <p className="text-xs font-bold text-[#7A9080] uppercase tracking-wider mb-2">Role History</p>
+                                        <div className="space-y-1">
+                                            {editingMember.roleHistory.map((rh, i) => (
+                                                <p key={i} className="text-sm text-[#1A2B1E]">
+                                                    {rh.designation} ({rh.semester || 'N/A'})
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="pt-4 flex gap-3">
+                                <button type="button" onClick={() => { setIsEditModalOpen(false); setEditingMember(null); setUploadedImageUrl(''); }} className="flex-1 py-3 px-6 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" className="flex-[2] py-3 px-6 rounded-xl font-bold bg-[#1E3A28] text-white hover:bg-[#2E5940] transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2">
+                                    <ArrowUpCircle className="w-5 h-5" /> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Reset Password Modal */}
             {isResetModalOpen && resettingMember && (
                 <div className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
