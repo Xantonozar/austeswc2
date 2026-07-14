@@ -32,8 +32,8 @@ function DashboardShell({ children }) {
                 <Sidebar />
             </div>
 
-            {/* Main Content - Full Width */}
-            <main className="flex-1 h-screen overflow-y-auto overflow-x-hidden relative">
+            {/* Main Content - starts after sidebar */}
+            <main className="flex-1 lg:ml-[68px] h-screen overflow-y-auto overflow-x-hidden relative">
                 {children}
             </main>
 
