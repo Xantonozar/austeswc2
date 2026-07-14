@@ -87,10 +87,10 @@ function createBatchAmbassadors() {
         'Department': d.department,
         'Semester': d.semester,
         'Section': d.section || '-',
-        'Motivation': d.motivation,
+        'Skills / Motivation': d.skillHelp || d.motivation || '-',
+        'Team Preferences / Strategy': d.teamPreferences?.filter(t => t?.trim()).map((t, idx) => `${idx + 1}. ${t}`).join(', ') || d.convinceStrategy || '-',
         'Experience': d.experience || '-',
-        'Other Club Ambassador': d.isOtherClubAmbassador,
-        'Convince Strategy': d.convinceStrategy,
+        'Other Club Ambassador': d.isOtherClubAmbassador || d.isOtherClubExecutive || '-',
         'Status': d.status,
         'Applied': new Date(d.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     }));
