@@ -6,7 +6,6 @@ import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
 
-// Helper to get panel session
 async function getPanelSession() {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('panel_session');
@@ -18,18 +17,30 @@ async function getPanelSession() {
     }
 }
 
-// GET - List all panel members
-export async function GET() {
+function getSemesterFromDate(date) {
+    const d = new Date(date);
+    const month = d.getMonth();
+    const year = d.getFullYear();
+    if (month >= 5 && month <= 10) return `Fall ${year}`;
+    if (month === 11) return `Spring ${year + 1}`;
+    return `Spring ${year}`;
+}
+
+// GET - List panel members (supports ?status=active|alumni|all)
+export async function GET(req) {
     try {
         const session = await getPanelSession();
         if (!session) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await connectDB();
-        const members = await PanelMember.find({}, '-password').sort({ rankLevel: -1 }).lean();
+        const { searchParams } = new URL(req.url);
+        const statusFilter = searchParams.get('status') || 'active';
 
-        // Convert _id to string
+        await connectDB();
+        const query = statusFilter === 'all' ? {} : { status: statusFilter };
+        const members = await PanelMember.find(query, '-password').sort({ rankLevel: -1 }).lean();
+
         const serialized = members.map(m => ({
             ...m,
             _id: m._id.toString(),
@@ -59,15 +70,15 @@ export async function POST(req) {
 
         await connectDB();
 
-        // Check for duplicate username
         const existing = await PanelMember.findOne({ username: username.toLowerCase().trim() });
         if (existing) {
             return NextResponse.json({ error: 'Username already exists' }, { status: 409 });
         }
 
-        // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+        const currentSemester = getSemesterFromDate(new Date());
 
         const newMember = await PanelMember.create({
             name,
@@ -77,9 +88,10 @@ export async function POST(req) {
             rankLevel: parseInt(rankLevel),
             department: department || null,
             imageUrl: imageUrl || '',
+            status: 'active',
+            semesterJoined: currentSemester,
         });
 
-        // Return without password
         const memberObj = newMember.toObject();
         delete memberObj.password;
         memberObj._id = memberObj._id.toString();
@@ -91,7 +103,55 @@ export async function POST(req) {
     }
 }
 
-// DELETE - Remove a panel member
+// PUT - Update member details (designation, rank, department)
+export async function PUT(req) {
+    try {
+        const session = await getPanelSession();
+        if (!session || !session.isAdmin) {
+            return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        }
+
+        const body = await req.json();
+        const { memberId, designation, rankLevel, department } = body;
+
+        if (!memberId) {
+            return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
+        }
+
+        await connectDB();
+        const member = await PanelMember.findById(memberId);
+        if (!member) {
+            return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+        }
+
+        const currentSemester = getSemesterFromDate(new Date());
+
+        // Save old role to history before updating
+        member.roleHistory.push({
+            designation: member.designation,
+            rankLevel: member.rankLevel,
+            department: member.department,
+            semester: currentSemester,
+        });
+
+        if (designation !== undefined) member.designation = designation;
+        if (rankLevel !== undefined) member.rankLevel = parseInt(rankLevel);
+        if (department !== undefined) member.department = department || null;
+
+        await member.save();
+
+        const memberObj = member.toObject();
+        delete memberObj.password;
+        memberObj._id = memberObj._id.toString();
+
+        return NextResponse.json({ success: true, member: memberObj });
+    } catch (error) {
+        console.error('Error updating member:', error);
+        return NextResponse.json({ error: 'Failed to update member' }, { status: 500 });
+    }
+}
+
+// DELETE - Remove a panel member (hard delete)
 export async function DELETE(req) {
     try {
         const session = await getPanelSession();

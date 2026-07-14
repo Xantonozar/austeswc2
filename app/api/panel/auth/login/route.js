@@ -62,6 +62,14 @@ export async function POST(req) {
             return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
         }
 
+        // Block login for rank < 6 or inactive/alumni members
+        if (member.rankLevel < 6) {
+            return NextResponse.json({ error: 'Your role does not have panel login access' }, { status: 403 });
+        }
+        if (member.status && member.status !== 'active') {
+            return NextResponse.json({ error: 'Your account is no longer active' }, { status: 403 });
+        }
+
         const sessionData = JSON.stringify({
             userId: member._id.toString(),
             username: member.username,
