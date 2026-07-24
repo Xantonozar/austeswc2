@@ -32,7 +32,7 @@ export default function AdminLogin() {
 
             if (res.ok) {
                 toast.success('Login successful!');
-                setTimeout(() => router.push('/admin/dashboard/members'), 500);
+                setTimeout(() => router.push('/admin/dashboard'), 500);
             } else {
                 toast.error(data.error || 'Invalid credentials');
                 setLoading(false);

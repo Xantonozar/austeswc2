@@ -8,8 +8,6 @@ import { Footer } from "@/components/footer";
 import LowSection from "@/components/lower-section";
 import Testimonial from "@/components/testimonial";
 import Environmental from "@/components/environmental";
-import PanelMembers from "@/components/panel";
-
 import { Cards } from "@/components/card";
 import MojarSchool from "@/components/mojar-school";
 import UsnotarHasi from "@/components/usnotar-hasi";
@@ -31,7 +29,6 @@ export default function Home() {
       <LatestActivities />
       <LowSection />
       <Spotlight />
-      {/* <PanelMembers /> */}
       {/* <Testimonial /> */}
       <Footer />
 

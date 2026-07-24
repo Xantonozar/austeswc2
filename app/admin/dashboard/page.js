@@ -5,17 +5,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Users, Trophy, ArrowRight, TrendingUp,
     PieChart, Activity, Zap, Camera, Video, FileText, ChevronRight,
-    Loader2, LogOut, Calendar, GraduationCap, Building2, Check, AlertTriangle
+    Loader2, LogOut, Calendar, Building2, Check, AlertTriangle, Shield, Database
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { getSemesterFromDate, getSemestersFromItems } from "@/components/dashboard/SemesterTabs";
 
+const PANEL_ROLES = ['superadmin', 'advisor', 'treasurer', 'president', 'gs', 'vp', 'js', 'os', 'executive'];
+
 export default function AdminDashboardOverview() {
     const [members, setMembers] = useState([]);
     const [competitors, setCompetitors] = useState([]);
     const [applications, setApplications] = useState([]);
+    const [adminRole, setAdminRole] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(getSemesterFromDate(new Date()));
     const router = useRouter();
@@ -26,6 +29,12 @@ export default function AdminDashboardOverview() {
 
     const fetchAllStats = async () => {
         try {
+            const roleRes = await fetch('/api/admin/panel/my-role');
+            if (roleRes.ok) {
+                const roleData = await roleRes.json();
+                setAdminRole(roleData.role);
+            }
+
             const memRes = await fetch('/api/admin/members');
             if (memRes.status === 401) { router.push('/admin/login'); return; }
             const memData = await memRes.json();
@@ -210,13 +219,23 @@ export default function AdminDashboardOverview() {
                         stats={`${applications.length} Applications`}
                     />
                     <NavCard
-                        title="Panel Management"
-                        description="Manage panel members, evaluate roles, view rankings, and handle promotions."
-                        href="/panel"
-                        icon={GraduationCap}
-                        color="bg-amber-600"
-                        stats="Open Panel"
+                        title="Data Collection"
+                        description="View collected member data including profiles, routines, team and position info."
+                        href="/admin/dashboard/datacollect"
+                        icon={Database}
+                        color="bg-blue-600"
+                        stats="View Data"
                     />
+                    {adminRole && PANEL_ROLES.includes(adminRole) && (
+                        <NavCard
+                            title="Panel Management"
+                            description="Manage subordinates, evolve members with points, and view leaderboards."
+                            href="/admin/dashboard/panel"
+                            icon={Shield}
+                            color="bg-violet-600"
+                            stats="Access Panel"
+                        />
+                    )}
                 </section>
 
                 {/* Bottom Grid: Dept Breakdown + Competition Mix */}
