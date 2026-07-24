@@ -150,6 +150,7 @@ export default function PanelPage() {
 
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
+        { id: 'presidential', label: 'Presidential', icon: Crown },
         { id: 'panel-list', label: 'Members', icon: Users },
         { id: 'evolution', label: 'Evolve', icon: Sparkles },
         { id: 'leaderboard', label: 'Rankings', icon: Trophy },
@@ -255,6 +256,9 @@ export default function PanelPage() {
                 <AnimatePresence mode="wait">
                     {activeTab === "overview" && (
                         <OverviewPanel key="overview" subordinates={subordinates} leaderboard={leaderboard} totalPointsGiven={totalPointsGiven} me={me} myRole={myRole} setActiveTab={setActiveTab} setCreateModal={setCreateModal} setEvolveModal={setEvolveModal} />
+                    )}
+                    {activeTab === "presidential" && (
+                        <PresidentialPanel key="presidential" subordinates={subordinates} setEvolveModal={setEvolveModal} />
                     )}
                     {activeTab === "panel-list" && (
                         <PanelList key="list" subordinates={subordinates} myRole={myRole} />
@@ -484,6 +488,86 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
                     Add New Admin
                 </motion.button>
             )}
+        </motion.div>
+    );
+}
+
+/* ═══════ Presidential Panel ═══════ */
+function PresidentialPanel({ subordinates, setEvolveModal }) {
+    const presRoles = ['advisor', 'treasurer', 'president', 'gs', 'vp', 'js', 'os'];
+    const presMembers = subordinates.filter(a => presRoles.includes(a.role));
+    const sorted = presMembers.sort((a, b) => presRoles.indexOf(a.role) - presRoles.indexOf(b.role));
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3">
+            <div className="rounded-2xl overflow-hidden" style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr style={{ background: C.primaryLight }}>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>#</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Role</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Team</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Points</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-right" style={{ color: C.primary }}>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sorted.map((a, i) => (
+                                <tr key={a._id}
+                                    className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
+                                    <td className="px-4 py-3">
+                                        <span className="text-[11px] font-bold" style={{ color: C.textSecondary }}>{i + 1}</span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
+                                                style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                {a.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                            {ROLE_LABELS[a.role] || a.role}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {a.team ? (
+                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: '#F3E5F5', color: '#6A1B9A' }}>
+                                                {a.team}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] font-medium" style={{ color: C.textSecondaryVariant }}>—</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-black" style={{
+                                            background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
+                                            color: a.totalPoints >= 0 ? C.green : C.error,
+                                        }}>
+                                            {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                        <button onClick={() => setEvolveModal(a)}
+                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold text-[10px] transition-all duration-300 active:scale-95 hover:shadow-lg"
+                                            style={{ background: C.primary, color: '#FFFFFF' }}>
+                                            <Zap className="w-3 h-3" />
+                                            Evolve
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="px-4 py-2.5 border-t text-[10px] font-medium" style={{ borderColor: 'rgba(0,0,0,0.04)', color: C.textSecondary }}>
+                    Showing {sorted.length} presidential members
+                </div>
+            </div>
         </motion.div>
     );
 }
