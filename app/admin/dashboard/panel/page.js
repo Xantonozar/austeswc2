@@ -310,12 +310,10 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-4 sm:space-y-5">
 
             {/* Stats Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 {[
                     { label: 'Total Members', value: subordinates.length, icon: Users, bg: '#1565C0', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
-                    { label: 'Total Points', value: totalPointsGiven, icon: Trophy, bg: '#E65100', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
                     { label: 'Avg Points', value: avgPoints, icon: BarChart3, bg: '#2E7D52', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
-                    { label: 'Your Rank', value: myRank ? `#${myRank}` : '—', icon: Crown, bg: '#4A148C', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
                 ].map((s, i) => (
                     <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
                         className="rounded-2xl p-3.5 sm:p-4 group hover:shadow-xl transition-all duration-300"
