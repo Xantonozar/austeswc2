@@ -492,25 +492,11 @@ export default function PanelMembers() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12">
+    <div className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-6">
       <div className="pointer-events-none fixed inset-0 flex items-center justify-center z-0">
         <img src="/eswclogo.svg" alt="ESWC Watermark" className="opacity-10 w-2/3 max-w-3xl select-none" />
       </div>
       <div className="relative container mx-auto px-4 max-w-7xl z-10">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-emerald-800 mb-6">
-            Our Environmental Team
-          </h1>
-          <p className="text-xl text-emerald-700 max-w-4xl mx-auto leading-relaxed">
-            Meet the dedicated panel members across different semesters who are committed to environmental sustainability and innovation.
-          </p>
-        </motion.div>
-
         <Tabs defaultValue="current" className="w-full">
           <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-6 mb-8 bg-gray-100 p-1 rounded-lg">
             <TabsTrigger
