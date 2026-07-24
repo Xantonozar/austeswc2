@@ -560,7 +560,7 @@ function PanelList({ subordinates, myRole }) {
                             </thead>
                             <tbody>
                                 {filtered.map((a, i) => (
-                                    <motion.tr key={a._id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
+                                    <tr key={a._id}
                                         className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
                                         <td className="px-4 py-3">
                                             <span className="text-[11px] font-bold" style={{ color: C.textSecondary }}>{i + 1}</span>
@@ -596,7 +596,7 @@ function PanelList({ subordinates, myRole }) {
                                                 {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
                                             </span>
                                         </td>
-                                    </motion.tr>
+                                    </tr>
                                 ))}
                             </tbody>
                         </table>
@@ -639,7 +639,7 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
                         </thead>
                         <tbody>
                             {list.map((a, i) => (
-                                <motion.tr key={a._id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
+                                <tr key={a._id}
                                     className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
                                     <td className="px-4 py-3">
                                         <span className="text-[11px] font-bold" style={{ color: C.textSecondary }}>{i + 1}</span>
@@ -683,7 +683,7 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
                                             Evolve
                                         </button>
                                     </td>
-                                </motion.tr>
+                                </tr>
                             ))}
                         </tbody>
                     </table>
