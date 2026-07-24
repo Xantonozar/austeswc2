@@ -26,7 +26,8 @@ export async function GET(req) {
             return NextResponse.json({ history });
         }
 
-        const allHistory = await Evolution.find({ grantorId: admin.id })
+        const allHistory = await Evolution.find({})
+            .populate('grantorId', 'name role')
             .populate('targetId', 'name role')
             .sort({ createdAt: -1 })
             .lean();
