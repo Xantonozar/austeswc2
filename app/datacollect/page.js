@@ -56,11 +56,6 @@ export default function DataCollectPage() {
                 setErrors(prev => ({ ...prev, team: teamErr }));
             }, 0);
         }
-        if (name === 'department') {
-            if (value !== 'EEE') {
-                setForm(prev => ({ ...prev, labGroup: '' }));
-            }
-        }
     };
 
     const handleBlur = (name) => {
@@ -239,7 +234,7 @@ export default function DataCollectPage() {
             case 'yearSemester': return !form.yearSemester ? 'Year & semester is required' : '';
             case 'position': return !form.position ? 'Position is required' : '';
             case 'team': return teamPositions.includes(form.position) && !form.team ? 'Team is required for this position' : '';
-            case 'labGroup': return form.department === 'EEE' && !form.labGroup ? 'Lab group is required for EEE' : '';
+            case 'labGroup': return '';
             default: return '';
         }
     };
@@ -507,10 +502,9 @@ export default function DataCollectPage() {
                                 )}
                             </div>
 
-                            {/* Lab Group - EEE only */}
-                            {form.department === 'EEE' && (
+                            {/* Lab Group */}
                             <div>
-                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Lab Group *</label>
+                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Lab Group</label>
                                 <div className="relative">
                                     <select
                                         name="labGroup"
@@ -530,7 +524,6 @@ export default function DataCollectPage() {
                                     </p>
                                 )}
                             </div>
-                            )}
 
                             {/* Routine Upload */}
                             <div>
@@ -611,7 +604,7 @@ export default function DataCollectPage() {
                                         className={`${inputClass('position')} appearance-none pr-10`}
                                     >
                                         <option value="">Select position</option>
-                                        {positions.map(p => <option key={p} value={p}>{p}</option>)}
+                                        {positions.map(p => <option key={p} value={p} disabled={p === 'Advisor' || p === 'Treasurer'}>{p}{(p === 'Advisor' || p === 'Treasurer') ? ' (Closed)' : ''}</option>)}
                                     </select>
                                     <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
                                 </div>
