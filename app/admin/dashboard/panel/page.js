@@ -616,40 +616,81 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
     const list = subordinates.filter(a => a.name.toLowerCase().includes(q.toLowerCase()) || a.role.toLowerCase().includes(q.toLowerCase()));
 
     return (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3 sm:space-y-4">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3">
             <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                 <input type="text" value={q} onChange={e => setQ(e.target.value)} placeholder="Quick find..."
                     className="w-full rounded-2xl py-2.5 sm:py-3 pl-10 pr-4 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2"
-                    style={{ background: C.card, border: '1px solid ' + C.border, color: 'C.text', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }} />
+                    style={{ background: C.card, border: '1px solid ' + C.border, color: C.text, boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }} />
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5">
-                {list.map((a, i) => (
-                    <motion.div key={a._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.02, type: 'spring', stiffness: 300 }}
-                        onClick={() => setEvolveModal(a)}
-                        className="rounded-2xl p-3 sm:p-3.5 cursor-pointer transition-all duration-300 hover:shadow-xl active:scale-[0.97] group"
-                        style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
-                        <div className="flex items-center gap-2 mb-2.5">
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs group-hover:scale-110 transition-transform duration-300 shadow-sm"
-                                style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
-                                {a.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                                <p className="font-bold text-xs truncate" style={{ color: 'C.text' }}>{a.name}</p>
-                                <p className="text-[9px] font-semibold uppercase tracking-wider truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm font-black" style={{ color: a.totalPoints >= 0 ? '#059669' : C.error }}>
-                                {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
-                            </span>
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg" style={{ background: C.primaryLight, color: C.primary }}>
-                                Evolve
-                            </span>
-                        </div>
-                    </motion.div>
-                ))}
+            <div className="rounded-2xl overflow-hidden" style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr style={{ background: C.primaryLight }}>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>#</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Role</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Team</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Points</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-right" style={{ color: C.primary }}>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {list.map((a, i) => (
+                                <motion.tr key={a._id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
+                                    className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
+                                    <td className="px-4 py-3">
+                                        <span className="text-[11px] font-bold" style={{ color: C.textSecondary }}>{i + 1}</span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
+                                                style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                {a.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                            {ROLE_LABELS[a.role] || a.role}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {a.team ? (
+                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: '#F3E5F5', color: '#6A1B9A' }}>
+                                                {a.team}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] font-medium" style={{ color: C.textSecondaryVariant }}>—</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="px-2.5 py-1 rounded-lg text-[10px] font-black" style={{
+                                            background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
+                                            color: a.totalPoints >= 0 ? C.green : C.error,
+                                        }}>
+                                            {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                        <button onClick={() => setEvolveModal(a)}
+                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl font-bold text-[10px] transition-all duration-300 active:scale-95 hover:shadow-lg"
+                                            style={{ background: C.primary, color: '#FFFFFF' }}>
+                                            <Zap className="w-3 h-3" />
+                                            Evolve
+                                        </button>
+                                    </td>
+                                </motion.tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="px-4 py-2.5 border-t text-[10px] font-medium" style={{ borderColor: 'rgba(0,0,0,0.04)', color: C.textSecondary }}>
+                    Showing {list.length} of {subordinates.length} members
+                </div>
             </div>
         </motion.div>
     );
