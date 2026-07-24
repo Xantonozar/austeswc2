@@ -249,51 +249,6 @@ export default function PanelPage() {
 
             {/* ═══ Content ═══ */}
             <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-6">
-                {/* Hero Welcome */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-                    className="mb-4 sm:mb-6 rounded-2xl sm:rounded-3xl p-4 sm:p-6 relative overflow-hidden"
-                    style={{ background: C.primaryLight }}>
-                    <div className="absolute inset-0 opacity-10">
-                        <div className="absolute top-[-50%] right-[-20%] w-[300px] h-[300px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.4), transparent)' }} />
-                        <div className="absolute bottom-[-30%] left-[-10%] w-[200px] h-[200px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3), transparent)' }} />
-                    </div>
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div>
-                            <p className="text-blue-100 text-[11px] sm:text-xs font-medium mb-0.5">Welcome back,</p>
-                            <h1 className="text-lg sm:text-2xl font-black text-white">{myName?.split(' ')[0] || 'Admin'}</h1>
-                            <p className="text-blue-200 text-[10px] sm:text-xs font-medium mt-0.5">{ROLE_LABELS[myRole] || myRole} &middot; {subordinates.length} team members</p>
-                        </div>
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
-                            <Gem className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Quick Stats */}
-                <div className="flex gap-2.5 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-3 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide pb-1">
-                    {[
-                        { label: 'My Points', value: me?.totalPoints ?? 0, icon: Target, color: C.primary, bg: C.primaryLight },
-                        { label: 'Team', value: subordinates.length, icon: Users, color: C.green, bg: C.greenLight },
-                        { label: 'Top Rank', value: leaderboard[0]?.name?.split(' ')[0] || '—', icon: Crown, color: C.orange, bg: C.orangeLight },
-                        { label: 'Given', value: totalPointsGiven, icon: BarChart3, color: C.purple, bg: C.purpleLight },
-                    ].map((s, i) => (
-                        <motion.div key={s.label} initial={{ opacity: 0, y: 12, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: i * 0.08, type: 'spring', stiffness: 200 }}
-                            className="relative rounded-2xl p-3 sm:p-4 flex-shrink-0 min-w-[140px] sm:min-w-0 group hover:shadow-xl transition-all duration-300"
-                            style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.9)', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }}>
-                            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: s.glow, filter: 'blur(20px)' }} />
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm" style={{ background: s.gradient }}>
-                                        <s.icon className="w-4 h-4 text-white" />
-                                    </div>
-                                    <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: C.textSecondary }}>{s.label}</p>
-                                </div>
-                                <p className="text-xl sm:text-2xl font-black" style={{ color: 'C.text' }}>{s.value}</p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-
                 {/* Tab Panels */}
                 <AnimatePresence mode="wait">
                     {activeTab === "overview" && (
@@ -607,22 +562,6 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
 
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3 sm:space-y-4">
-            <div className="rounded-2xl sm:rounded-3xl p-4 sm:p-6 relative overflow-hidden" style={{ background: C.primaryLight }}>
-                <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-[-30%] right-[-15%] w-[200px] h-[200px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.5), transparent)' }} />
-                    <div className="absolute bottom-[-20%] left-[-10%] w-[150px] h-[150px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.4), transparent)' }} />
-                </div>
-                <div className="relative z-10 flex items-center gap-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
-                        <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                        <h3 className="text-base sm:text-lg font-black text-white">Evolve Your Team</h3>
-                        <p className="text-white/70 text-[11px] sm:text-xs font-medium">Tap any member to add or deduct points</p>
-                    </div>
-                </div>
-            </div>
-
             <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                 <input type="text" value={q} onChange={e => setQ(e.target.value)} placeholder="Quick find..."
