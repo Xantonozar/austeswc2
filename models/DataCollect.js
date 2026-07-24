@@ -40,6 +40,7 @@ const DataCollectSchema = new mongoose.Schema({
     },
     position: {
         type: String,
+        required: [true, 'Please provide a position'],
         trim: true,
     },
     studentId: {
@@ -49,7 +50,10 @@ const DataCollectSchema = new mongoose.Schema({
         trim: true,
         uppercase: true,
     },
-    routineImageUrl: String,
+    routineImageUrl: {
+        type: String,
+        required: [true, 'Routine image is required'],
+    },
     routinePublicId: String,
     createdAt: {
         type: Date,

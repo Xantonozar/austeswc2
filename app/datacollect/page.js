@@ -40,12 +40,27 @@ export default function DataCollectPage() {
     const yearOptions = ['1-1', '1-2', '2-1', '2-2', '3-1', '3-2', '4-1', '4-2', '5-1', '5-2'];
     const labGroups = ['A-1', 'A-2', 'B-1', 'B-2', 'C-1', 'C-2', 'D-1', 'D-2'];
     const teams = ['Event Management', 'Logistics', 'Research & Development', 'Public Relationship', 'Content Writing', 'Graphics', 'Web Development'];
-    const positions = ['President', 'Vice President', 'General Secretary', 'Treasurer', 'Organizing Secretary', 'Joint Secretary', 'Executive', 'Senior Sub Executive', 'Sub Executive', 'Junior Executive', 'Member'];
+    const positions = ['Advisor', 'President', 'Vice President', 'General Secretary', 'Treasurer', 'Organizing Secretary', 'Joint Secretary', 'Executive', 'Senior Sub Executive', 'Sub Executive', 'Junior Executive'];
+    const teamPositions = ['Executive', 'Senior Sub Executive', 'Sub Executive', 'Junior Executive'];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+        if (name === 'position') {
+            if (!teamPositions.includes(value)) {
+                setForm(prev => ({ ...prev, team: '' }));
+            }
+            setTimeout(() => {
+                const teamErr = validateField('team');
+                setErrors(prev => ({ ...prev, team: teamErr }));
+            }, 0);
+        }
+        if (name === 'department') {
+            if (value !== 'EEE') {
+                setForm(prev => ({ ...prev, labGroup: '' }));
+            }
+        }
     };
 
     const handleBlur = (name) => {
@@ -222,21 +237,26 @@ export default function DataCollectPage() {
             case 'studentId': return !form.studentId.trim() ? 'Student ID is required' : '';
             case 'department': return !form.department ? 'Department is required' : '';
             case 'yearSemester': return !form.yearSemester ? 'Year & semester is required' : '';
+            case 'position': return !form.position ? 'Position is required' : '';
+            case 'team': return teamPositions.includes(form.position) && !form.team ? 'Team is required for this position' : '';
+            case 'labGroup': return form.department === 'EEE' && !form.labGroup ? 'Lab group is required for EEE' : '';
             default: return '';
         }
     };
 
     const validateAll = () => {
         const newErrors = {};
-        ['name', 'email', 'phone', 'studentId', 'department', 'yearSemester'].forEach(f => {
+        ['name', 'email', 'phone', 'studentId', 'department', 'yearSemester', 'position', 'team', 'labGroup'].forEach(f => {
             const err = validateField(f);
             if (err) newErrors[f] = err;
         });
         if (!imageUrl) newErrors.photo = 'Profile image is required';
+        if (!routineImageUrl) newErrors.routine = 'Routine is required';
         setErrors(newErrors);
         setTouched({
             name: true, email: true, phone: true, studentId: true,
-            department: true, yearSemester: true, photo: true
+            department: true, yearSemester: true, position: true, team: true,
+            labGroup: true, photo: true, routine: true
         });
         return Object.keys(newErrors).length === 0;
     };
@@ -490,25 +510,31 @@ export default function DataCollectPage() {
                             {/* Lab Group - EEE only */}
                             {form.department === 'EEE' && (
                             <div>
-                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Lab Group</label>
+                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Lab Group *</label>
                                 <div className="relative">
                                     <select
                                         name="labGroup"
                                         value={form.labGroup}
                                         onChange={handleChange}
+                                        onBlur={() => handleBlur('labGroup')}
                                         className={`${inputClass('labGroup')} appearance-none pr-10`}
                                     >
-                                        <option value="">Select lab group (optional)</option>
+                                        <option value="">Select lab group</option>
                                         {labGroups.map(g => <option key={g} value={g}>{g}</option>)}
                                     </select>
                                     <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
                                 </div>
+                                {errors.labGroup && touched.labGroup && (
+                                    <p className="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500 ml-1">
+                                        <AlertCircle className="w-3 h-3" /> {errors.labGroup}
+                                    </p>
+                                )}
                             </div>
                             )}
 
                             {/* Routine Upload */}
                             <div>
-                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Class Routine</label>
+                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Class Routine *</label>
                                 {routineImageUrl ? (
                                     <div className="flex items-center gap-4">
                                         <div className="relative">
@@ -541,7 +567,7 @@ export default function DataCollectPage() {
                                                 <Calendar className="w-6 h-6" style={{ color: '#94A3B8' }} />
                                             )}
                                             <span className="text-xs font-medium" style={{ color: '#6B7280' }}>
-                                                {isUploadingRoutine ? 'Uploading...' : 'Upload routine (optional)'}
+                                                {isUploadingRoutine ? 'Uploading...' : 'Upload routine'}
                                             </span>
                                         </div>
                                         <input
@@ -553,6 +579,11 @@ export default function DataCollectPage() {
                                             disabled={isUploadingRoutine}
                                         />
                                     </label>
+                                )}
+                                {errors.routine && touched.routine && (
+                                    <p className="flex items-center gap-1 mt-2 text-xs font-medium text-red-500">
+                                        <AlertCircle className="w-3 h-3" /> {errors.routine}
+                                    </p>
                                 )}
                             </div>
                         </div>
@@ -568,39 +599,53 @@ export default function DataCollectPage() {
                         </div>
 
                         <div className="space-y-3">
-                            {/* Team */}
-                            <div>
-                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Team</label>
-                                <div className="relative">
-                                    <select
-                                        name="team"
-                                        value={form.team}
-                                        onChange={handleChange}
-                                        className={`${inputClass('team')} appearance-none pr-10`}
-                                    >
-                                        <option value="">Select team (optional)</option>
-                                        {teams.map(t => <option key={t} value={t}>{t}</option>)}
-                                    </select>
-                                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
-                                </div>
-                            </div>
-
                             {/* Position */}
                             <div>
-                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Position</label>
+                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Position *</label>
                                 <div className="relative">
                                     <select
                                         name="position"
                                         value={form.position}
                                         onChange={handleChange}
+                                        onBlur={() => handleBlur('position')}
                                         className={`${inputClass('position')} appearance-none pr-10`}
                                     >
-                                        <option value="">Select position (optional)</option>
+                                        <option value="">Select position</option>
                                         {positions.map(p => <option key={p} value={p}>{p}</option>)}
                                     </select>
                                     <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
                                 </div>
+                                {errors.position && touched.position && (
+                                    <p className="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500 ml-1">
+                                        <AlertCircle className="w-3 h-3" /> {errors.position}
+                                    </p>
+                                )}
                             </div>
+
+                            {/* Team - only for executive positions */}
+                            {teamPositions.includes(form.position) && (
+                            <div>
+                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Team *</label>
+                                <div className="relative">
+                                    <select
+                                        name="team"
+                                        value={form.team}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur('team')}
+                                        className={`${inputClass('team')} appearance-none pr-10`}
+                                    >
+                                        <option value="">Select team</option>
+                                        {teams.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
+                                </div>
+                                {errors.team && touched.team && (
+                                    <p className="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500 ml-1">
+                                        <AlertCircle className="w-3 h-3" /> {errors.team}
+                                    </p>
+                                )}
+                            </div>
+                            )}
                         </div>
                     </div>
 
