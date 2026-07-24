@@ -515,44 +515,25 @@ function PanelList({ subordinates, myRole }) {
                     style={{ background: C.card, border: '1px solid ' + C.border, color: C.text, boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
             </div>
 
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.textSecondary }}>Role:</span>
-                    <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-                        <button onClick={() => setFilterRole("all")}
-                            className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
-                            style={{ background: filterRole === "all" ? C.primary : C.card, color: filterRole === "all" ? '#FFFFFF' : C.textSecondary, border: `1px solid ${filterRole === "all" ? C.primary : C.border}` }}>
-                            All
-                        </button>
-                        {uniqueRoles.map(role => {
-                            const rc = ROLE_COLORS[role] || { bg: C.primaryLight, text: C.primary };
-                            return (
-                                <button key={role} onClick={() => setFilterRole(role)}
-                                    className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
-                                    style={{ background: filterRole === role ? rc.bg : C.card, color: filterRole === role ? rc.text : C.textSecondary, border: `1px solid ${filterRole === role ? rc.bg : C.border}` }}>
-                                    {ROLE_LABELS[role] || role}
-                                </button>
-                            );
-                        })}
-                    </div>
+            <div className="flex gap-2">
+                <div className="relative">
+                    <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
+                        className="appearance-none bg-white rounded-xl px-3 pr-8 py-2 text-[11px] font-bold cursor-pointer transition-all hover:shadow-md focus:ring-2 focus:ring-blue-400"
+                        style={{ border: `1px solid ${C.border}`, color: filterRole === 'all' ? C.textSecondary : C.text }}>
+                        <option value="all">All Roles</option>
+                        {uniqueRoles.map(role => <option key={role} value={role}>{ROLE_LABELS[role] || role}</option>)}
+                    </select>
+                    <ChevronDown className="w-3 h-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: C.textSecondary }} />
                 </div>
                 {uniqueTeams.length > 0 && (
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.textSecondary }}>Team:</span>
-                        <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-                            <button onClick={() => setFilterTeam("all")}
-                                className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
-                                style={{ background: filterTeam === "all" ? C.primary : C.card, color: filterTeam === "all" ? '#FFFFFF' : C.textSecondary, border: `1px solid ${filterTeam === "all" ? C.primary : C.border}` }}>
-                                All
-                            </button>
-                            {uniqueTeams.map(team => (
-                                <button key={team} onClick={() => setFilterTeam(team)}
-                                    className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
-                                    style={{ background: filterTeam === team ? '#4A148C' : C.card, color: filterTeam === team ? '#FFFFFF' : C.textSecondary, border: `1px solid ${filterTeam === team ? '#4A148C' : C.border}` }}>
-                                    {team}
-                                </button>
-                            ))}
-                        </div>
+                    <div className="relative">
+                        <select value={filterTeam} onChange={e => setFilterTeam(e.target.value)}
+                            className="appearance-none bg-white rounded-xl px-3 pr-8 py-2 text-[11px] font-bold cursor-pointer transition-all hover:shadow-md focus:ring-2 focus:ring-blue-400"
+                            style={{ border: `1px solid ${C.border}`, color: filterTeam === 'all' ? C.textSecondary : C.text }}>
+                            <option value="all">All Teams</option>
+                            {uniqueTeams.map(team => <option key={team} value={team}>{team}</option>)}
+                        </select>
+                        <ChevronDown className="w-3 h-3 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: C.textSecondary }} />
                     </div>
                 )}
             </div>
