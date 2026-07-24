@@ -6,7 +6,10 @@ import { motion } from "framer-motion";
 
 export default function PanelMembers() {
   // Current members (Fall 25)
-  const fall25Members = [
+  const fall25Members = [];
+
+  // Spring 25 members
+  const spring25Members = [
     {
       fullName: "MS Saida Sultana",
       designation: "Advisor",
@@ -134,9 +137,6 @@ export default function PanelMembers() {
       social: { facebook: "https://facebook.com", instagram: "https://instagram.com", linkedin: "https://linkedin.com" }
     }
   ];
-
-  // Spring 25 members
-  const spring25Members = [];
 
   // Fall 24 members
   const fall24Members = [
