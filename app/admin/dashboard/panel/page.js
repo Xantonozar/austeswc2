@@ -31,41 +31,44 @@ const ROLE_LABELS = {
 const ROLE_OPTIONS = Object.keys(ROLE_LABELS);
 
 const ROLE_COLORS = {
-    'superadmin': { bg: '#D6EEFF', text: '#1A5276' },
-    'advisor': { bg: '#D4EFDF', text: '#1E8449' },
-    'treasurer': { bg: '#FCF3CF', text: '#9A7D0A' },
-    'president': { bg: '#FADBD8', text: '#922B21' },
-    'gs': { bg: '#E8DAEF', text: '#6C3483' },
-    'vp': { bg: '#D6EAF8', text: '#2471A3' },
-    'js': { bg: '#D5F5E3', text: '#1E8449' },
-    'os': { bg: '#FDEBD0', text: '#CA6F1E' },
-    'executive': { bg: '#D4E6F1', text: '#2874A6' },
-    'senior sub executive': { bg: '#E8F8F5', text: '#148F77' },
-    'sub executive': { bg: '#FEF9E7', text: '#9A7D0A' },
-    'junior executive': { bg: '#EBF5FB', text: '#2874A6' },
+    'superadmin': { bg: '#1A5276', text: '#FFFFFF' },
+    'advisor': { bg: '#1E8449', text: '#FFFFFF' },
+    'treasurer': { bg: '#B7950B', text: '#FFFFFF' },
+    'president': { bg: '#922B21', text: '#FFFFFF' },
+    'gs': { bg: '#6C3483', text: '#FFFFFF' },
+    'vp': { bg: '#2471A3', text: '#FFFFFF' },
+    'js': { bg: '#1E8449', text: '#FFFFFF' },
+    'os': { bg: '#CA6F1E', text: '#FFFFFF' },
+    'executive': { bg: '#2874A6', text: '#FFFFFF' },
+    'senior sub executive': { bg: '#148F77', text: '#FFFFFF' },
+    'sub executive': { bg: '#B7950B', text: '#FFFFFF' },
+    'junior executive': { bg: '#2E86C1', text: '#FFFFFF' },
 };
 
 const C = {
-    primary: '#3B82C4',
-    primaryDark: '#2C6FA0',
-    primaryLight: '#D6EEFF',
-    green: '#4CA88C',
-    greenLight: '#D4EFDF',
-    warmBlue: '#5B9BD5',
-    warmBlueLight: '#D6EAF8',
-    navy: '#2C3E50',
-    text: '#1C1B1F',
-    textSecondary: '#6B7280',
-    surface: '#F4F6FA',
+    primary: '#1565C0',
+    primaryDark: '#0D47A1',
+    primaryLight: '#BBDEFB',
+    green: '#2E7D52',
+    greenLight: '#C8E6C9',
+    warmBlue: '#1976D2',
+    warmBlueLight: '#BBDEFB',
+    navy: '#1A237E',
+    text: '#0D1117',
+    textSecondary: '#495057',
+    surface: '#F0F2F5',
     card: '#FFFFFF',
-    border: '#E5E9F0',
-    borderLight: '#EFF2F7',
-    error: '#C0392B',
-    errorLight: '#FADBD8',
-    orange: '#D4841A',
-    orangeLight: '#FDEBD0',
-    purple: '#6C3483',
-    purpleLight: '#E8DAEF',
+    border: '#D0D5DD',
+    borderLight: '#E9ECEF',
+    error: '#B71C1C',
+    errorLight: '#FFCDD2',
+    orange: '#E65100',
+    orangeLight: '#FFE0B2',
+    purple: '#4A148C',
+    purpleLight: '#E1BEE7',
+    primaryContainer: '#E3F2FD',
+    textSecondaryVariant: '#6C757D',
+    errorContainer: '#FFEBEE',
 };
 
 function relativeTime(dateStr) {
@@ -167,13 +170,13 @@ export default function PanelPage() {
         <div className="min-h-screen font-sans relative" style={{ background: C.surface }}>
             <AnimatedBackground />
             <Toaster position="top-center" toastOptions={{
-                style: { background: '#FFFFFF', color: '#1C1B1F', borderRadius: '14px', fontWeight: 600, fontSize: '12px', border: '1px solid rgba(255,255,255,0.6)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' },
+                style: { background: '#FFFFFF', color: 'C.text', borderRadius: '14px', fontWeight: 600, fontSize: '12px', border: '1px solid rgba(255,255,255,0.6)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' },
                 success: { iconTheme: { primary: '#43e97b', secondary: '#FFFFFF' } },
             }} />
 
             {/* ═══ Header ═══ */}
             <header className="sticky top-0 z-40" style={{ background: 'rgba(240,242,248,0.75)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}>
-                <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: 'C.border' }} />
+                <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: C.border }} />
                 <div className="max-w-6xl mx-auto px-3 sm:px-6">
                     <div className="flex items-center justify-between h-12 sm:h-14">
                         <div className="flex items-center gap-2">
@@ -181,7 +184,7 @@ export default function PanelPage() {
                                 <Shield className="w-4 h-4" />
                             </div>
                             <div className="hidden sm:block">
-                                <p className="text-xs font-bold leading-tight" style={{ color: '#1C1B1F' }}>Panel</p>
+                                <p className="text-xs font-bold leading-tight" style={{ color: 'C.text' }}>Panel</p>
                                 <p className="text-[9px] font-semibold tracking-wider uppercase" style={{ color: C.primary }}>Management</p>
                             </div>
                         </div>
@@ -227,7 +230,7 @@ export default function PanelPage() {
                                                 className="absolute right-0 top-full mt-2 w-52 sm:w-56 rounded-2xl overflow-hidden z-50"
                                                 style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.8)', boxShadow: '0 16px 48px rgba(0,0,0,0.12)' }}>
                                                 <div className="p-3 border-b" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
-                                                    <p className="font-bold text-xs" style={{ color: '#1C1B1F' }}>{myName}</p>
+                                                    <p className="font-bold text-xs" style={{ color: 'C.text' }}>{myName}</p>
                                                     <p className="text-[10px] font-semibold" style={{ color: C.primary }}>{ROLE_LABELS[myRole] || myRole}</p>
                                                 </div>
                                                 <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold transition-all hover:bg-red-50" style={{ color: C.error }}>
@@ -284,7 +287,7 @@ export default function PanelPage() {
                                     </div>
                                     <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: C.textSecondary }}>{s.label}</p>
                                 </div>
-                                <p className="text-xl sm:text-2xl font-black" style={{ color: '#1C1B1F' }}>{s.value}</p>
+                                <p className="text-xl sm:text-2xl font-black" style={{ color: 'C.text' }}>{s.value}</p>
                             </div>
                         </motion.div>
                     ))}
@@ -329,12 +332,12 @@ function PanelList({ subordinates, filtered, search, setSearch, myRole, setEvolv
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                     placeholder="Search members..."
                     className="w-full rounded-2xl py-2.5 sm:py-3 pl-10 pr-4 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2"
-                    style={{ background: C.card, border: '1px solid ' + C.border, color: '#1C1B1F', boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
+                    style={{ background: C.card, border: '1px solid ' + C.border, color: 'C.text', boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
             </div>
 
             {filtered.length === 0 ? (
                 <div className="rounded-3xl p-12 sm:p-16 text-center" style={{ background: C.card, border: '1px solid ' + C.border }}>
-                    <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'C.primaryLight' }}>
+                    <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: C.primaryLight }}>
                         <Users className="w-6 h-6" style={{ color: C.textSecondaryVariant }} />
                     </div>
                     <p className="font-semibold text-xs" style={{ color: C.textSecondary }}>No members found</p>
@@ -350,7 +353,7 @@ function PanelList({ subordinates, filtered, search, setSearch, myRole, setEvolv
                                 {a.name.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="font-bold text-xs sm:text-sm truncate" style={{ color: '#1C1B1F' }}>{a.name}</p>
+                                <p className="font-bold text-xs sm:text-sm truncate" style={{ color: 'C.text' }}>{a.name}</p>
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-[10px] font-medium truncate" style={{ color: C.textSecondary }}>
                                         <span className="hidden sm:inline">@{a.username}</span>
@@ -414,7 +417,7 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                 <input type="text" value={q} onChange={e => setQ(e.target.value)} placeholder="Quick find..."
                     className="w-full rounded-2xl py-2.5 sm:py-3 pl-10 pr-4 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2"
-                    style={{ background: C.card, border: '1px solid ' + C.border, color: '#1C1B1F', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }} />
+                    style={{ background: C.card, border: '1px solid ' + C.border, color: 'C.text', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }} />
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5">
@@ -429,7 +432,7 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
                                 {a.name.charAt(0).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                                <p className="font-bold text-xs truncate" style={{ color: '#1C1B1F' }}>{a.name}</p>
+                                <p className="font-bold text-xs truncate" style={{ color: 'C.text' }}>{a.name}</p>
                                 <p className="text-[9px] font-semibold uppercase tracking-wider truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
                             </div>
                         </div>
@@ -459,7 +462,7 @@ function LeaderboardPanel({ leaderboard }) {
     if (!leaderboard.length) {
         return (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="rounded-3xl p-12 sm:p-16 text-center" style={{ background: C.card, border: '1px solid ' + C.border }}>
-                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'C.primaryLight' }}>
+                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: C.primaryLight }}>
                     <Trophy className="w-6 h-6" style={{ color: C.textSecondaryVariant }} />
                 </div>
                 <p className="font-semibold text-xs" style={{ color: C.textSecondary }}>No rankings yet</p>
@@ -491,7 +494,7 @@ function LeaderboardPanel({ leaderboard }) {
                             {medal ? <medal.icon className="w-5 h-5" /> : `#${i + 1}`}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-xs sm:text-sm truncate" style={{ color: '#1C1B1F' }}>{a.name}</p>
+                            <p className="font-bold text-xs sm:text-sm truncate" style={{ color: 'C.text' }}>{a.name}</p>
                             <p className="text-[10px] font-medium truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
                         </div>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -535,7 +538,7 @@ function HistoryPanel({ myId }) {
     if (!history.length) {
         return (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="rounded-3xl p-12 sm:p-16 text-center" style={{ background: C.card, border: '1px solid ' + C.border }}>
-                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: 'C.primaryLight' }}>
+                <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: C.primaryLight }}>
                     <Clock className="w-6 h-6" style={{ color: C.textSecondaryVariant }} />
                 </div>
                 <p className="font-semibold text-xs" style={{ color: C.textSecondary }}>No history yet</p>
@@ -557,7 +560,7 @@ function HistoryPanel({ myId }) {
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                            <p className="font-bold text-xs sm:text-sm truncate" style={{ color: '#1C1B1F' }}>{h.grantorId?.name || "Unknown"}</p>
+                            <p className="font-bold text-xs sm:text-sm truncate" style={{ color: 'C.text' }}>{h.grantorId?.name || "Unknown"}</p>
                             <span className="font-black text-[11px] sm:text-xs flex-shrink-0" style={{ color: h.points >= 0 ? '#059669' : C.error }}>
                                 {h.points >= 0 ? '+' : ''}{h.points}
                             </span>
@@ -590,7 +593,7 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                     <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search admins..."
                         className="w-full rounded-2xl py-2.5 sm:py-3 pl-10 pr-4 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2"
-                        style={{ background: C.card, border: '1px solid ' + C.border, color: '#1C1B1F', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }} />
+                        style={{ background: C.card, border: '1px solid ' + C.border, color: 'C.text', boxShadow: '0 4px 24px rgba(0,0,0,0.03)' }} />
                 </div>
                 <button onClick={() => setCreateModal(true)}
                     className="flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all duration-300 hover:shadow-xl active:scale-[0.97]"
@@ -621,7 +624,7 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
                                                 {a.name.charAt(0).toUpperCase()}
                                             </div>
                                             <div>
-                                                <p className="font-bold text-sm" style={{ color: '#1C1B1F' }}>{a.name}</p>
+                                                <p className="font-bold text-sm" style={{ color: 'C.text' }}>{a.name}</p>
                                                 <p className="text-[10px] font-medium" style={{ color: C.textSecondary }}>@{a.username}</p>
                                             </div>
                                         </div>
@@ -664,7 +667,7 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
                             {a.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-xs truncate" style={{ color: '#1C1B1F' }}>{a.name}</p>
+                            <p className="font-bold text-xs truncate" style={{ color: 'C.text' }}>{a.name}</p>
                             <div className="flex items-center gap-1.5">
                                 <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider flex-shrink-0" style={{ background: ROLE_COLORS[a.role]?.bg, color: ROLE_COLORS[a.role]?.text }}>
                                     {ROLE_LABELS[a.role] || a.role}
@@ -720,7 +723,7 @@ function EvolveModal({ admin, onClose, onDone }) {
         finally { setLoading(false); }
     };
 
-    const inputStyle = { background: 'rgba(242,245,251,0.8)', border: '1px solid rgba(255,255,255,0.9)', color: '#1C1B1F' };
+    const inputStyle = { background: 'rgba(242,245,251,0.8)', border: '1px solid rgba(255,255,255,0.9)', color: 'C.text' };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
@@ -730,7 +733,7 @@ function EvolveModal({ admin, onClose, onDone }) {
                 <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: C.primary }} />
                 <div className="flex items-center justify-between mb-5 mt-1">
                     <div>
-                        <h2 className="text-base sm:text-lg font-black" style={{ color: '#1C1B1F' }}>Evolve {admin.name}</h2>
+                        <h2 className="text-base sm:text-lg font-black" style={{ color: 'C.text' }}>Evolve {admin.name}</h2>
                         <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider" style={{ color: C.primary }}>{ROLE_LABELS[admin.role] || admin.role}</p>
                     </div>
                     <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 transition-all" style={{ color: C.textSecondary }}><X className="w-4 h-4" /></button>
@@ -790,7 +793,7 @@ function CreateAdminModal({ onClose, onDone }) {
         finally { setLoading(false); }
     };
 
-    const s = { background: 'rgba(242,245,251,0.8)', border: '1px solid rgba(255,255,255,0.9)', color: '#1C1B1F' };
+    const s = { background: 'rgba(242,245,251,0.8)', border: '1px solid rgba(255,255,255,0.9)', color: 'C.text' };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
@@ -799,7 +802,7 @@ function CreateAdminModal({ onClose, onDone }) {
                 className="w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 shadow-2xl max-h-[85vh] overflow-y-auto relative" style={{ background: C.card }}>
                 <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: C.green }} />
                 <div className="flex items-center justify-between mb-5 mt-1">
-                    <h2 className="text-base sm:text-lg font-black" style={{ color: '#1C1B1F' }}>Create Admin</h2>
+                    <h2 className="text-base sm:text-lg font-black" style={{ color: 'C.text' }}>Create Admin</h2>
                     <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 transition-all" style={{ color: C.textSecondary }}><X className="w-4 h-4" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-2.5">
@@ -853,7 +856,7 @@ function EditAdminModal({ admin, onClose, onDone }) {
         finally { setLoading(false); }
     };
 
-    const s = { background: 'rgba(242,245,251,0.8)', border: '1px solid rgba(255,255,255,0.9)', color: '#1C1B1F' };
+    const s = { background: 'rgba(242,245,251,0.8)', border: '1px solid rgba(255,255,255,0.9)', color: 'C.text' };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
@@ -862,7 +865,7 @@ function EditAdminModal({ admin, onClose, onDone }) {
                 className="w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 shadow-2xl relative" style={{ background: C.card }}>
                 <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: C.orange }} />
                 <div className="flex items-center justify-between mb-5 mt-1">
-                    <h2 className="text-base sm:text-lg font-black" style={{ color: '#1C1B1F' }}>Edit {admin.name}</h2>
+                    <h2 className="text-base sm:text-lg font-black" style={{ color: 'C.text' }}>Edit {admin.name}</h2>
                     <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-black/5 transition-all" style={{ color: C.textSecondary }}><X className="w-4 h-4" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-2.5">
