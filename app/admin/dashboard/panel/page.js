@@ -255,7 +255,7 @@ export default function PanelPage() {
                         <OverviewPanel key="overview" subordinates={subordinates} leaderboard={leaderboard} totalPointsGiven={totalPointsGiven} me={me} myRole={myRole} setActiveTab={setActiveTab} setCreateModal={setCreateModal} setEvolveModal={setEvolveModal} />
                     )}
                     {activeTab === "panel-list" && (
-                        <PanelList key="list" subordinates={subordinates} filtered={filtered} search={search} setSearch={setSearch} myRole={myRole} setEvolveModal={setEvolveModal} setEditModal={setEditModal} />
+                        <PanelList key="list" subordinates={subordinates} myRole={myRole} />
                     )}
                     {activeTab === "evolution" && (
                         <EvolutionPanel key="evo" subordinates={subordinates} setEvolveModal={setEvolveModal} />
@@ -487,64 +487,86 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
 }
 
 /* ═══════ Panel List ═══════ */
-function PanelList({ subordinates, filtered, search, setSearch, myRole, setEvolveModal, setEditModal }) {
+function PanelList({ subordinates, myRole }) {
+    const [search, setSearch] = useState("");
+    const [filterRole, setFilterRole] = useState("all");
+
+    const uniqueRoles = [...new Set(subordinates.map(a => a.role))].sort();
+
+    const filtered = subordinates.filter(a => {
+        const matchSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
+            a.username.toLowerCase().includes(search.toLowerCase());
+        const matchRole = filterRole === "all" || a.role === filterRole;
+        return matchSearch && matchRole;
+    });
+
     return (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-2.5 sm:space-y-3">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3">
+            {/* Search */}
             <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                     placeholder="Search members..."
                     className="w-full rounded-2xl py-2.5 sm:py-3 pl-10 pr-4 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2"
-                    style={{ background: C.card, border: '1px solid ' + C.border, color: 'C.text', boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
+                    style={{ background: C.card, border: '1px solid ' + C.border, color: C.text, boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
             </div>
 
+            {/* Filter Chips */}
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
+                <button onClick={() => setFilterRole("all")}
+                    className="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold whitespace-nowrap transition-all flex-shrink-0"
+                    style={{
+                        background: filterRole === "all" ? C.primary : C.card,
+                        color: filterRole === "all" ? '#FFFFFF' : C.textSecondary,
+                        border: `1px solid ${filterRole === "all" ? C.primary : C.border}`,
+                    }}>
+                    All ({subordinates.length})
+                </button>
+                {uniqueRoles.map(role => {
+                    const count = subordinates.filter(a => a.role === role).length;
+                    const rc = ROLE_COLORS[role] || { bg: C.primaryLight, text: C.primary };
+                    return (
+                        <button key={role} onClick={() => setFilterRole(role)}
+                            className="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold whitespace-nowrap transition-all flex-shrink-0"
+                            style={{
+                                background: filterRole === role ? rc.bg : C.card,
+                                color: filterRole === role ? rc.text : C.textSecondary,
+                                border: `1px solid ${filterRole === role ? rc.bg : C.border}`,
+                            }}>
+                            {ROLE_LABELS[role] || role} ({count})
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* Members Grid */}
             {filtered.length === 0 ? (
                 <div className="rounded-3xl p-12 sm:p-16 text-center" style={{ background: C.card, border: '1px solid ' + C.border }}>
-                    <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: C.primaryLight }}>
-                        <Users className="w-6 h-6" style={{ color: C.textSecondaryVariant }} />
+                    <div className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: C.primaryLight }}>
+                        <Users className="w-6 h-6" style={{ color: C.primary }} />
                     </div>
                     <p className="font-semibold text-xs" style={{ color: C.textSecondary }}>No members found</p>
                 </div>
             ) : (
-                <div className="space-y-2 sm:space-y-2.5">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                     {filtered.map((a, i) => (
-                        <motion.div key={a._id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02, type: 'spring', stiffness: 300, damping: 25 }}
-                            className="rounded-2xl px-3 py-3 sm:px-4 sm:py-3.5 flex items-center gap-3 transition-all duration-300 hover:shadow-lg active:scale-[0.99] group"
-                            style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
-                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-300"
+                        <motion.div key={a._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.02, type: 'spring', stiffness: 300 }}
+                            className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg group"
+                            style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-xl mb-2.5 group-hover:scale-110 transition-transform duration-300 shadow-lg"
                                 style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
                                 {a.name.charAt(0).toUpperCase()}
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="font-bold text-xs sm:text-sm truncate" style={{ color: 'C.text' }}>{a.name}</p>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-medium truncate" style={{ color: C.textSecondary }}>
-                                        <span className="hidden sm:inline">@{a.username}</span>
-                                    </span>
-                                    <span className="inline-block w-1 h-1 rounded-full flex-shrink-0" style={{ background: C.textSecondaryVariant }} />
-                                    <span className="text-[10px] font-bold truncate" style={{ background: ROLE_COLORS[a.role]?.bg, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                                        {ROLE_LABELS[a.role] || a.role}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                                <span className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-black" style={{
-                                    background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
-                                    color: a.totalPoints >= 0 ? C.green : C.error,
-                                }}>
-                                    {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
-                                </span>
-                                <button onClick={() => setEvolveModal(a)}
-                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 active:scale-90 hover:shadow-lg"
-                                    style={{ background: C.primary, color: '#FFFFFF' }}>
-                                    <Zap className="w-4 h-4" />
-                                </button>
-                                {myRole === "superadmin" && (
-                                    <button onClick={() => setEditModal(a)} className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all hover:bg-white/80 active:scale-90 hidden sm:flex" style={{ color: C.textSecondary }}>
-                                        <Pencil className="w-3.5 h-3.5" />
-                                    </button>
-                                )}
-                            </div>
+                            <p className="font-bold text-xs sm:text-sm truncate w-full" style={{ color: C.text }}>{a.name}</p>
+                            <p className="text-[9px] sm:text-[10px] font-semibold truncate w-full" style={{ color: C.textSecondary }}>
+                                {ROLE_LABELS[a.role] || a.role}
+                            </p>
+                            <span className="mt-2 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-black" style={{
+                                background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
+                                color: a.totalPoints >= 0 ? C.green : C.error,
+                            }}>
+                                {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                            </span>
                         </motion.div>
                     ))}
                 </div>
