@@ -357,21 +357,21 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
             {/* Stats Row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
                 {[
-                    { label: 'Total Members', value: subordinates.length, icon: Users, color: C.primary, bg: C.primaryLight },
-                    { label: 'Total Points', value: totalPointsGiven, icon: Trophy, color: C.orange, bg: C.orangeLight },
-                    { label: 'Avg Points', value: avgPoints, icon: BarChart3, color: C.green, bg: C.greenLight },
-                    { label: 'Your Rank', value: myRank ? `#${myRank}` : '—', icon: Crown, color: C.purple, bg: C.purpleLight },
+                    { label: 'Total Members', value: subordinates.length, icon: Users, bg: '#1565C0', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
+                    { label: 'Total Points', value: totalPointsGiven, icon: Trophy, bg: '#E65100', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
+                    { label: 'Avg Points', value: avgPoints, icon: BarChart3, bg: '#2E7D52', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
+                    { label: 'Your Rank', value: myRank ? `#${myRank}` : '—', icon: Crown, bg: '#4A148C', text: '#FFFFFF', iconBg: 'rgba(255,255,255,0.15)' },
                 ].map((s, i) => (
                     <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-                        className="rounded-2xl p-3.5 sm:p-4 group hover:shadow-lg transition-all duration-300"
-                        style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                        className="rounded-2xl p-3.5 sm:p-4 group hover:shadow-xl transition-all duration-300"
+                        style={{ background: s.bg, boxShadow: `0 4px 20px ${s.bg}40` }}>
                         <div className="flex items-center gap-2.5 mb-2.5">
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm" style={{ background: s.bg }}>
-                                <s.icon className="w-4.5 h-4.5" style={{ color: s.color }} />
+                            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: s.iconBg }}>
+                                <s.icon className="w-4.5 h-4.5" style={{ color: s.text }} />
                             </div>
-                            <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: C.textSecondary }}>{s.label}</p>
+                            <p className="text-[10px] font-bold tracking-wider uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>{s.label}</p>
                         </div>
-                        <p className="text-2xl sm:text-3xl font-black" style={{ color: C.text }}>{s.value}</p>
+                        <p className="text-2xl sm:text-3xl font-black" style={{ color: s.text }}>{s.value}</p>
                     </motion.div>
                 ))}
             </div>
@@ -382,10 +382,10 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
                 {/* Role Distribution */}
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                     className="lg:col-span-3 rounded-2xl p-4 sm:p-5"
-                    style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                    style={{ background: '#1A237E', boxShadow: '0 4px 20px rgba(26,35,126,0.3)' }}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-black" style={{ color: C.text }}>Role Distribution</h3>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg" style={{ background: C.primaryLight, color: C.primary }}>
+                        <h3 className="text-sm font-black text-white">Role Distribution</h3>
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}>
                             {subordinates.length} total
                         </span>
                     </div>
@@ -394,11 +394,11 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
                             {sortedRoles.map(([role, count]) => {
                                 const pct = maxRoleCount > 0 ? (count / maxRoleCount) * 100 : 0;
                                 const roleKey = Object.keys(ROLE_LABELS).find(k => ROLE_LABELS[k] === role);
-                                const rColor = roleKey ? ROLE_COLORS[roleKey] : { bg: C.primaryLight, text: C.primary };
+                                const rColor = roleKey ? ROLE_COLORS[roleKey] : { bg: '#5C6BC0', text: '#FFFFFF' };
                                 return (
                                     <div key={role} className="flex items-center gap-2.5">
-                                        <span className="w-28 sm:w-32 text-[10px] sm:text-[11px] font-bold truncate" style={{ color: C.textSecondary }}>{role}</span>
-                                        <div className="flex-1 h-6 rounded-lg overflow-hidden" style={{ background: C.borderLight }}>
+                                        <span className="w-28 sm:w-32 text-[10px] sm:text-[11px] font-bold truncate" style={{ color: 'rgba(255,255,255,0.7)' }}>{role}</span>
+                                        <div className="flex-1 h-6 rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
                                             <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6, ease: 'easeOut' }}
                                                 className="h-full rounded-lg flex items-center justify-end pr-2"
                                                 style={{ background: rColor.bg }}>
@@ -410,39 +410,37 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
                             })}
                         </div>
                     ) : (
-                        <p className="text-center py-8 text-xs font-medium" style={{ color: C.textSecondary }}>No members yet</p>
+                        <p className="text-center py-8 text-xs font-medium" style={{ color: 'rgba(255,255,255,0.5)' }}>No members yet</p>
                     )}
                 </motion.div>
 
                 {/* Leaderboard Top 5 */}
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                     className="lg:col-span-2 rounded-2xl p-4 sm:p-5"
-                    style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                    style={{ background: '#0D47A1', boxShadow: '0 4px 20px rgba(13,71,161,0.3)' }}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-black" style={{ color: C.text }}>Top Performers</h3>
-                        <button onClick={() => setActiveTab('leaderboard')} className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all hover:shadow-md" style={{ background: C.primaryLight, color: C.primary }}>
+                        <h3 className="text-sm font-black text-white">Top Performers</h3>
+                        <button onClick={() => setActiveTab('leaderboard')} className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all hover:shadow-md" style={{ background: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}>
                             View All
                         </button>
                     </div>
                     {leaderboard.length > 0 ? (
                         <div className="space-y-2">
                             {leaderboard.slice(0, 5).map((a, i) => {
-                                const medalColors = [C.orange, '#95A5A6', C.orangeLight];
-                                const medalBg = [C.orangeLight, '#E5E9F0', '#FEF9E7'];
                                 return (
                                     <div key={a._id} className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all hover:shadow-md"
-                                        style={{ background: i === 0 ? C.primaryLight : 'transparent', border: i === 0 ? '1px solid ' + C.primary : '1px solid transparent' }}>
+                                        style={{ background: i === 0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: i === 0 ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.08)' }}>
                                         <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs flex-shrink-0"
-                                            style={{ background: i < 3 ? medalBg[i] : C.borderLight, color: i < 3 ? medalColors[i] : C.textSecondary }}>
+                                            style={{ background: i === 0 ? '#F59E0B' : i === 1 ? 'rgba(255,255,255,0.2)' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', color: '#FFFFFF' }}>
                                             {i < 3 ? <Crown className="w-3.5 h-3.5" /> : `#${i + 1}`}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-xs truncate" style={{ color: C.text }}>{a.name}</p>
-                                            <p className="text-[9px] font-medium truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
+                                            <p className="font-bold text-xs truncate text-white">{a.name}</p>
+                                            <p className="text-[9px] font-medium truncate" style={{ color: 'rgba(255,255,255,0.6)' }}>{ROLE_LABELS[a.role] || a.role}</p>
                                         </div>
                                         <span className="text-xs font-black px-2 py-0.5 rounded-lg" style={{
-                                            background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
-                                            color: a.totalPoints >= 0 ? C.green : C.error,
+                                            background: a.totalPoints >= 0 ? 'rgba(76,175,80,0.25)' : 'rgba(244,67,54,0.25)',
+                                            color: a.totalPoints >= 0 ? '#81C784' : '#EF9A9A',
                                         }}>
                                             {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
                                         </span>
@@ -451,7 +449,7 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
                             })}
                         </div>
                     ) : (
-                        <p className="text-center py-8 text-xs font-medium" style={{ color: C.textSecondary }}>No data yet</p>
+                        <p className="text-center py-8 text-xs font-medium" style={{ color: 'rgba(255,255,255,0.5)' }}>No data yet</p>
                     )}
                 </motion.div>
             </div>
@@ -459,65 +457,65 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
             {/* Recent Activity */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
                 className="rounded-2xl p-4 sm:p-5"
-                style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                style={{ background: '#1B2838', boxShadow: '0 4px 20px rgba(27,40,56,0.3)' }}>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-black" style={{ color: C.text }}>Recent Activity</h3>
-                    <button onClick={() => setActiveTab('history')} className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all hover:shadow-md" style={{ background: C.primaryLight, color: C.primary }}>
+                    <h3 className="text-sm font-black text-white">Recent Activity</h3>
+                    <button onClick={() => setActiveTab('history')} className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all hover:shadow-md" style={{ background: 'rgba(255,255,255,0.12)', color: '#FFFFFF' }}>
                         View All
                     </button>
                 </div>
                 {loadingHistory ? (
                     <div className="flex justify-center py-8">
-                        <div className="w-6 h-6 rounded-lg animate-spin" style={{ border: '2px solid ' + C.borderLight, borderTopColor: C.primary }} />
+                        <div className="w-6 h-6 rounded-lg animate-spin" style={{ border: '2px solid rgba(255,255,255,0.15)', borderTopColor: '#FFFFFF' }} />
                     </div>
                 ) : history.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         {history.map((h) => (
-                            <div key={h._id} className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all hover:bg-white/50">
+                            <div key={h._id} className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all hover:bg-white/5">
                                 <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{
-                                    background: h.points >= 0 ? C.greenLight : C.errorLight,
-                                    color: h.points >= 0 ? C.green : C.error,
+                                    background: h.points >= 0 ? 'rgba(76,175,80,0.2)' : 'rgba(244,67,54,0.2)',
+                                    color: h.points >= 0 ? '#81C784' : '#EF9A9A',
                                 }}>
                                     {h.points >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1.5">
-                                        <p className="font-bold text-xs truncate" style={{ color: C.text }}>{h.grantorId?.name || 'Unknown'}</p>
-                                        <span className="text-[9px]" style={{ color: C.textSecondary }}>→</span>
-                                        <p className="font-medium text-xs truncate" style={{ color: C.textSecondary }}>{h.targetId?.name || 'Unknown'}</p>
+                                        <p className="font-bold text-xs truncate text-white">{h.grantorId?.name || 'Unknown'}</p>
+                                        <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.4)' }}>→</span>
+                                        <p className="font-medium text-xs truncate" style={{ color: 'rgba(255,255,255,0.6)' }}>{h.targetId?.name || 'Unknown'}</p>
                                     </div>
-                                    <p className="text-[10px] truncate" style={{ color: C.textSecondaryVariant }}>{h.reason}</p>
+                                    <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{h.reason}</p>
                                 </div>
-                                <span className="text-[11px] font-black flex-shrink-0" style={{ color: h.points >= 0 ? C.green : C.error }}>
+                                <span className="text-[11px] font-black flex-shrink-0" style={{ color: h.points >= 0 ? '#81C784' : '#EF9A9A' }}>
                                     {h.points >= 0 ? '+' : ''}{h.points}
                                 </span>
-                                <span className="text-[9px] flex-shrink-0 hidden sm:block" style={{ color: C.textSecondaryVariant }}>
+                                <span className="text-[9px] flex-shrink-0 hidden sm:block" style={{ color: 'rgba(255,255,255,0.35)' }}>
                                     {relativeTime(h.createdAt)}
                                 </span>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-center py-8 text-xs font-medium" style={{ color: C.textSecondary }}>No activity yet</p>
+                    <p className="text-center py-8 text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>No activity yet</p>
                 )}
             </motion.div>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                 {[
-                    { label: 'Evolve Member', desc: 'Add or deduct points', icon: Sparkles, color: C.primary, bg: C.primaryLight, action: () => setActiveTab('evolution') },
-                    { label: 'Rankings', desc: 'View full leaderboard', icon: Trophy, color: C.orange, bg: C.orangeLight, action: () => setActiveTab('leaderboard') },
-                    { label: 'View History', desc: 'All point changes', icon: Clock, color: C.green, bg: C.greenLight, action: () => setActiveTab('history') },
+                    { label: 'Evolve Member', desc: 'Add or deduct points', icon: Sparkles, bg: '#1565C0', action: () => setActiveTab('evolution') },
+                    { label: 'Rankings', desc: 'View full leaderboard', icon: Trophy, bg: '#E65100', action: () => setActiveTab('leaderboard') },
+                    { label: 'View History', desc: 'All point changes', icon: Clock, bg: '#2E7D52', action: () => setActiveTab('history') },
                 ].map((a, i) => (
                     <motion.button key={a.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.05 }}
                         onClick={a.action}
                         className="rounded-2xl p-3 sm:p-4 text-left transition-all duration-300 hover:shadow-xl active:scale-[0.97] group"
-                        style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-2.5 shadow-sm group-hover:scale-110 transition-transform" style={{ background: a.bg }}>
-                            <a.icon className="w-5 h-5" style={{ color: a.color }} />
+                        style={{ background: a.bg, boxShadow: `0 4px 16px ${a.bg}40` }}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                            <a.icon className="w-5 h-5 text-white" />
                         </div>
-                        <p className="font-bold text-xs sm:text-sm" style={{ color: C.text }}>{a.label}</p>
-                        <p className="text-[10px] font-medium mt-0.5" style={{ color: C.textSecondary }}>{a.desc}</p>
+                        <p className="font-bold text-xs sm:text-sm text-white">{a.label}</p>
+                        <p className="text-[10px] font-medium mt-0.5" style={{ color: 'rgba(255,255,255,0.65)' }}>{a.desc}</p>
                     </motion.button>
                 ))}
             </div>
