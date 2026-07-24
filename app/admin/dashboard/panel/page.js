@@ -567,13 +567,14 @@ function PanelList({ subordinates, myRole }) {
             ) : (
                 <div className="rounded-2xl overflow-hidden" style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full text-left">
                             <thead>
                                 <tr style={{ background: C.primaryLight }}>
-                                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
-                                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest hidden sm:table-cell" style={{ color: C.primary }}>Role</th>
-                                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest hidden md:table-cell" style={{ color: C.primary }}>Team</th>
-                                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Points</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>#</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Role</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Team</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-right" style={{ color: C.primary }}>Points</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -581,25 +582,25 @@ function PanelList({ subordinates, myRole }) {
                                     <motion.tr key={a._id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
                                         className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
                                         <td className="px-4 py-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
+                                            <span className="text-[11px] font-bold" style={{ color: C.textSecondary }}>{i + 1}</span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
                                                     style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
                                                     {a.name.charAt(0).toUpperCase()}
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <p className="font-bold text-xs sm:text-sm truncate" style={{ color: C.text }}>{a.name}</p>
-                                                    <p className="text-[10px] font-medium sm:hidden truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
-                                                </div>
+                                                <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 hidden sm:table-cell">
-                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                        <td className="px-4 py-3">
+                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
                                                 {ROLE_LABELS[a.role] || a.role}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 hidden md:table-cell">
+                                        <td className="px-4 py-3">
                                             {a.team ? (
-                                                <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold" style={{ background: '#F3E5F5', color: '#6A1B9A' }}>
+                                                <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: '#F3E5F5', color: '#6A1B9A' }}>
                                                     {a.team}
                                                 </span>
                                             ) : (
@@ -607,7 +608,7 @@ function PanelList({ subordinates, myRole }) {
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-right">
-                                            <span className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-black" style={{
+                                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-black" style={{
                                                 background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
                                                 color: a.totalPoints >= 0 ? C.green : C.error,
                                             }}>
