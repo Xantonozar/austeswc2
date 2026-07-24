@@ -16,17 +16,9 @@ export async function GET(req) {
 
         await connectDB();
 
-        const admins = await Admin.find({}, 'username name email role team createdAt')
-            .sort({ createdAt: -1 })
-            .lean();
-
-        const pointsData = await Evolution.aggregate([
-            {
-                $group: {
-                    _id: '$targetId',
-                    totalPoints: { $sum: '$points' },
-                },
-            },
+        const [admins, pointsData] = await Promise.all([
+            Admin.find({}, 'username name email role team createdAt').sort({ createdAt: -1 }).lean(),
+            Evolution.aggregate([{ $group: { _id: '$targetId', totalPoints: { $sum: '$points' } } }]),
         ]);
 
         const pointsMap = {};

@@ -110,13 +110,15 @@ export default function PanelPage() {
 
     const fetchData = useCallback(async () => {
         try {
-            const roleRes = await fetch("/api/admin/panel/my-role");
+            const [roleRes, res] = await Promise.all([
+                fetch("/api/admin/panel/my-role"),
+                fetch("/api/admin/panel"),
+            ]);
             if (roleRes.status === 401) { router.push("/admin/login"); return; }
             const rd = await roleRes.json();
             setMyRole(rd.role);
             setMyName(rd.name);
             setMyId(rd.id);
-            const res = await fetch("/api/admin/panel");
             const data = await res.json();
             setAdmins(data.admins || []);
         } catch { toast.error("Failed to load panel"); }
