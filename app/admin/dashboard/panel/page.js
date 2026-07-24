@@ -490,19 +490,21 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
 function PanelList({ subordinates, myRole }) {
     const [search, setSearch] = useState("");
     const [filterRole, setFilterRole] = useState("all");
+    const [filterTeam, setFilterTeam] = useState("all");
 
     const uniqueRoles = [...new Set(subordinates.map(a => a.role))].sort();
+    const uniqueTeams = [...new Set(subordinates.map(a => a.team).filter(Boolean))].sort();
 
     const filtered = subordinates.filter(a => {
         const matchSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
             a.username.toLowerCase().includes(search.toLowerCase());
         const matchRole = filterRole === "all" || a.role === filterRole;
-        return matchSearch && matchRole;
+        const matchTeam = filterTeam === "all" || a.team === filterTeam;
+        return matchSearch && matchRole && matchTeam;
     });
 
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3">
-            {/* Search */}
             <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
@@ -511,35 +513,48 @@ function PanelList({ subordinates, myRole }) {
                     style={{ background: C.card, border: '1px solid ' + C.border, color: C.text, boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
             </div>
 
-            {/* Filter Chips */}
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
-                <button onClick={() => setFilterRole("all")}
-                    className="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold whitespace-nowrap transition-all flex-shrink-0"
-                    style={{
-                        background: filterRole === "all" ? C.primary : C.card,
-                        color: filterRole === "all" ? '#FFFFFF' : C.textSecondary,
-                        border: `1px solid ${filterRole === "all" ? C.primary : C.border}`,
-                    }}>
-                    All ({subordinates.length})
-                </button>
-                {uniqueRoles.map(role => {
-                    const count = subordinates.filter(a => a.role === role).length;
-                    const rc = ROLE_COLORS[role] || { bg: C.primaryLight, text: C.primary };
-                    return (
-                        <button key={role} onClick={() => setFilterRole(role)}
-                            className="px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold whitespace-nowrap transition-all flex-shrink-0"
-                            style={{
-                                background: filterRole === role ? rc.bg : C.card,
-                                color: filterRole === role ? rc.text : C.textSecondary,
-                                border: `1px solid ${filterRole === role ? rc.bg : C.border}`,
-                            }}>
-                            {ROLE_LABELS[role] || role} ({count})
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.textSecondary }}>Role:</span>
+                    <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                        <button onClick={() => setFilterRole("all")}
+                            className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
+                            style={{ background: filterRole === "all" ? C.primary : C.card, color: filterRole === "all" ? '#FFFFFF' : C.textSecondary, border: `1px solid ${filterRole === "all" ? C.primary : C.border}` }}>
+                            All
                         </button>
-                    );
-                })}
+                        {uniqueRoles.map(role => {
+                            const rc = ROLE_COLORS[role] || { bg: C.primaryLight, text: C.primary };
+                            return (
+                                <button key={role} onClick={() => setFilterRole(role)}
+                                    className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
+                                    style={{ background: filterRole === role ? rc.bg : C.card, color: filterRole === role ? rc.text : C.textSecondary, border: `1px solid ${filterRole === role ? rc.bg : C.border}` }}>
+                                    {ROLE_LABELS[role] || role}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+                {uniqueTeams.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: C.textSecondary }}>Team:</span>
+                        <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                            <button onClick={() => setFilterTeam("all")}
+                                className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
+                                style={{ background: filterTeam === "all" ? C.primary : C.card, color: filterTeam === "all" ? '#FFFFFF' : C.textSecondary, border: `1px solid ${filterTeam === "all" ? C.primary : C.border}` }}>
+                                All
+                            </button>
+                            {uniqueTeams.map(team => (
+                                <button key={team} onClick={() => setFilterTeam(team)}
+                                    className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all flex-shrink-0"
+                                    style={{ background: filterTeam === team ? '#4A148C' : C.card, color: filterTeam === team ? '#FFFFFF' : C.textSecondary, border: `1px solid ${filterTeam === team ? '#4A148C' : C.border}` }}>
+                                    {team}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Members Grid */}
             {filtered.length === 0 ? (
                 <div className="rounded-3xl p-12 sm:p-16 text-center" style={{ background: C.card, border: '1px solid ' + C.border }}>
                     <div className="w-14 h-14 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: C.primaryLight }}>
@@ -548,27 +563,63 @@ function PanelList({ subordinates, myRole }) {
                     <p className="font-semibold text-xs" style={{ color: C.textSecondary }}>No members found</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-                    {filtered.map((a, i) => (
-                        <motion.div key={a._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.02, type: 'spring', stiffness: 300 }}
-                            className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:shadow-lg group"
-                            style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center font-black text-lg sm:text-xl mb-2.5 group-hover:scale-110 transition-transform duration-300 shadow-lg"
-                                style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
-                                {a.name.charAt(0).toUpperCase()}
-                            </div>
-                            <p className="font-bold text-xs sm:text-sm truncate w-full" style={{ color: C.text }}>{a.name}</p>
-                            <p className="text-[9px] sm:text-[10px] font-semibold truncate w-full" style={{ color: C.textSecondary }}>
-                                {ROLE_LABELS[a.role] || a.role}
-                            </p>
-                            <span className="mt-2 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-black" style={{
-                                background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
-                                color: a.totalPoints >= 0 ? C.green : C.error,
-                            }}>
-                                {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
-                            </span>
-                        </motion.div>
-                    ))}
+                <div className="rounded-2xl overflow-hidden" style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr style={{ background: C.primaryLight }}>
+                                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
+                                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest hidden sm:table-cell" style={{ color: C.primary }}>Role</th>
+                                    <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest hidden md:table-cell" style={{ color: C.primary }}>Team</th>
+                                    <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered.map((a, i) => (
+                                    <motion.tr key={a._id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
+                                        className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.04)' }}>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
+                                                    style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                    {a.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="font-bold text-xs sm:text-sm truncate" style={{ color: C.text }}>{a.name}</p>
+                                                    <p className="text-[10px] font-medium sm:hidden truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 hidden sm:table-cell">
+                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                {ROLE_LABELS[a.role] || a.role}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 hidden md:table-cell">
+                                            {a.team ? (
+                                                <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold" style={{ background: '#F3E5F5', color: '#6A1B9A' }}>
+                                                    {a.team}
+                                                </span>
+                                            ) : (
+                                                <span className="text-[10px] font-medium" style={{ color: C.textSecondaryVariant }}>—</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            <span className="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-black" style={{
+                                                background: a.totalPoints >= 0 ? C.greenLight : C.errorLight,
+                                                color: a.totalPoints >= 0 ? C.green : C.error,
+                                            }}>
+                                                {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                                            </span>
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="px-4 py-2.5 border-t text-[10px] font-medium" style={{ borderColor: 'rgba(0,0,0,0.04)', color: C.textSecondary }}>
+                        Showing {filtered.length} of {subordinates.length} members
+                    </div>
                 </div>
             )}
         </motion.div>
@@ -947,7 +998,7 @@ function EvolveModal({ admin, onClose, onDone }) {
 
 /* ═══════ Create Admin Modal ═══════ */
 function CreateAdminModal({ onClose, onDone }) {
-    const [form, setForm] = useState({ username: "", password: "", name: "", email: "", role: "junior executive" });
+    const [form, setForm] = useState({ username: "", password: "", name: "", email: "", role: "junior executive", team: "" });
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -994,6 +1045,20 @@ function CreateAdminModal({ onClose, onDone }) {
                             {ROLE_OPTIONS.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
                         </select>
                     </div>
+                    <div>
+                        <label className="text-[9px] sm:text-[10px] font-bold mb-1 block uppercase tracking-wider" style={{ color: C.textSecondary }}>Team</label>
+                        <select value={form.team} onChange={e => setForm({ ...form, team: e.target.value })}
+                            className="w-full rounded-xl py-2.5 px-3 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2" style={{ ...s, ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }}>
+                            <option value="">No Team</option>
+                            <option value="Event Management">Event Management</option>
+                            <option value="Logistics">Logistics</option>
+                            <option value="Research & Development">Research & Development</option>
+                            <option value="Public Relationship">Public Relationship</option>
+                            <option value="Content Writing">Content Writing</option>
+                            <option value="Graphics">Graphics</option>
+                            <option value="Web Development">Web Development</option>
+                        </select>
+                    </div>
                     <button type="submit" disabled={loading}
                         className="w-full py-3 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-xl disabled:opacity-60 active:scale-[0.98]"
                         style={{ background: C.green, color: '#FFFFFF' }}>
@@ -1008,14 +1073,14 @@ function CreateAdminModal({ onClose, onDone }) {
 
 /* ═══════ Edit Admin Modal ═══════ */
 function EditAdminModal({ admin, onClose, onDone }) {
-    const [form, setForm] = useState({ name: admin.name, email: admin.email, role: admin.role, password: "" });
+    const [form, setForm] = useState({ name: admin.name, email: admin.email, role: admin.role, team: admin.team || "", password: "" });
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const body = { name: form.name, email: form.email, role: form.role };
+            const body = { name: form.name, email: form.email, role: form.role, team: form.team };
             if (form.password) body.password = form.password;
             const res = await fetch(`/api/admin/panel/${admin._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
             const data = await res.json();
@@ -1053,6 +1118,20 @@ function EditAdminModal({ admin, onClose, onDone }) {
                         <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
                             className="w-full rounded-xl py-2.5 px-3 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2" style={{ ...s, ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }}>
                             {ROLE_OPTIONS.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-[9px] sm:text-[10px] font-bold mb-1 block uppercase tracking-wider" style={{ color: C.textSecondary }}>Team</label>
+                        <select value={form.team} onChange={e => setForm({ ...form, team: e.target.value })}
+                            className="w-full rounded-xl py-2.5 px-3 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2" style={{ ...s, ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }}>
+                            <option value="">No Team</option>
+                            <option value="Event Management">Event Management</option>
+                            <option value="Logistics">Logistics</option>
+                            <option value="Research & Development">Research & Development</option>
+                            <option value="Public Relationship">Public Relationship</option>
+                            <option value="Content Writing">Content Writing</option>
+                            <option value="Graphics">Graphics</option>
+                            <option value="Web Development">Web Development</option>
                         </select>
                     </div>
                     <div>

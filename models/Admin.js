@@ -33,6 +33,11 @@ const AdminSchema = new mongoose.Schema({
             'senior sub executive', 'sub executive', 'junior executive',
         ],
     },
+    team: {
+        type: String,
+        trim: true,
+        default: '',
+    },
     createdAt: {
         type: Date,
         default: Date.now,

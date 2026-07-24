@@ -21,12 +21,13 @@ export async function PUT(req, { params }) {
         if (body.name) updateData.name = body.name;
         if (body.email) updateData.email = body.email.toLowerCase();
         if (body.role) updateData.role = body.role;
+        if (body.team !== undefined) updateData.team = body.team;
         if (body.password) {
             const bcrypt = await import('bcryptjs');
             updateData.password = await bcrypt.hash(body.password, 12);
         }
 
-        const updated = await Admin.findByIdAndUpdate(id, updateData, { new: true }).select('username name email role');
+        const updated = await Admin.findByIdAndUpdate(id, updateData, { new: true }).select('username name email role team');
         if (!updated) {
             return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
         }

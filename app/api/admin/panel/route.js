@@ -16,7 +16,7 @@ export async function GET(req) {
 
         await connectDB();
 
-        const admins = await Admin.find({}, 'username name email role createdAt')
+        const admins = await Admin.find({}, 'username name email role team createdAt')
             .sort({ createdAt: -1 })
             .lean();
 
@@ -53,7 +53,7 @@ export async function POST(req) {
             return NextResponse.json({ error: 'Only superadmin can create admins' }, { status: 403 });
         }
 
-        const { username, password, name, email, role } = await req.json();
+        const { username, password, name, email, role, team } = await req.json();
 
         if (!username || !password || !name || !email || !role) {
             return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
@@ -74,6 +74,7 @@ export async function POST(req) {
             name,
             email: email.toLowerCase(),
             role,
+            team: team || '',
         });
 
         return NextResponse.json({ success: true, admin: { id: newAdmin._id, username: newAdmin.username, name: newAdmin.name, email: newAdmin.email, role: newAdmin.role } });
