@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, Search, Download, RefreshCw, Trash2, AlertTriangle,
-    X, Check, User, Clock, Calendar, Building2, ChevronDown,
-    FileSpreadsheet, FileText, FileJson, Image as ImageIcon, Users
+    X, Check, User, Clock, Calendar, ChevronDown,
+    FileSpreadsheet, FileText, FileJson, Image as ImageIcon, Users,
+    Database, BookOpen, Camera, Building2
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
@@ -20,8 +21,9 @@ export default function DataCollectAdmin() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [fullscreenImage, setFullscreenImage] = useState(null);
     const [showExportMenu, setShowExportMenu] = useState(false);
-    const [filterDept, setFilterDept] = useState('all');
+    const [filterPosition, setFilterPosition] = useState('all');
     const [filterTeam, setFilterTeam] = useState('all');
+    const [sortOrder, setSortOrder] = useState('newest');
     const exportMenuRef = useRef(null);
     const router = useRouter();
 
@@ -69,18 +71,30 @@ export default function DataCollectAdmin() {
         }
     };
 
+    const PRESIDENTIAL_POSITIONS = ['President', 'Vice President', 'General Secretary', 'Organizing Secretary', 'Joint Secretary'];
+
     const filteredRecords = records.filter(r => {
         const match = r.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.studentId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.phone?.includes(searchTerm);
-        const deptMatch = filterDept === 'all' || r.department === filterDept;
-        const teamMatch = filterTeam === 'all' || r.team === filterTeam;
-        return match && deptMatch && teamMatch;
+        const positionMatch = filterPosition === 'all' || r.position === filterPosition;
+        const teamMatch = filterTeam === 'all' || r.team === filterTeam ||
+            (filterTeam === 'Presidential Panel' && PRESIDENTIAL_POSITIONS.includes(r.position));
+        return match && positionMatch && teamMatch;
+    }).sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
 
-    const departments = [...new Set(records.map(r => r.department).filter(Boolean))].sort();
-    const teams = [...new Set(records.map(r => r.team).filter(Boolean))].sort();
+    const getDisplayTeam = (r) => {
+        if (PRESIDENTIAL_POSITIONS.includes(r.position)) return 'Presidential Panel';
+        return r.team || '';
+    };
+
+    const positions = ['Advisor', 'President', 'Vice President', 'General Secretary', 'Treasurer', 'Organizing Secretary', 'Joint Secretary', 'Executive', 'Senior Sub Executive', 'Sub Executive', 'Junior Executive'];
+    const teams = ['Presidential Panel', ...[...new Set(records.map(r => r.team).filter(Boolean))].sort()];
 
     const handleExport = (type) => {
         const data = filteredRecords.map(r => ({
@@ -122,7 +136,7 @@ export default function DataCollectAdmin() {
 
             {/* Navbar */}
             <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
-                <div className="max-w-[1600px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
+                <div className="px-6 md:px-10 h-14 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Link href="/admin/dashboard" className="flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">
                             <ArrowLeft className="w-3.5 h-3.5" />
@@ -166,7 +180,7 @@ export default function DataCollectAdmin() {
                 </div>
             </nav>
 
-            <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 space-y-5">
+            <div className="px-6 md:px-10 py-6 space-y-5">
 
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -177,10 +191,10 @@ export default function DataCollectAdmin() {
                             className="flex-1 outline-none text-slate-700 text-sm font-medium placeholder:text-slate-400 bg-transparent" />
                     </div>
                     <div className="relative">
-                        <select value={filterDept} onChange={e => setFilterDept(e.target.value)}
+                        <select value={filterPosition} onChange={e => setFilterPosition(e.target.value)}
                             className="appearance-none bg-white border border-slate-200 rounded-xl px-3 pr-8 py-2 text-xs font-bold text-slate-600 shadow-sm cursor-pointer hover:border-blue-300 transition-colors">
-                            <option value="all">All Departments</option>
-                            {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                            <option value="all">All Positions</option>
+                            {positions.map(p => <option key={p} value={p}>{p}</option>)}
                         </select>
                         <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
                     </div>
@@ -192,6 +206,14 @@ export default function DataCollectAdmin() {
                         </select>
                         <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
                     </div>
+                    <div className="relative">
+                        <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}
+                            className="appearance-none bg-white border border-slate-200 rounded-xl px-3 pr-8 py-2 text-xs font-bold text-slate-600 shadow-sm cursor-pointer hover:border-blue-300 transition-colors">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                    </div>
                     <button onClick={async () => { await fetchRecords(); toast.success('Refreshed'); }}
                         className="bg-white p-2 px-3 rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 text-slate-600 font-bold flex items-center gap-1.5 transition-all active:scale-95">
                         <RefreshCw className="w-4 h-4" />
@@ -199,10 +221,56 @@ export default function DataCollectAdmin() {
                     </button>
                 </div>
 
+                {/* Overview Stats */}
+                {!loading && records.length > 0 && (
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                                    <Database className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total</span>
+                            </div>
+                            <p className="text-3xl font-black text-slate-900">{records.length}</p>
+                            <p className="text-[10px] text-slate-500 font-bold mt-1">All submissions</p>
+                        </div>
+                        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                                    <Camera className="w-5 h-5 text-emerald-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Routines</span>
+                            </div>
+                            <p className="text-3xl font-black text-emerald-600">{records.filter(r => r.routineImageUrl).length}</p>
+                            <p className="text-[10px] text-slate-500 font-bold mt-1">With routine images</p>
+                        </div>
+                        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                                    <BookOpen className="w-5 h-5 text-amber-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Depts</span>
+                            </div>
+                            <p className="text-3xl font-black text-amber-600">{new Set(records.map(r => r.department).filter(Boolean)).size}</p>
+                            <p className="text-[10px] text-slate-500 font-bold mt-1">Departments represented</p>
+                        </div>
+                        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                                    <Users className="w-5 h-5 text-purple-600" />
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Teams</span>
+                            </div>
+                            <p className="text-3xl font-black text-purple-600">{new Set(records.map(r => r.team).filter(Boolean)).size}</p>
+                            <p className="text-[10px] text-slate-500 font-bold mt-1">Active teams</p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Desktop Table */}
                 <div className="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="overflow-auto max-h-[70vh]">
-                        <table className="w-full text-left border-collapse min-w-[1000px]">
+                        <table className="w-full text-left border-collapse min-w-[1100px]">
                             <thead className="sticky top-0 z-20 bg-slate-100/95 backdrop-blur text-xs font-bold text-slate-600 uppercase tracking-wider">
                                 <tr>
                                     <th className="px-4 py-3 border-b border-slate-200">Photo</th>
@@ -211,6 +279,7 @@ export default function DataCollectAdmin() {
                                     <th className="px-4 py-3 border-b border-slate-200">Contact</th>
                                     <th className="px-4 py-3 border-b border-slate-200">Dept</th>
                                     <th className="px-4 py-3 border-b border-slate-200">Year</th>
+                                    <th className="px-4 py-3 border-b border-slate-200">Lab</th>
                                     <th className="px-4 py-3 border-b border-slate-200">Team</th>
                                     <th className="px-4 py-3 border-b border-slate-200">Position</th>
                                     <th className="px-4 py-3 border-b border-slate-200">Submitted</th>
@@ -221,14 +290,14 @@ export default function DataCollectAdmin() {
                                 {loading ? (
                                     Array.from({ length: 6 }).map((_, i) => (
                                         <tr key={i} className="animate-pulse">
-                                            {Array.from({ length: 10 }).map((_, j) => (
+                                            {Array.from({ length: 11 }).map((_, j) => (
                                                 <td key={j} className="px-4 py-3"><div className="h-4 bg-slate-100 rounded w-full" /></td>
                                             ))}
                                         </tr>
                                     ))
                                 ) : filteredRecords.length === 0 ? (
                                     <tr>
-                                        <td colSpan="10" className="px-6 py-16 text-center">
+                                        <td colSpan="11" className="px-6 py-16 text-center">
                                             <div className="flex flex-col items-center gap-3">
                                                 <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
                                                     <User className="w-7 h-7 text-slate-300" />
@@ -264,7 +333,10 @@ export default function DataCollectAdmin() {
                                             </td>
                                             <td className="px-4 py-2.5 text-slate-600">{r.yearSemester}</td>
                                             <td className="px-4 py-2.5">
-                                                {r.team && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 font-medium text-[10px]">{r.team}</span>}
+                                                {r.labGroup && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 font-medium text-[10px]">{r.labGroup}</span>}
+                                            </td>
+                                            <td className="px-4 py-2.5">
+                                                {getDisplayTeam(r) && <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 font-medium text-[10px]">{getDisplayTeam(r)}</span>}
                                             </td>
                                             <td className="px-4 py-2.5 text-slate-600">{r.position || '-'}</td>
                                             <td className="px-4 py-2.5">
@@ -348,7 +420,8 @@ export default function DataCollectAdmin() {
                                         <div className="flex flex-wrap gap-1.5 mt-1.5">
                                             <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-bold">{r.department}</span>
                                             <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold">{r.yearSemester}</span>
-                                            {r.team && <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-bold">{r.team}</span>}
+                                            {r.labGroup && <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-cyan-50 border border-cyan-200 text-cyan-700 text-[10px] font-bold">{r.labGroup}</span>}
+                                            {getDisplayTeam(r) && <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-bold">{getDisplayTeam(r)}</span>}
                                             {r.position && <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold">{r.position}</span>}
                                         </div>
                                         <div className="flex items-center justify-between mt-2">

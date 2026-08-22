@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 export default function ContactPage() {
@@ -10,6 +10,22 @@ export default function ContactPage() {
     subject: '',
     message: ''
   });
+
+  const [presidentPhone, setPresidentPhone] = useState('');
+  const [gsPhone, setGsPhone] = useState('');
+
+  useEffect(() => {
+    fetch('/api/datacollect')
+      .then(res => res.json())
+      .then(data => {
+        const records = data.records || [];
+        const pres = records.find(r => r.position === 'President');
+        const gs = records.find(r => r.position === 'General Secretary');
+        if (pres?.phone) setPresidentPhone(pres.phone);
+        if (gs?.phone) setGsPhone(gs.phone);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -135,8 +151,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Email Us</h3>
-                    <p className="text-gray-600">info@eswc.org</p>
-                    <p className="text-gray-600">support@eswc.org</p>
+                    <a href="mailto:austeswc@aust.edu" className="text-gray-600 hover:underline">austeswc@aust.edu</a>
                   </div>
                 </div>
 
@@ -148,8 +163,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Call Us</h3>
-                    <p className="text-gray-600">+880 1234-567890</p>
-                    <p className="text-gray-600">+880 9876-543210</p>
+                    <p className="text-gray-600">{presidentPhone || '+880 1234-567890'} (President)</p>
+                    <p className="text-gray-600">{gsPhone || '+880 9876-543210'} (General Secretary)</p>
                   </div>
                 </div>
 

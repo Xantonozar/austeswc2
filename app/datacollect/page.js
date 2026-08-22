@@ -42,13 +42,14 @@ export default function DataCollectPage() {
     const teams = ['Event Management', 'Logistics', 'Research & Development', 'Public Relationship', 'Content Writing', 'Graphics', 'Web Development'];
     const positions = ['Advisor', 'President', 'Vice President', 'General Secretary', 'Treasurer', 'Organizing Secretary', 'Joint Secretary', 'Executive', 'Senior Sub Executive', 'Sub Executive', 'Junior Executive'];
     const teamPositions = ['Executive', 'Senior Sub Executive', 'Sub Executive', 'Junior Executive'];
+    const isAdvOrTreas = form.position === 'Advisor' || form.position === 'Treasurer';
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
         if (name === 'position') {
-            if (!teamPositions.includes(value)) {
+            if (!teamPositions.includes(value) || value === 'Advisor' || value === 'Treasurer') {
                 setForm(prev => ({ ...prev, team: '' }));
             }
             setTimeout(() => {
@@ -225,13 +226,14 @@ export default function DataCollectPage() {
     };
 
     const validateField = (name) => {
+        const advTreas = form.position === 'Advisor' || form.position === 'Treasurer';
         switch (name) {
             case 'name': return !form.name.trim() ? 'Name is required' : '';
-            case 'email': return !form.email.trim() ? 'Email is required' : '';
-            case 'phone': return form.phone.length !== 11 || !form.phone.startsWith('01') ? 'Enter a valid 11-digit phone starting with 01' : '';
-            case 'studentId': return !form.studentId.trim() ? 'Student ID is required' : '';
-            case 'department': return !form.department ? 'Department is required' : '';
-            case 'yearSemester': return !form.yearSemester ? 'Year & semester is required' : '';
+            case 'email': return advTreas ? '' : (!form.email.trim() ? 'Email is required' : '');
+            case 'phone': return advTreas ? '' : (form.phone.length !== 11 || !form.phone.startsWith('01') ? 'Enter a valid 11-digit phone starting with 01' : '');
+            case 'studentId': return advTreas ? '' : (!form.studentId.trim() ? 'Student ID is required' : '');
+            case 'department': return advTreas ? '' : (!form.department ? 'Department is required' : '');
+            case 'yearSemester': return advTreas ? '' : (!form.yearSemester ? 'Year & semester is required' : '');
             case 'position': return !form.position ? 'Position is required' : '';
             case 'team': return teamPositions.includes(form.position) && !form.team ? 'Team is required for this position' : '';
             case 'labGroup': return '';
@@ -240,18 +242,18 @@ export default function DataCollectPage() {
     };
 
     const validateAll = () => {
+        const advTreas = form.position === 'Advisor' || form.position === 'Treasurer';
         const newErrors = {};
-        ['name', 'email', 'phone', 'studentId', 'department', 'yearSemester', 'position', 'team', 'labGroup'].forEach(f => {
+        ['name', 'position', ...(!advTreas ? ['email', 'phone', 'studentId', 'department', 'yearSemester', 'team'] : [])].forEach(f => {
             const err = validateField(f);
             if (err) newErrors[f] = err;
         });
         if (!imageUrl) newErrors.photo = 'Profile image is required';
-        if (!routineImageUrl) newErrors.routine = 'Routine is required';
+        if (!advTreas && !routineImageUrl) newErrors.routine = 'Routine is required';
         setErrors(newErrors);
         setTouched({
-            name: true, email: true, phone: true, studentId: true,
-            department: true, yearSemester: true, position: true, team: true,
-            labGroup: true, photo: true, routine: true
+            name: true, position: true, ...(!advTreas ? { email: true, phone: true, studentId: true, department: true, yearSemester: true, team: true } : {}),
+            photo: true, ...(!advTreas ? { routine: true } : {})
         });
         return Object.keys(newErrors).length === 0;
     };
@@ -265,16 +267,28 @@ export default function DataCollectPage() {
 
         setLoading(true);
         try {
+            const advTreas = form.position === 'Advisor' || form.position === 'Treasurer';
+            const payload = {
+                name: form.name,
+                position: form.position,
+                imageUrl,
+                publicId: imagePublicId,
+            };
+            if (!advTreas) {
+                payload.email = form.email;
+                payload.phone = form.phone;
+                payload.studentId = form.studentId;
+                payload.department = form.department;
+                payload.yearSemester = form.yearSemester;
+                payload.labGroup = form.labGroup;
+                payload.team = form.team;
+                payload.routineImageUrl = routineImageUrl;
+                payload.routinePublicId = routinePublicId;
+            }
             const res = await fetch('/api/datacollect', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...form,
-                    imageUrl,
-                    publicId: imagePublicId,
-                    routineImageUrl,
-                    routinePublicId,
-                }),
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
 
@@ -385,7 +399,31 @@ export default function DataCollectPage() {
                                 )}
                             </div>
 
-                            {/* Email */}
+                            {/* Position - moved to Personal Info */}
+                            <div>
+                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Position *</label>
+                                <div className="relative">
+                                    <select
+                                        name="position"
+                                        value={form.position}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur('position')}
+                                        className={`${inputClass('position')} appearance-none pr-10`}
+                                    >
+                                        <option value="">Select position</option>
+                                        {positions.map(p => <option key={p} value={p}>{p}</option>)}
+                                    </select>
+                                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
+                                </div>
+                                {errors.position && touched.position && (
+                                    <p className="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500 ml-1">
+                                        <AlertCircle className="w-3 h-3" /> {errors.position}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Email - hidden for Advisor/Treasurer */}
+                            {!isAdvOrTreas && (
                             <div>
                                 <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Email *</label>
                                 <input
@@ -403,8 +441,10 @@ export default function DataCollectPage() {
                                     </p>
                                 )}
                             </div>
+                            )}
 
-                            {/* Phone */}
+                            {/* Phone - hidden for Advisor/Treasurer */}
+                            {!isAdvOrTreas && (
                             <div>
                                 <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Phone Number *</label>
                                 <input
@@ -422,8 +462,10 @@ export default function DataCollectPage() {
                                     </p>
                                 )}
                             </div>
+                            )}
 
-                            {/* Student ID */}
+                            {/* Student ID - hidden for Advisor/Treasurer */}
+                            {!isAdvOrTreas && (
                             <div>
                                 <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Student ID *</label>
                                 <input
@@ -441,10 +483,12 @@ export default function DataCollectPage() {
                                     </p>
                                 )}
                             </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Academic Info */}
+                    {/* Academic Info - hidden for Advisor/Treasurer */}
+                    {!isAdvOrTreas && (
                     <div className="p-5 sm:p-6 border-b border-slate-100">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-1.5 rounded-lg" style={{ background: '#D6EAF8' }}>
@@ -581,8 +625,10 @@ export default function DataCollectPage() {
                             </div>
                         </div>
                     </div>
+                    )}
 
-                    {/* Team Info */}
+                    {/* Team Info - hidden for Advisor/Treasurer */}
+                    {!isAdvOrTreas && (
                     <div className="p-5 sm:p-6 border-b border-slate-100">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-1.5 rounded-lg" style={{ background: '#E8DAEF' }}>
@@ -592,29 +638,6 @@ export default function DataCollectPage() {
                         </div>
 
                         <div className="space-y-3">
-                            {/* Position */}
-                            <div>
-                                <label className="block text-xs font-semibold mb-1.5 ml-1" style={{ color: '#475569' }}>Position *</label>
-                                <div className="relative">
-                                    <select
-                                        name="position"
-                                        value={form.position}
-                                        onChange={handleChange}
-                                        onBlur={() => handleBlur('position')}
-                                        className={`${inputClass('position')} appearance-none pr-10`}
-                                    >
-                                        <option value="">Select position</option>
-                                        {positions.map(p => <option key={p} value={p} disabled={p === 'Advisor' || p === 'Treasurer'}>{p}{(p === 'Advisor' || p === 'Treasurer') ? ' (Closed)' : ''}</option>)}
-                                    </select>
-                                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#94A3B8' }} />
-                                </div>
-                                {errors.position && touched.position && (
-                                    <p className="flex items-center gap-1 mt-1.5 text-xs font-medium text-red-500 ml-1">
-                                        <AlertCircle className="w-3 h-3" /> {errors.position}
-                                    </p>
-                                )}
-                            </div>
-
                             {/* Team - only for executive positions */}
                             {teamPositions.includes(form.position) && (
                             <div>
@@ -641,6 +664,7 @@ export default function DataCollectPage() {
                             )}
                         </div>
                     </div>
+                    )}
 
                     {/* Profile Image */}
                     <div className="p-5 sm:p-6 border-b border-slate-100">
@@ -714,7 +738,7 @@ export default function DataCollectPage() {
                     <div className="p-5 sm:p-6 pt-0">
                         <button
                             type="submit"
-                            disabled={loading || isUploadingImage}
+                            disabled={loading || isUploadingImage || isUploadingRoutine}
                             className="w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all hover:shadow-lg disabled:opacity-60 flex items-center justify-center gap-2"
                             style={{ background: '#3B82C4' }}
                         >

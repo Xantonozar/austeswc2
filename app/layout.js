@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import FbJoinPopup from "@/components/FbJoinPopup";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -55,6 +56,7 @@ export default function RootLayout({ children }) {
       <body className={exoItalic.variable}>
         <Navbar />
         {children}
+        <FbJoinPopup />
 
         {/* Vercel Speed Insights (renders a performance badge) */}
         <SpeedInsights />

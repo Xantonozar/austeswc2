@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Users, Trophy, ArrowRight, TrendingUp,
     PieChart, Activity, Zap, Camera, Video, FileText, ChevronRight,
-    Loader2, LogOut, Calendar, Building2, Check, AlertTriangle, Shield, Database
+    Loader2, LogOut, Calendar, Building2, Check, AlertTriangle, Shield, Database, Clock,
+    Crown, Flame
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ export default function AdminDashboardOverview() {
     const [members, setMembers] = useState([]);
     const [competitors, setCompetitors] = useState([]);
     const [applications, setApplications] = useState([]);
+    const [leaderboard, setLeaderboard] = useState([]);
     const [adminRole, setAdminRole] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(getSemesterFromDate(new Date()));
@@ -52,6 +54,12 @@ export default function AdminDashboardOverview() {
 
             setMembers(m);
             setCompetitors(c);
+
+            const lbRes = await fetch('/api/admin/panel/leaderboard');
+            if (lbRes.ok) {
+                const lbData = await lbRes.json();
+                setLeaderboard(lbData.leaderboard || []);
+            }
         } catch (err) {
             console.error(err);
             toast.error("Failed to load dashboard");
@@ -93,7 +101,7 @@ export default function AdminDashboardOverview() {
 
             {/* Top Bar */}
             <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <div className="px-6 md:px-10 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-emerald-600 rounded-xl shadow-lg shadow-emerald-200 flex items-center justify-center text-white font-black text-lg">E</div>
                         <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">Admin Console</h1>
@@ -107,7 +115,7 @@ export default function AdminDashboardOverview() {
                 </div>
             </nav>
 
-            <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+            <div className="px-6 md:px-10 py-10 space-y-10">
 
                 {/* Semester Tabs */}
                 <section>
@@ -193,47 +201,43 @@ export default function AdminDashboardOverview() {
                 </AnimatePresence>
 
                 {/* Navigation Cards */}
-                <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                     <NavCard
-                        title="Member Management"
-                        description="View registered club members, verify payments, export data, and manage deletions."
+                        title="Members"
                         href="/admin/dashboard/members"
                         icon={Users}
                         color="bg-indigo-600"
-                        stats={`${members.length} Records`}
                     />
                     <NavCard
-                        title="Competition Control"
-                        description="Review contest submissions, browse galleries, and manage Round 1 & Round 2 status."
+                        title="Competitions"
                         href="/admin/dashboard/competition"
                         icon={Trophy}
                         color="bg-emerald-600"
-                        stats={`${competitors.length} Entries`}
                     />
                     <NavCard
                         title="Applications"
-                        description="Review Junior Executive, Sub Executive, and Batch Ambassador applications."
                         href="/admin/dashboard/applications"
                         icon={FileText}
                         color="bg-sky-600"
-                        stats={`${applications.length} Applications`}
                     />
                     <NavCard
                         title="Data Collection"
-                        description="View collected member data including profiles, routines, team and position info."
                         href="/admin/dashboard/datacollect"
                         icon={Database}
                         color="bg-blue-600"
-                        stats="View Data"
+                    />
+                    <NavCard
+                        title="Routine"
+                        href="/admin/dashboard/routine"
+                        icon={Clock}
+                        color="bg-orange-600"
                     />
                     {adminRole && PANEL_ROLES.includes(adminRole) && (
                         <NavCard
-                            title="Panel Management"
-                            description="Manage subordinates, evolve members with points, and view leaderboards."
+                            title="Panel"
                             href="/admin/dashboard/panel"
                             icon={Shield}
                             color="bg-violet-600"
-                            stats="Access Panel"
                         />
                     )}
                 </section>
@@ -324,6 +328,53 @@ export default function AdminDashboardOverview() {
                     </motion.div>
                 </div>
 
+                {/* Top Performers */}
+                {leaderboard.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.3 }}
+                        className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2rem] p-8 shadow-xl shadow-indigo-200/50"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                                <Trophy className="w-5 h-5 text-amber-300" /> Top Performers
+                            </h3>
+                            <Link href="/admin/dashboard/panel" className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg bg-white/15 text-white hover:bg-white/25 transition-all">
+                                View All
+                            </Link>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                            {leaderboard.slice(0, 5).map((a, i) => (
+                                <div key={a._id} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center hover:bg-white/20 transition-all border border-white/10">
+                                    <div className="relative mx-auto mb-3">
+                                        <div className={`w-14 h-14 rounded-full mx-auto overflow-hidden border-2 ${i === 0 ? 'border-amber-400 shadow-lg shadow-amber-400/30' : i === 1 ? 'border-slate-300' : i === 2 ? 'border-amber-600' : 'border-white/30'}`}>
+                                            {a.imageUrl ? (
+                                                <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-white/20 flex items-center justify-center">
+                                                    <Users className="w-6 h-6 text-white/60" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        {i === 0 && <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center"><Crown className="w-3 h-3 text-white" /></div>}
+                                        {i === 1 && <div className="absolute -top-1 -right-1 w-5 h-5 bg-slate-300 rounded-full flex items-center justify-center text-[8px] font-black text-white">2</div>}
+                                        {i === 2 && <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-600 rounded-full flex items-center justify-center text-[8px] font-black text-white">3</div>}
+                                    </div>
+                                    <p className="font-bold text-xs text-white truncate">{a.name}</p>
+                                    <p className="text-[10px] text-white/50 truncate mb-2">{a.role}</p>
+                                    <div className="flex items-center justify-center gap-1">
+                                        {i === 0 && <Flame className="w-3 h-3 text-amber-300" />}
+                                        <span className={`text-sm font-black ${a.totalPoints >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                                            {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+
             </div>
         </div>
     );
@@ -348,24 +399,14 @@ function StatCard({ icon: Icon, title, count, color, sub }) {
     );
 }
 
-function NavCard({ title, description, href, icon: Icon, color, stats }) {
+function NavCard({ title, href, icon: Icon, color }) {
     return (
-        <div>
-            <Link href={href} className="flex flex-col h-full bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-slate-300 hover:shadow-2xl transition-all group relative overflow-hidden">
-                <div className={`absolute top-0 right-0 w-48 h-48 ${color} opacity-[0.03] rounded-full -mr-24 -mt-24 pointer-events-none`}></div>
-                <div className="flex items-center justify-between mb-6 relative z-10">
-                    <div className={`w-14 h-14 rounded-2xl ${color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-7 h-7" />
-                    </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">{stats}</span>
-                </div>
-                <h3 className="text-xl font-black text-slate-900 mb-3 group-hover:text-amber-600 transition-colors">{title}</h3>
-                <p className="text-slate-500 text-sm font-medium leading-relaxed mb-6 flex-1">{description}</p>
-                <div className="flex items-center gap-2 font-black text-xs uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-                    Enter <ArrowRight className="w-4 h-4" />
-                </div>
-            </Link>
-        </div>
+        <Link href={href} className="flex flex-col items-center gap-3 bg-white rounded-2xl p-5 shadow-md shadow-slate-200/50 border border-slate-100 hover:border-slate-300 hover:shadow-lg transition-all group">
+            <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                <Icon className="w-6 h-6" />
+            </div>
+            <span className="text-xs font-bold text-slate-700 text-center group-hover:text-slate-900 transition-colors">{title}</span>
+        </Link>
     );
 }
 

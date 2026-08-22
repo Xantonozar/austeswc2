@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+const advTreasPositions = ['Advisor', 'Treasurer'];
+
 const DataCollectSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -8,13 +10,17 @@ const DataCollectSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, 'Please provide an email'],
+        required: function () {
+            return !advTreasPositions.includes(this.position);
+        },
         trim: true,
         lowercase: true,
     },
     phone: {
         type: String,
-        required: [true, 'Please provide a phone number'],
+        required: function () {
+            return !advTreasPositions.includes(this.position);
+        },
         trim: true,
     },
     imageUrl: {
@@ -24,7 +30,9 @@ const DataCollectSchema = new mongoose.Schema({
     publicId: String,
     yearSemester: {
         type: String,
-        required: [true, 'Please provide year and semester'],
+        required: function () {
+            return !advTreasPositions.includes(this.position);
+        },
     },
     labGroup: {
         type: String,
@@ -32,7 +40,9 @@ const DataCollectSchema = new mongoose.Schema({
     },
     department: {
         type: String,
-        required: [true, 'Please provide a department'],
+        required: function () {
+            return !advTreasPositions.includes(this.position);
+        },
     },
     team: {
         type: String,
@@ -45,14 +55,17 @@ const DataCollectSchema = new mongoose.Schema({
     },
     studentId: {
         type: String,
-        required: [true, 'Please provide a student ID'],
-        unique: true,
+        required: function () {
+            return !advTreasPositions.includes(this.position);
+        },
         trim: true,
         uppercase: true,
     },
     routineImageUrl: {
         type: String,
-        required: [true, 'Routine image is required'],
+        required: function () {
+            return !advTreasPositions.includes(this.position);
+        },
     },
     routinePublicId: String,
     createdAt: {
@@ -60,6 +73,8 @@ const DataCollectSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
+
+DataCollectSchema.index({ studentId: 1 }, { unique: true, sparse: true, partialFilterExpression: { studentId: { $exists: true, $ne: '' } } });
 
 if (process.env.NODE_ENV === 'development') {
     delete mongoose.models.DataCollect;

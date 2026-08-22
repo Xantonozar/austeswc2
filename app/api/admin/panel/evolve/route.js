@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Evolution from '@/models/Evolution';
-import { canManage } from '@/lib/roles';
+import { canManage, hasPanelAccess } from '@/lib/roles';
 import { getAdminFromSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -31,8 +31,8 @@ export async function POST(req) {
             return NextResponse.json({ error: 'Target not found' }, { status: 404 });
         }
 
-        if (!canManage(admin.role, target.role)) {
-            return NextResponse.json({ error: 'You cannot evolve someone at your level or above' }, { status: 403 });
+        if (!hasPanelAccess(admin.role) || !canManage(admin.role, target.role)) {
+            return NextResponse.json({ error: 'You do not have permission to evolve members' }, { status: 403 });
         }
 
         const evolution = await Evolution.create({

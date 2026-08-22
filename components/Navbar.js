@@ -91,9 +91,6 @@ function Navbar() {
 
           {/* Right Section: Join & Admin Login Button */}
           <div className="flex-1 flex justify-end items-center gap-3">
-            <Link href="/apply" className="hidden md:flex items-center px-5 py-2 rounded-full text-sm font-bold text-white bg-[#198042] hover:bg-[#1A2B1E] transition-all shadow-md">
-              Junior Executive
-            </Link>
             <Link href="/admin/login" className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 transition-all">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
               Admin
@@ -189,9 +186,6 @@ function Navbar() {
               </li>
             </ul>
             <div className="mt-8 pt-6 border-t border-green-200 w-full space-y-3">
-              <Link href="/apply" className="flex w-full items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-white bg-[#198042] hover:bg-[#1A2B1E] transition-all" onClick={toggleMenu}>
-                Junior Executive
-              </Link>
               <Link href="/admin/login" className="flex w-full items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-all" onClick={toggleMenu}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 Admin Login

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Schedule Grid</title>
+    <style>
+        :root {
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --accent: #ff6f00;
+            --bg: #f5f5f5;
+            --cell-bg: #ffffff;
+            --border: #bdbdbd;
+            --text: #212121;
+            --text-light: #757575;
+            --merged-bg: #e3f2fd;
+            --empty-bg: #fafafa;
+            --subdiv-bg: #fff3e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 24px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header .meta {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .legend {
+            background: white;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-swatch {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        .grid-wrapper {
+            overflow-x: auto;
+            background: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid var(--primary-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th.time-col {
+            width: 80px;
+            min-width: 80px;
+        }
+
+        td {
+            padding: 10px 8px;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            vertical-align: top;
+            text-align: center;
+            background: var(--cell-bg);
+            min-height: 60px;
+        }
+
+        td.day-cell {
+            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+            font-weight: 600;
+            font-size: 13px;
+            text-align: center;
+            vertical-align: middle;
+            color: var(--primary);
+        }
+
+        td.merged-cell {
+            background: var(--merged-bg);
+            border-left: 2px dashed var(--primary-light);
+            border-right: 2px dashed var(--primary-light);
+        }
+
+        td.subdivided-cell {
+            background: var(--subdiv-bg);
+        }
+
+        td.empty-cell {
+            background: var(--empty-bg);
+            color: var(--text-light);
+        }
+
+        .course-code {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .room {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 2px;
+        }
+
+        .instructor {
+            font-size: 11px;
+            color: var(--text);
+            font-style: italic;
+        }
+
+        .sub-row {
+            border-bottom: 1px dashed var(--accent);
+            padding: 4px 0;
+        }
+
+        .sub-row:last-child {
+            border-bottom: none;
+        }
+
+        .sub-label {
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) td:not(.day-cell) {
+            background: #fafafa;
+        }
+
+        tr:hover td:not(.day-cell) {
+            background: #e8eaf6;
+        }
+
+        tr:hover td.merged-cell {
+            background: #bbdefb;
+        }
+
+        .audit-section {
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .audit-section h2 {
+            font-size: 16px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .audit-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        .audit-label {
+            font-weight: 600;
+            font-size: 12px;
+            min-width: 60px;
+        }
+
+        .audit-item {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .audit-present {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .audit-missing {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .json-output {
+            margin-top: 20px;
+            background: #263238;
+            color: #aed581;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .controls {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Class Schedule Grid</h1>
+                <div class="meta">Extracted from visual schedule image</div>
+            </div>
+            <div class="meta" id="extractTime"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-swatch" style="background: var(--cell-bg);"></div>
+                <span>Standard Cell</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch" style="background: var(--merged-bg);"></div>
+                <span>Merged Cell (2-3 cols)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch" style="background: var(--subdiv-bg);"></div>
+                <span>Sub-divided Cell</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-swatch" style="background: var(--empty-bg);"></div>
+                <span>Empty</span>
+            </div>
+        </div>
+
+        <div class="grid-wrapper">
+            <table id="scheduleGrid">
+                <thead>
+                    <tr>
+                        <th class="time-col">Day</th>
+                        <th>B<br>08:00-08:50</th>
+                        <th>C<br>08:50-09:40</th>
+                        <th>D<br>09:40-10:30</th>
+                        <th>E<br>10:30-11:20</th>
+                        <th>F<br>11:20-12:10</th>
+                        <th>G<br>12:10-13:00</th>
+                        <th>H<br>13:00-13:50</th>
+                        <th>I<br>13:50-14:40</th>
+                        <th>J<br>14:40-15:30</th>
+                        <th>K<br>15:30-16:20</th>
+                        <th>L<br>16:20-17:10</th>
+                        <th>M<br>17:10-18:00</th>
+                    </tr>
+                </thead>
+                <tbody id="gridBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="loadSampleData()">Load Sample Data</button>
+            <button class="btn-secondary" onclick="exportJSON()">Export JSON</button>
+            <button class="btn-secondary" onclick="toggleAudit()">Toggle Line Audit</button>
+        </div>
+
+        <div class="audit-section" id="auditSection" style="display:none;">
+            <h2>Line Audit Log</h2>
+            <div id="auditContent"></div>
+        </div>
+
+        <div class="json-output" id="jsonOutput" style="display:none;"></div>
+    </div>
+
+    <script>
+        const COLUMNS = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
+        const TIME_SLOTS = {
+            B: '08:00-08:50', C: '08:50-09:40', D: '09:40-10:30',
+            E: '10:30-11:20', F: '11:20-12:10', G: '12:10-13:00',
+            H: '13:00-13:50', I: '13:50-14:40', J: '14:40-15:30',
+            K: '15:30-16:20', L: '16:20-17:10', M: '17:10-18:00'
+        };
+
+        let scheduleData = null;
+
+        function parseCellContent(content) {
+            if (!content || content === '[Empty]') return '';
+            const lines = content.split('\n').map(l => l.trim()).filter(l => l);
+            if (lines.length === 0) return '';
+
+            let html = '';
+            if (lines[0]) html += `<div class="course-code">${escapeHtml(lines[0])}</div>`;
+            if (lines[1]) html += `<div class="room">${escapeHtml(lines[1])}</div>`;
+            if (lines[2]) html += `<div class="instructor">${escapeHtml(lines[2])}</div>`;
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function renderGrid(data) {
+            scheduleData = data;
+            const tbody = document.getElementById('gridBody');
+            tbody.innerHTML = '';
+
+            if (data.metadata) {
+                document.getElementById('extractTime').textContent =
+                    `Extracted: ${new Date(data.metadata.extractedAt).toLocaleString()}`;
+            }
+
+            data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+
+                const dayTd = document.createElement('td');
+                dayTd.className = 'day-cell';
+                dayTd.textContent = row.dayLabel;
+                tr.appendChild(dayTd);
+
+                const cellMap = {};
+                row.cells.forEach(cell => {
+                    const cols = parseSpan(cell.coordinate || cell.span);
+                    cols.forEach(col => {
+                        cellMap[col] = cell;
+                    });
+                });
+
+                for (let i = 1; i < COLUMNS.length; i++) {
+                    const col = COLUMNS[i];
+                    const cell = cellMap[col];
+
+                    if (cell && !cell._rendered) {
+                        const td = document.createElement('td');
+                        const spanCols = parseSpan(cell.coordinate || cell.span);
+                        const colspan = spanCols.length > 1 ? spanCols.length : 1;
+
+                        if (colspan > 1) td.colSpan = colspan;
+
+                        if (cell.status === 'Merged') {
+                            td.className = 'merged-cell';
+                        } else if (cell.status === 'Sub-divided') {
+                            td.className = 'subdivided-cell';
+                            if (cell.subRows && cell.subRows.length > 0) {
+                                td.innerHTML = cell.subRows.map((sr, idx) =>
+                                    `<div class="sub-row">
+                                        <div class="sub-label">Group ${idx + 1}</div>
+                                        ${parseCellContent(sr)}
+                                    </div>`
+                                ).join('');
+                            } else {
+                                td.innerHTML = parseCellContent(cell.content);
+                            }
+                        } else if (cell.content === '[Empty]' || !cell.content) {
+                            td.className = 'empty-cell';
+                            td.textContent = '—';
+                        } else {
+                            td.innerHTML = parseCellContent(cell.content);
+                        }
+
+                        spanCols.forEach(c => {
+                            if (cellMap[c]) cellMap[c]._rendered = true;
+                        });
+
+                        tr.appendChild(td);
+                    } else if (!cell || cell._rendered) {
+                        continue;
+                    } else {
+                        const td = document.createElement('td');
+                        td.className = 'empty-cell';
+                        td.textContent = '—';
+                        tr.appendChild(td);
+                    }
+                }
+
+                tbody.appendChild(tr);
+            });
+
+            renderAudit(data);
+        }
+
+        function parseSpan(coord) {
+            if (!coord) return [];
+            const parts = coord.replace(/\d+/g, '').split(':');
+            if (parts.length === 1) return [parts[0]];
+            const startIdx = COLUMNS.indexOf(parts[0]);
+            const endIdx = COLUMNS.indexOf(parts[1]);
+            return COLUMNS.slice(startIdx, endIdx + 1);
+        }
+
+        function renderAudit(data) {
+            const container = document.getElementById('auditContent');
+            container.innerHTML = '';
+
+            data.rows.forEach(row => {
+                const div = document.createElement('div');
+                div.className = 'audit-row';
+
+                const label = document.createElement('span');
+                label.className = 'audit-label';
+                label.textContent = row.dayLabel;
+                div.appendChild(label);
+
+                const audit = row.lineAudit;
+                Object.keys(audit).forEach(key => {
+                    const item = document.createElement('span');
+                    const val = audit[key];
+                    item.className = `audit-item ${val === 'PRESENT' ? 'audit-present' : 'audit-missing'}`;
+                    item.textContent = `${key}: ${val}`;
+                    div.appendChild(item);
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        function toggleAudit() {
+            const section = document.getElementById('auditSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function exportJSON() {
+            const output = document.getElementById('jsonOutput');
+            if (output.style.display === 'none') {
+                output.textContent = JSON.stringify(scheduleData, null, 2);
+                output.style.display = 'block';
+            } else {
+                output.style.display = 'none';
+            }
+        }
+
+        function loadSampleData() {
+            const sampleData = {
+                metadata: {
+                    extractedAt: new Date().toISOString(),
+                    sourceImage: "sample_schedule.jpg",
+                    totalRows: 6,
+                    totalColumns: 13
+                },
+                timeSlots: Object.entries(TIME_SLOTS).map(([col, time]) => {
+                    const [start, end] = time.split('-');
+                    return { column: col, start, end };
+                }),
+                rows: [
+                    {
+                        rowIndex: 1,
+                        dayLabel: "SAT",
+                        lineAudit: { BC:"PRESENT", CD:"PRESENT", DE:"PRESENT", EF:"MISSING", FG:"MISSING", GH:"PRESENT", HI:"PRESENT", IJ:"PRESENT", JK:"PRESENT", KL:"PRESENT", LM:"PRESENT" },
+                        cells: [
+                            { coordinate: "A1", status: "Standard", content: "SAT" },
+                            { coordinate: "B1", status: "Standard", content: "[Empty]" },
+                            { coordinate: "C1", status: "Standard", content: "[Empty]" },
+                            { coordinate: "D1", status: "Standard", content: "[Empty]" },
+                            { coordinate: "E1:G1", status: "Merged", mergeColumns: 3, content: "CE 400\nRESERVED\n(TBA)" },
+                            { coordinate: "H1", status: "Standard", content: "CE 431\n3A05\n(MR. ASIF)" },
+                            { coordinate: "I1", status: "Standard", content: "CE 411\n3A05\n(DR. MAHMUD)" },
+                            { coordinate: "J1", status: "Standard", content: "CE 415\n3A05\n(DR. GALIB)" },
+                            { coordinate: "K1", status: "Standard", content: "[Empty]" },
+                            { coordinate: "L1", status: "Standard", content: "[Empty]" },
+                            { coordinate: "M1", status: "Standard", content: "[Empty]" }
+                        ]
+                    },
+                    {
+                        rowIndex: 2,
+                        dayLabel: "SUN",
+                        lineAudit: { BC:"PRESENT", CD:"PRESENT", DE:"PRESENT", EF:"PRESENT", FG:"PRESENT", GH:"MISSING", HI:"MISSING", IJ:"MISSING", JK:"PRESENT", KL:"PRESENT", LM:"PRESENT" },
+                        cells: [
+                            { coordinate: "A2", status: "Standard", content: "SUN" },
+                            { coordinate: "B2", status: "Standard", content: "CE 401\n3A05\n(DR. NASIM)" },
+                            { coordinate: "C2", status: "Standard", content: "CE 401\n3A05\n(DR. NASIM)" },
+                            { coordinate: "D2", status: "Standard", content: "[Empty]" },
+                            { coordinate: "E2", status: "Standard", content: "CE 432\n3A05\n(MR. HASSAN)" },
+                            { coordinate: "F2", status: "Standard", content: "[Empty]" },
+                            { coordinate: "G2:I2", status: "Merged", mergeColumns: 3, content: "CE 499\nLAB\n(DR. ALI)" },
+                            { coordinate: "J2", status: "Standard", content: "[Empty]" },
+                            { coordinate: "K2", status: "Standard", content: "[Empty]" },
+                            { coordinate: "L2", status: "Standard", content: "[Empty]" },
+                            { coordinate: "M2", status: "Standard", content: "[Empty]" }
+                        ]
+                    },
+                    {
+                        rowIndex: 3,
+                        dayLabel: "MON",
+                        lineAudit: { BC:"PRESENT", CD:"MISSING", DE:"MISSING", EF:"PRESENT", FG:"PRESENT", GH:"PRESENT", HI:"PRESENT", IJ:"MISSING", JK:"MISSING", KL:"PRESENT", LM:"PRESENT" },
+                        cells: [
+                            { coordinate: "A3", status: "Standard", content: "MON" },
+                            { coordinate: "B3", status: "Standard", content: "[Empty]" },
+                            { coordinate: "C3:E3", status: "Merged", mergeColumns: 3, content: "CE 420\n3A01\n(DR. SAIMA)" },
+                            { coordinate: "F3", status: "Standard", content: "CE 421\n3A05\n(MR. TANVEER)" },
+                            { coordinate: "G3", status: "Standard", content: "[Empty]" },
+                            { coordinate: "H3", status: "Standard", content: "[Empty]" },
+                            { coordinate: "I3:J3", status: "Merged", mergeColumns: 2, content: "CE 499\nLAB\n(DR. ALI)" },
+                            { coordinate: "K3", status: "Standard", content: "[Empty]" },
+                            { coordinate: "L3", status: "Standard", content: "[Empty]" },
+                            { coordinate: "M3", status: "Standard", content: "[Empty]" }
+                        ]
+                    },
+                    {
+                        rowIndex: 4,
+                        dayLabel: "TUE",
+                        lineAudit: { BC:"PRESENT", CD:"PRESENT", DE:"PRESENT", EF:"PRESENT", FG:"MISSING", GH:"MISSING", HI:"PRESENT", IJ:"PRESENT", JK:"PRESENT", KL:"PRESENT", LM:"PRESENT" },
+                        cells: [
+                            { coordinate: "A4", status: "Standard", content: "TUE" },
+                            { coordinate: "B4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "C4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "D4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "E4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "F4:G4", status: "Merged", mergeColumns: 2, content: "CE 450\n3A05\n(DR. FAROOQ)" },
+                            { coordinate: "H4", status: "Standard", content: "CE 451\n3A05\n(MR. ASIF)" },
+                            { coordinate: "I4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "J4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "K4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "L4", status: "Standard", content: "[Empty]" },
+                            { coordinate: "M4", status: "Standard", content: "[Empty]" }
+                        ]
+                    },
+                    {
+                        rowIndex: 5,
+                        dayLabel: "WED",
+                        lineAudit: { BC:"PRESENT", CD:"PRESENT", DE:"PRESENT", EF:"PRESENT", FG:"PRESENT", GH:"PRESENT", HI:"MISSING", IJ:"MISSING", JK:"MISSING", KL:"PRESENT", LM:"PRESENT" },
+                        cells: [
+                            { coordinate: "A5", status: "Standard", content: "WED" },
+                            { coordinate: "B5", status: "Standard", content: "CE 401\n3A05\n(DR. NASIM)" },
+                            { coordinate: "C5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "D5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "E5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "F5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "G5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "H5:J5", status: "Merged", mergeColumns: 3, content: "CE 499\nLAB\n(DR. ALI)" },
+                            { coordinate: "K5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "L5", status: "Standard", content: "[Empty]" },
+                            { coordinate: "M5", status: "Standard", content: "[Empty]" }
+                        ]
+                    },
+                    {
+                        rowIndex: 6,
+                        dayLabel: "THU",
+                        lineAudit: { BC:"PRESENT", CD:"PRESENT", DE:"PRESENT", EF:"PRESENT", FG:"PRESENT", GH:"PRESENT", HI:"PRESENT", IJ:"PRESENT", JK:"PRESENT", KL:"PRESENT", LM:"PRESENT" },
+                        cells: [
+                            { coordinate: "A6", status: "Standard", content: "THU" },
+                            { coordinate: "B6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "C6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "D6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "E6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "F6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "G6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "H6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "I6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "J6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "K6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "L6", status: "Standard", content: "[Empty]" },
+                            { coordinate: "M6", status: "Standard", content: "[Empty]" }
+                        ]
+                    }
+                ]
+            };
+
+            renderGrid(sampleData);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSampleData();
+        });
+    </script>
+</body>
+</html>

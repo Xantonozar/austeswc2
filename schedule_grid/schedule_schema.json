@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Class Schedule Grid",
+  "description": "Structured schedule data extracted from visual grid images",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "extractedAt": { "type": "string", "format": "date-time" },
+        "sourceImage": { "type": "string" },
+        "totalRows": { "type": "integer" },
+        "totalColumns": { "type": "integer" }
+      }
+    },
+    "timeSlots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "column": { "type": "string", "enum": ["A","B","C","D","E","F","G","H","I","J","K","L","M"] },
+          "start": { "type": "string" },
+          "end": { "type": "string" }
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rowIndex": { "type": "integer" },
+          "dayLabel": { "type": "string" },
+          "lineAudit": {
+            "type": "object",
+            "properties": {
+              "BC": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "CD": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "DE": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "EF": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "FG": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "GH": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "HI": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "IJ": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "JK": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "KL": { "type": "string", "enum": ["PRESENT", "MISSING"] },
+              "LM": { "type": "string", "enum": ["PRESENT", "MISSING"] }
+            }
+          },
+          "cells": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "coordinate": { "type": "string" },
+                "span": { "type": "string" },
+                "status": { "type": "string", "enum": ["Standard", "Merged", "Sub-divided"] },
+                "mergeColumns": { "type": "integer", "maximum": 3 },
+                "content": { "type": "string" },
+                "subRows": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              },
+              "required": ["coordinate", "status", "content"]
+            }
+          }
+        },
+        "required": ["rowIndex", "dayLabel", "lineAudit", "cells"]
+      }
+    }
+  },
+  "required": ["metadata", "timeSlots", "rows"]
+}

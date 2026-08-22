@@ -12,14 +12,15 @@ import {
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { hasPanelAccess } from "@/lib/roles";
 
 const ROLE_LABELS = {
     'superadmin': 'Super Admin',
     'advisor': 'Advisor',
     'treasurer': 'Treasurer',
     'president': 'President',
-    'gs': 'General Secretary',
     'vp': 'Vice President',
+    'gs': 'General Secretary',
     'js': 'Joint Secretary',
     'os': 'Organizing Secretary',
     'executive': 'Executive',
@@ -33,12 +34,12 @@ const ROLE_OPTIONS = Object.keys(ROLE_LABELS);
 const ROLE_COLORS = {
     'superadmin': { bg: '#1A5276', text: '#FFFFFF' },
     'advisor': { bg: '#1E8449', text: '#FFFFFF' },
-    'treasurer': { bg: '#B7950B', text: '#FFFFFF' },
     'president': { bg: '#922B21', text: '#FFFFFF' },
-    'gs': { bg: '#6C3483', text: '#FFFFFF' },
     'vp': { bg: '#2471A3', text: '#FFFFFF' },
-    'js': { bg: '#1E8449', text: '#FFFFFF' },
+    'gs': { bg: '#6C3483', text: '#FFFFFF' },
+    'treasurer': { bg: '#B7950B', text: '#FFFFFF' },
     'os': { bg: '#CA6F1E', text: '#FFFFFF' },
+    'js': { bg: '#1E8449', text: '#FFFFFF' },
     'executive': { bg: '#2874A6', text: '#FFFFFF' },
     'senior sub executive': { bg: '#148F77', text: '#FFFFFF' },
     'sub executive': { bg: '#B7950B', text: '#FFFFFF' },
@@ -96,6 +97,7 @@ function AnimatedBackground() {
 
 export default function PanelPage() {
     const [admins, setAdmins] = useState([]);
+    const [dataMembers, setDataMembers] = useState([]);
     const [myRole, setMyRole] = useState(null);
     const [myName, setMyName] = useState(null);
     const [myId, setMyId] = useState(null);
@@ -105,14 +107,28 @@ export default function PanelPage() {
     const [evolveModal, setEvolveModal] = useState(null);
     const [createModal, setCreateModal] = useState(false);
     const [editModal, setEditModal] = useState(null);
-    const [profileOpen, setProfileOpen] = useState(false);
     const router = useRouter();
+
+    const POSITION_TO_ROLE = {
+        'President': 'president',
+        'Vice President': 'vp',
+        'General Secretary': 'gs',
+        'Organizing Secretary': 'os',
+        'Joint Secretary': 'js',
+        'Treasurer': 'treasurer',
+        'Advisor': 'advisor',
+        'Executive': 'executive',
+        'Senior Sub Executive': 'senior sub executive',
+        'Sub Executive': 'sub executive',
+        'Junior Executive': 'junior executive',
+    };
 
     const fetchData = useCallback(async () => {
         try {
-            const [roleRes, res] = await Promise.all([
+            const [roleRes, res, dcRes] = await Promise.all([
                 fetch("/api/admin/panel/my-role"),
                 fetch("/api/admin/panel"),
+                fetch("/api/admin/datacollect"),
             ]);
             if (roleRes.status === 401) { router.push("/admin/login"); return; }
             const rd = await roleRes.json();
@@ -120,7 +136,43 @@ export default function PanelPage() {
             setMyName(rd.name);
             setMyId(rd.id);
             const data = await res.json();
-            setAdmins(data.admins || []);
+            const rawAdmins = data.admins || [];
+            if (dcRes.ok) {
+                const dcData = await dcRes.json();
+                const mapped = (dcData.records || []).map(r => ({
+                    _id: r._id,
+                    name: r.name,
+                    role: POSITION_TO_ROLE[r.position] || r.position?.toLowerCase() || 'junior executive',
+                    team: r.team || (['President', 'Vice President', 'General Secretary', 'Organizing Secretary', 'Joint Secretary'].includes(r.position) ? 'Presidential Panel' : ''),
+                    totalPoints: 0,
+                    department: r.department,
+                    studentId: r.studentId,
+                    phone: r.phone,
+                    email: r.email,
+                    imageUrl: r.imageUrl,
+                    position: r.position,
+                    source: 'datacollect',
+                }));
+                setDataMembers(mapped);
+
+                const dcImageMap = {};
+                mapped.forEach(d => {
+                    if (d.imageUrl) {
+                        if (d.name) dcImageMap[d.name.toLowerCase()] = d.imageUrl;
+                        if (d.email) dcImageMap[d.email.toLowerCase()] = d.imageUrl;
+                    }
+                });
+                const enriched = rawAdmins.map(a => ({
+                    ...a,
+                    imageUrl: a.imageUrl ||
+                        dcImageMap[(a.name || '').toLowerCase()] ||
+                        (a.email ? dcImageMap[a.email.toLowerCase()] : null) ||
+                        null,
+                }));
+                setAdmins(enriched);
+            } else {
+                setAdmins(rawAdmins);
+            }
         } catch { toast.error("Failed to load panel"); }
         finally { setLoading(false); }
     }, [router]);
@@ -132,12 +184,25 @@ export default function PanelPage() {
         router.push('/admin/login');
     };
 
+    const allMembers = [...admins.filter(a => a.role !== 'superadmin'), ...dataMembers];
+    const seen = new Set();
+    const uniqueMembers = allMembers.filter(a => {
+        const key = a.name.toLowerCase().trim() + '|' + a.role;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
     const myIndex = ROLE_OPTIONS.indexOf(myRole);
     const me = admins.find(a => a._id === myId);
-    const subordinates = admins.filter(a => {
-        const aIndex = ROLE_OPTIONS.indexOf(a.role);
-        return myRole === "superadmin" ? a.role !== "superadmin" : aIndex > myIndex;
-    });
+    const myDc = dataMembers.find(d => d.name?.toLowerCase() === me?.name?.toLowerCase());
+    const myImageUrl = me?.imageUrl || myDc?.imageUrl || null;
+    const subordinates = hasPanelAccess(myRole)
+        ? uniqueMembers.filter(a => {
+            const aIndex = ROLE_OPTIONS.indexOf(a.role);
+            return myRole === "superadmin" ? a.role !== "superadmin" : aIndex > myIndex;
+        })
+        : [];
 
     const filtered = subordinates.filter(a =>
         a.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -145,8 +210,12 @@ export default function PanelPage() {
         a.role.toLowerCase().includes(search.toLowerCase())
     );
 
-    const leaderboard = [...subordinates].sort((a, b) => b.totalPoints - a.totalPoints);
-    const totalPointsGiven = subordinates.reduce((sum, a) => sum + Math.max(0, a.totalPoints), 0);
+    // Roles without panel access (sub / senior sub / junior executive) see only their own evaluation
+    const myEntry = me ? { ...me, totalPoints: me.totalPoints || 0 } : null;
+    const evalList = hasPanelAccess(myRole) ? subordinates : (myEntry ? [myEntry] : []);
+
+    const leaderboard = [...evalList].sort((a, b) => b.totalPoints - a.totalPoints);
+    const totalPointsGiven = evalList.reduce((sum, a) => sum + Math.max(0, a.totalPoints), 0);
 
     const tabs = [
         { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -181,7 +250,7 @@ export default function PanelPage() {
             {/* ═══ Header ═══ */}
             <header className="sticky top-0 z-40" style={{ background: 'rgba(240,242,248,0.75)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}>
                 <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: C.border }} />
-                <div className="max-w-6xl mx-auto px-3 sm:px-6">
+                <div className="w-full mx-auto px-3 sm:px-6">
                     <div className="flex items-center justify-between h-12 sm:h-14">
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-black text-xs shadow-lg" style={{ background: C.primary, color: '#FFFFFF' }}>
@@ -203,7 +272,7 @@ export default function PanelPage() {
                                         boxShadow: activeTab === tab.id ? '0 4px 15px rgba(21,101,192,0.25)' : 'none',
                                     }}>
                                     <tab.icon className="w-3.5 h-3.5" />
-                                    <span className="hidden xs:inline">{tab.label}</span>
+                                    <span>{tab.label}</span>
                                 </button>
                             ))}
                         </nav>
@@ -217,45 +286,33 @@ export default function PanelPage() {
                                 </button>
                             )}
 
-                            <div className="relative">
-                                <button onClick={() => setProfileOpen(!profileOpen)}
-                                    className="flex items-center gap-1.5 px-1.5 py-1 rounded-xl transition-all hover:bg-white/60">
-                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-[10px] shadow-sm" style={{ background: ROLE_COLORS[myRole]?.bg || C.primaryContainer, color: ROLE_COLORS[myRole]?.text || C.primary }}>
-                                        {myName?.charAt(0)?.toUpperCase()}
-                                    </div>
-                                    <ChevronDown className="w-3 h-3 hidden sm:block" style={{ color: C.textSecondary }} />
-                                </button>
-
-                                <AnimatePresence>
-                                    {profileOpen && (
-                                        <>
-                                            <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
-                                            <motion.div initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                                                className="absolute right-0 top-full mt-2 w-52 sm:w-56 rounded-2xl overflow-hidden z-50"
-                                                style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.8)', boxShadow: '0 16px 48px rgba(0,0,0,0.12)' }}>
-                                                <div className="p-3 border-b" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
-                                                    <p className="font-bold text-xs" style={{ color: 'C.text' }}>{myName}</p>
-                                                    <p className="text-[10px] font-semibold" style={{ color: C.primary }}>{ROLE_LABELS[myRole] || myRole}</p>
-                                                </div>
-                                                <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold transition-all hover:bg-red-50" style={{ color: C.error }}>
-                                                    <LogOut className="w-3.5 h-3.5" /> Sign Out
-                                                </button>
-                                            </motion.div>
-                                        </>
+                            <button onClick={() => myId && router.push(`/admin/dashboard/panel/${myId}`)}
+                                className="flex items-center gap-1.5 px-1.5 py-1 rounded-xl transition-all hover:bg-white/60 active:scale-95">
+                                <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center font-bold text-[10px] shadow-sm" style={{ background: ROLE_COLORS[myRole]?.bg || C.primaryContainer, color: ROLE_COLORS[myRole]?.text || C.primary }}>
+                                    {myImageUrl ? (
+                                        <img src={myImageUrl} alt={myName} className="w-full h-full object-cover" />
+                                    ) : (
+                                        myName?.charAt(0)?.toUpperCase()
                                     )}
-                                </AnimatePresence>
-                            </div>
+                                </div>
+                            </button>
+
+                            <button onClick={handleLogout}
+                                className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl transition-all hover:bg-red-50 active:scale-95"
+                                style={{ color: C.error }}>
+                                <LogOut className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* ═══ Content ═══ */}
-            <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-6 py-3 sm:py-6">
+            <div className="relative z-10 w-full mx-auto px-3 sm:px-6 py-3 sm:py-6">
                 {/* Tab Panels */}
                 <AnimatePresence mode="wait">
                     {activeTab === "overview" && (
-                        <OverviewPanel key="overview" subordinates={subordinates} leaderboard={leaderboard} totalPointsGiven={totalPointsGiven} me={me} myRole={myRole} setActiveTab={setActiveTab} setCreateModal={setCreateModal} setEvolveModal={setEvolveModal} />
+                        <OverviewPanel key="overview" subordinates={evalList} leaderboard={leaderboard} totalPointsGiven={totalPointsGiven} me={me} myRole={myRole} setActiveTab={setActiveTab} setCreateModal={setCreateModal} setEvolveModal={setEvolveModal} />
                     )}
                     {activeTab === "presidential" && (
                         <PresidentialPanel key="presidential" subordinates={subordinates} setEvolveModal={setEvolveModal} />
@@ -264,7 +321,7 @@ export default function PanelPage() {
                         <PanelList key="list" subordinates={subordinates} myRole={myRole} />
                     )}
                     {activeTab === "evolution" && (
-                        <EvolutionPanel key="evo" subordinates={subordinates} setEvolveModal={setEvolveModal} />
+                        <EvolutionPanel key="evo" subordinates={evalList} setEvolveModal={setEvolveModal} />
                     )}
                     {activeTab === "leaderboard" && (
                         <LeaderboardPanel key="lb" leaderboard={leaderboard} />
@@ -273,7 +330,7 @@ export default function PanelPage() {
                         <HistoryPanel key="hist" myId={myId} />
                     )}
                     {activeTab === "management" && myRole === "superadmin" && (
-                        <ManagementPanel key="mgmt" admins={admins} setEditModal={setEditModal} setCreateModal={setCreateModal} />
+                        <ManagementPanel key="mgmt" admins={admins} dataMembers={dataMembers} setEditModal={setEditModal} setCreateModal={setCreateModal} />
                     )}
                 </AnimatePresence>
             </div>
@@ -389,9 +446,14 @@ function OverviewPanel({ subordinates, leaderboard, totalPointsGiven, me, myRole
                                 return (
                                     <div key={a._id} className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all hover:shadow-md"
                                         style={{ background: i === 0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)', border: i === 0 ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.08)' }}>
-                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs flex-shrink-0"
-                                            style={{ background: i === 0 ? '#F59E0B' : i === 1 ? 'rgba(255,255,255,0.2)' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)', color: '#FFFFFF' }}>
-                                            {i < 3 ? <Crown className="w-3.5 h-3.5" /> : `#${i + 1}`}
+                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs flex-shrink-0 overflow-hidden relative"
+                                            style={{ background: i === 0 ? '#F59E0B' : i === 1 ? 'rgba(255,255,255,0.2)' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.1)' }}>
+                                            {a.imageUrl ? (
+                                                <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span style={{ color: '#FFFFFF' }}>{i < 3 ? '' : `#${i + 1}`}</span>
+                                            )}
+                                            {i < 3 && !a.imageUrl && <Crown className="w-3.5 h-3.5 text-white absolute" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-bold text-xs truncate text-white">{a.name}</p>
@@ -508,6 +570,8 @@ function PresidentialPanel({ subordinates, setEvolveModal }) {
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>#</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Role</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Dept</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Student ID</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Team</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Points</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-right" style={{ color: C.primary }}>Action</th>
@@ -522,17 +586,36 @@ function PresidentialPanel({ subordinates, setEvolveModal }) {
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
-                                                style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
-                                                {a.name.charAt(0).toUpperCase()}
+                                            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
+                                                {a.imageUrl ? (
+                                                    <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center font-bold text-xs"
+                                                        style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                        {a.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                            <div>
+                                                <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                                {a.phone && <p className="text-[9px]" style={{ color: C.textSecondary }}>{a.phone}</p>}
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
                                             {ROLE_LABELS[a.role] || a.role}
                                         </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {a.department ? (
+                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: '#E8EAF6', color: '#283593' }}>{a.department}</span>
+                                        ) : <span className="text-[10px]" style={{ color: C.textSecondaryVariant }}>—</span>}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {a.studentId ? (
+                                            <span className="text-[10px] font-mono" style={{ color: C.textSecondary }}>{a.studentId}</span>
+                                        ) : <span className="text-[10px]" style={{ color: C.textSecondaryVariant }}>—</span>}
                                     </td>
                                     <td className="px-4 py-3">
                                         {a.team ? (
@@ -583,7 +666,9 @@ function PanelList({ subordinates, myRole }) {
 
     const filtered = subordinates.filter(a => {
         const matchSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
-            a.username.toLowerCase().includes(search.toLowerCase());
+            (a.username || '').toLowerCase().includes(search.toLowerCase()) ||
+            (a.studentId || '').toLowerCase().includes(search.toLowerCase()) ||
+            (a.phone || '').includes(search);
         const matchRole = filterRole === "all" || a.role === filterRole;
         const matchTeam = filterTeam === "all" || a.team === filterTeam;
         return matchSearch && matchRole && matchTeam;
@@ -594,7 +679,7 @@ function PanelList({ subordinates, myRole }) {
             <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: C.textSecondary }} />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                    placeholder="Search members..."
+                    placeholder="Search by name, student ID, phone..."
                     className="w-full rounded-2xl py-2.5 sm:py-3 pl-10 pr-4 text-xs sm:text-sm font-medium outline-none transition-all focus:ring-2"
                     style={{ background: C.card, border: '1px solid ' + C.border, color: C.text, boxShadow: '0 4px 24px rgba(0,0,0,0.03)', ['--tw-ring-color']: 'rgba(21,101,192,0.2)' }} />
             </div>
@@ -638,6 +723,8 @@ function PanelList({ subordinates, myRole }) {
                                     <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>#</th>
                                     <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
                                     <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Role</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Dept</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Student ID</th>
                                     <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Team</th>
                                     <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-right" style={{ color: C.primary }}>Points</th>
                                 </tr>
@@ -651,17 +738,36 @@ function PanelList({ subordinates, myRole }) {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2.5">
-                                                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
-                                                    style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
-                                                    {a.name.charAt(0).toUpperCase()}
+                                                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
+                                                    {a.imageUrl ? (
+                                                        <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center font-bold text-xs"
+                                                            style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                            {a.name.charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                                <div>
+                                                    <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                                    {a.phone && <p className="text-[9px]" style={{ color: C.textSecondary }}>{a.phone}</p>}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
                                             <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
                                                 {ROLE_LABELS[a.role] || a.role}
                                             </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {a.department ? (
+                                                <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: '#E8EAF6', color: '#283593' }}>{a.department}</span>
+                                            ) : <span className="text-[10px]" style={{ color: C.textSecondaryVariant }}>—</span>}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {a.studentId ? (
+                                                <span className="text-[10px] font-mono" style={{ color: C.textSecondary }}>{a.studentId}</span>
+                                            ) : <span className="text-[10px]" style={{ color: C.textSecondaryVariant }}>—</span>}
                                         </td>
                                         <td className="px-4 py-3">
                                             {a.team ? (
@@ -697,7 +803,7 @@ function PanelList({ subordinates, myRole }) {
 /* ═══════ Evolution ═══════ */
 function EvolutionPanel({ subordinates, setEvolveModal }) {
     const [q, setQ] = useState("");
-    const list = subordinates.filter(a => a.name.toLowerCase().includes(q.toLowerCase()) || a.role.toLowerCase().includes(q.toLowerCase()));
+    const list = subordinates.filter(a => a.name.toLowerCase().includes(q.toLowerCase()) || a.role.toLowerCase().includes(q.toLowerCase()) || (a.studentId || '').toLowerCase().includes(q.toLowerCase()));
 
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3">
@@ -716,6 +822,7 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>#</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Member</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Role</th>
+                                <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Dept</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Team</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: C.primary }}>Points</th>
                                 <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-right" style={{ color: C.primary }}>Action</th>
@@ -730,17 +837,31 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"
-                                                style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
-                                                {a.name.charAt(0).toUpperCase()}
+                                            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm">
+                                                {a.imageUrl ? (
+                                                    <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center font-bold text-xs"
+                                                        style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                                        {a.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                            <div>
+                                                <span className="font-bold text-xs whitespace-nowrap" style={{ color: C.text }}>{a.name}</span>
+                                                {a.studentId && <p className="text-[9px] font-mono" style={{ color: C.textSecondary }}>{a.studentId}</p>}
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryLight, color: ROLE_COLORS[a.role]?.text || C.primary }}>
                                             {ROLE_LABELS[a.role] || a.role}
                                         </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {a.department ? (
+                                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold whitespace-nowrap" style={{ background: '#E8EAF6', color: '#283593' }}>{a.department}</span>
+                                        ) : <span className="text-[10px]" style={{ color: C.textSecondaryVariant }}>—</span>}
                                     </td>
                                     <td className="px-4 py-3">
                                         {a.team ? (
@@ -782,11 +903,27 @@ function EvolutionPanel({ subordinates, setEvolveModal }) {
 
 /* ═══════ Leaderboard ═══════ */
 function LeaderboardPanel({ leaderboard }) {
-    const medals = [
-        { bg: C.orangeLight, icon: Crown, color: C.orange },
-        { bg: '#E5E9F0', icon: Award, color: C.textSecondary },
-        { bg: '#FDEBD0', icon: Award, color: C.orange },
+    const [filter, setFilter] = useState('all');
+
+    const top3 = leaderboard.slice(0, 3);
+    const rest = leaderboard.slice(3);
+
+    const podiumOrder = top3.length >= 3
+        ? [top3[1], top3[0], top3[2]]
+        : top3.length === 2
+            ? [top3[1], top3[0]]
+            : top3;
+
+    const podiumHeights = [100, 128, 80];
+    const podiumColors = [
+        { bg: 'linear-gradient(135deg, #C0C0C0, #E8E8E8)', text: '#555', border: '#B0B0B0', glow: 'rgba(192,192,192,0.3)' },
+        { bg: 'linear-gradient(135deg, #F5A623, #F7C948)', text: '#FFF', border: '#E8960E', glow: 'rgba(245,166,35,0.4)' },
+        { bg: 'linear-gradient(135deg, #CD7F32, #E8A860)', text: '#FFF', border: '#B06C28', glow: 'rgba(205,127,50,0.3)' },
     ];
+
+    const totalPoints = leaderboard.reduce((s, a) => s + Math.max(0, a.totalPoints), 0);
+    const avgPoints = leaderboard.length > 0 ? Math.round(totalPoints / leaderboard.length) : 0;
+    const positiveCount = leaderboard.filter(a => a.totalPoints > 0).length;
 
     if (!leaderboard.length) {
         return (
@@ -800,45 +937,158 @@ function LeaderboardPanel({ leaderboard }) {
     }
 
     return (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-2 sm:space-y-2.5 max-w-2xl">
-            {leaderboard.map((a, i) => {
-                const isFirst = i === 0;
-                const medal = i < 3 ? medals[i] : null;
-                return (
-                    <motion.div key={a._id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03, type: 'spring', stiffness: 200 }}
-                        className="rounded-2xl px-3 py-3 sm:px-4 sm:py-3.5 flex items-center gap-3 transition-all duration-300 hover:shadow-lg"
-                        style={{
-                            background: isFirst ? C.primaryLight : C.card,
-                            border: '1px solid ' + (isFirst ? C.primary : C.border),
-                            backgroundClip: 'padding-box',
-                            boxShadow: isFirst ? '0 8px 32px rgba(245,175,25,0.12)' : '0 2px 16px rgba(0,0,0,0.03)',
-                        }}>
-                        {isFirst && <div className="absolute inset-0 rounded-2xl -z-10" style={{ background: C.orange, padding: '2px' }} />}
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 shadow-sm"
-                            style={{
-                                background: medal ? medal.bg : i < 3 ? C.primaryLight : 'C.primaryLight',
-                                color: medal ? '#FFFFFF' : i < 3 ? '#FFFFFF' : C.textSecondary,
-                                boxShadow: medal ? `0 4px 12px ${medal?.bg?.includes('f5af19') ? 'rgba(245,175,25,0.3)' : 'rgba(0,0,0,0.1)'}` : 'none',
-                            }}>
-                            {medal ? <medal.icon className="w-5 h-5" /> : `#${i + 1}`}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-5">
+
+            {/* Stats Summary */}
+            <div className="grid grid-cols-3 gap-2.5">
+                {[
+                    { label: 'Total Points', value: totalPoints.toLocaleString(), icon: Zap, bg: '#1565C0' },
+                    { label: 'Average', value: avgPoints, icon: BarChart3, bg: '#2E7D52' },
+                    { label: 'Active', value: `${positiveCount}/${leaderboard.length}`, icon: TrendingUp, bg: '#E65100' },
+                ].map((s, i) => (
+                    <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
+                        className="rounded-2xl p-3 sm:p-3.5" style={{ background: s.bg, boxShadow: `0 4px 16px ${s.bg}40` }}>
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                            <s.icon className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.7)' }} />
+                            <span className="text-[9px] font-bold tracking-wider uppercase" style={{ color: 'rgba(255,255,255,0.6)' }}>{s.label}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="font-bold text-xs sm:text-sm truncate" style={{ color: 'C.text' }}>{a.name}</p>
-                            <p className="text-[10px] font-medium truncate" style={{ color: C.textSecondary }}>{ROLE_LABELS[a.role] || a.role}</p>
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {isFirst && <Flame className="w-4 h-4" style={{ color: C.orange }} />}
-                            <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl font-black text-xs sm:text-sm" style={{
-                                background: isFirst ? C.primary : a.totalPoints >= 0 ? C.greenLight : C.errorContainer,
-                                color: isFirst ? '#FFFFFF' : a.totalPoints >= 0 ? '#059669' : C.error,
-                                boxShadow: isFirst ? '0 4px 12px rgba(245,175,25,0.3)' : 'none',
-                            }}>
-                                {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
-                            </span>
-                        </div>
+                        <p className="text-lg sm:text-xl font-black text-white">{s.value}</p>
                     </motion.div>
-                );
-            })}
+                ))}
+            </div>
+
+            {/* Top 3 Podium */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+                className="rounded-3xl p-5 sm:p-6 overflow-hidden relative"
+                style={{ background: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 40%, #1976D2 100%)', boxShadow: '0 8px 32px rgba(13,71,161,0.3)' }}>
+                {/* Background decoration */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                    <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full" style={{ background: 'rgba(255,255,255,0.03)' }} />
+                    <Sparkles className="w-4 h-4 absolute top-6 right-8" style={{ color: 'rgba(255,255,255,0.15)' }} />
+                    <Sparkles className="w-3 h-3 absolute bottom-8 left-12" style={{ color: 'rgba(255,255,255,0.1)' }} />
+                </div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-5">
+                        <Trophy className="w-4 h-4" style={{ color: '#F5C542' }} />
+                        <h3 className="text-sm font-black text-white tracking-wide">Top Performers</h3>
+                    </div>
+
+                    <div className="flex items-end justify-center gap-3 sm:gap-4">
+                        {podiumOrder.map((a, idx) => {
+                            const realIdx = leaderboard.indexOf(a);
+                            const isFirst = realIdx === 0;
+                            const podiumIdx = idx === 1 ? 0 : idx === 0 ? 1 : 2;
+                            const colors = podiumColors[podiumIdx];
+                            const height = podiumHeights[podiumIdx];
+                            const rank = realIdx + 1;
+
+                            return (
+                                <motion.div key={a._id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + idx * 0.12, type: 'spring', stiffness: 180 }}
+                                    className="flex flex-col items-center flex-1 max-w-[120px]">
+                                    {/* Avatar + Crown */}
+                                    <div className="relative mb-2.5">
+                                        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-black text-sm shadow-lg overflow-hidden ${isFirst ? 'animate-pulse' : ''}`}
+                                            style={{ border: `2.5px solid ${colors.border}`, background: colors.glow, boxShadow: `0 4px 20px ${colors.glow}` }}>
+                                            {a.imageUrl ? (
+                                                <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span style={{ color: colors.text }}>{rank}</span>
+                                            )}
+                                        </div>
+                                        {isFirst && <Crown className="w-5 h-5 absolute -top-2.5 left-1/2 -translate-x-1/2 drop-shadow-lg" style={{ color: '#F5C542' }} />}
+                                        {!isFirst && (
+                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center font-black text-[8px] shadow"
+                                                style={{ background: colors.border, color: '#FFF' }}>
+                                                {rank}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Name */}
+                                    <p className="font-bold text-[11px] sm:text-xs text-white text-center truncate w-full">{a.name}</p>
+                                    <p className="text-[8px] sm:text-[9px] font-medium text-center truncate w-full" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                                        {ROLE_LABELS[a.role] || a.role}
+                                    </p>
+
+                                    {/* Points */}
+                                    <div className="mt-2 px-2.5 py-1 rounded-lg font-black text-[11px] sm:text-xs"
+                                        style={{ background: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}>
+                                        {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                                    </div>
+
+                                    {/* Podium bar */}
+                                    <div className="w-full mt-2 rounded-t-xl" style={{ height: `${height}px`, background: colors.bg, boxShadow: `0 -4px 20px ${colors.glow}` }}>
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <span className="font-black text-xl sm:text-2xl" style={{ color: 'rgba(255,255,255,0.25)' }}>#{rank}</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Rest of Rankings */}
+            {rest.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                    className="space-y-2">
+                    <div className="flex items-center justify-between px-1">
+                        <h4 className="text-[10px] font-bold tracking-wider uppercase" style={{ color: C.textSecondaryVariant }}>All Rankings</h4>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg" style={{ background: C.primaryLight, color: C.primary }}>
+                            #{top3.length + 1} — #{leaderboard.length}
+                        </span>
+                    </div>
+                    {rest.map((a, i) => {
+                        const rank = top3.length + 1 + i;
+                        return (
+                            <motion.div key={a._id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 + i * 0.03, type: 'spring', stiffness: 200 }}
+                                className="rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 flex items-center gap-3 transition-all duration-300 hover:shadow-md"
+                                style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 12px rgba(0,0,0,0.02)' }}>
+                                {/* Rank */}
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-black text-[11px] flex-shrink-0"
+                                    style={{ background: '#F0F2F5', color: C.textSecondary }}>
+                                    {rank}
+                                </div>
+
+                                {/* Avatar */}
+                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                                    {a.imageUrl ? (
+                                        <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center font-bold text-xs"
+                                            style={{ background: ROLE_COLORS[a.role]?.bg || C.primaryContainer, color: ROLE_COLORS[a.role]?.text || C.primary }}>
+                                            {a.name.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-xs sm:text-sm truncate" style={{ color: C.text }}>{a.name}</p>
+                                    <p className="text-[9px] sm:text-[10px] font-medium truncate" style={{ color: C.textSecondary }}>
+                                        {ROLE_LABELS[a.role] || a.role}
+                                        {a.department && <span className="ml-1.5" style={{ color: C.textSecondaryVariant }}>· {a.department}</span>}
+                                    </p>
+                                </div>
+
+                                {/* Points */}
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                    {a.totalPoints > 0 && <TrendingUp className="w-3 h-3" style={{ color: '#059669' }} />}
+                                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg font-black text-[11px] sm:text-xs" style={{
+                                        background: a.totalPoints >= 0 ? C.greenLight : C.errorContainer,
+                                        color: a.totalPoints >= 0 ? '#059669' : C.error,
+                                    }}>
+                                        {a.totalPoints >= 0 ? '+' : ''}{a.totalPoints}
+                                    </span>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </motion.div>
+            )}
         </motion.div>
     );
 }
@@ -907,13 +1157,27 @@ function HistoryPanel({ myId }) {
 }
 
 /* ═══════ Management ═══════ */
-function ManagementPanel({ admins, setEditModal, setCreateModal }) {
+function ManagementPanel({ admins, dataMembers, setEditModal, setCreateModal }) {
     const [search, setSearch] = useState("");
-    const filtered = admins.filter(a =>
+    const router = useRouter();
+
+    const dcMap = {};
+    (dataMembers || []).forEach(d => {
+        if (d.imageUrl) dcMap[d.name?.toLowerCase()] = d.imageUrl;
+    });
+
+    const enrichedAdmins = admins.map(a => ({
+        ...a,
+        imageUrl: a.imageUrl || dcMap[a.name?.toLowerCase()] || null,
+    }));
+
+    const filtered = enrichedAdmins.filter(a =>
         a.name.toLowerCase().includes(search.toLowerCase()) ||
         a.username.toLowerCase().includes(search.toLowerCase()) ||
         a.role.toLowerCase().includes(search.toLowerCase())
     );
+
+    const goToProfile = (id) => router.push(`/admin/dashboard/panel/${id}`);
 
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }} className="space-y-3 sm:space-y-4">
@@ -946,14 +1210,22 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
                         </thead>
                         <tbody>
                             {filtered.map((a) => (
-                                <tr key={a._id} className="border-t transition-all hover:bg-white/40" style={{ borderColor: 'rgba(0,0,0,0.03)' }}>
+                                <tr key={a._id} className="border-t transition-all hover:bg-white/40 cursor-pointer" style={{ borderColor: 'rgba(0,0,0,0.03)' }}
+                                    onClick={() => goToProfile(a._id)}>
                                     <td className="px-5 py-3.5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm" style={{ background: ROLE_COLORS[a.role]?.bg, color: ROLE_COLORS[a.role]?.text }}>
-                                                {a.name.charAt(0).toUpperCase()}
+                                            <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                                                {a.imageUrl ? (
+                                                    <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center font-bold text-xs"
+                                                        style={{ background: ROLE_COLORS[a.role]?.bg, color: ROLE_COLORS[a.role]?.text }}>
+                                                        {a.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div>
-                                                <p className="font-bold text-sm" style={{ color: 'C.text' }}>{a.name}</p>
+                                                <p className="font-bold text-sm" style={{ color: C.text }}>{a.name}</p>
                                                 <p className="text-[10px] font-medium" style={{ color: C.textSecondary }}>@{a.username}</p>
                                             </div>
                                         </div>
@@ -965,7 +1237,7 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
                                     </td>
                                     <td className="px-5 py-3.5 text-sm font-medium" style={{ color: C.textSecondary }}>{a.email}</td>
                                     <td className="px-5 py-3.5 text-right">
-                                        <div className="flex items-center justify-end gap-1">
+                                        <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
                                             <button onClick={() => setEditModal(a)} className="p-2 rounded-xl transition-all hover:bg-white/80" style={{ color: C.textSecondary }}>
                                                 <Pencil className="w-4 h-4" />
                                             </button>
@@ -990,13 +1262,21 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
             <div className="md:hidden space-y-2">
                 {filtered.map((a, i) => (
                     <motion.div key={a._id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
-                        className="rounded-2xl px-3 py-3 flex items-center gap-2.5 transition-all duration-300"
-                        style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}>
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm" style={{ background: ROLE_COLORS[a.role]?.bg, color: ROLE_COLORS[a.role]?.text }}>
-                            {a.name.charAt(0).toUpperCase()}
+                        className="rounded-2xl px-3 py-3 flex items-center gap-2.5 transition-all duration-300 cursor-pointer"
+                        style={{ background: C.card, border: '1px solid ' + C.border, boxShadow: '0 2px 16px rgba(0,0,0,0.03)' }}
+                        onClick={() => goToProfile(a._id)}>
+                        <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                            {a.imageUrl ? (
+                                <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center font-bold text-xs"
+                                    style={{ background: ROLE_COLORS[a.role]?.bg, color: ROLE_COLORS[a.role]?.text }}>
+                                    {a.name.charAt(0).toUpperCase()}
+                                </div>
+                            )}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-xs truncate" style={{ color: 'C.text' }}>{a.name}</p>
+                            <p className="font-bold text-xs truncate" style={{ color: C.text }}>{a.name}</p>
                             <div className="flex items-center gap-1.5">
                                 <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider flex-shrink-0" style={{ background: ROLE_COLORS[a.role]?.bg, color: ROLE_COLORS[a.role]?.text }}>
                                     {ROLE_LABELS[a.role] || a.role}
@@ -1004,7 +1284,7 @@ function ManagementPanel({ admins, setEditModal, setCreateModal }) {
                                 <span className="text-[10px] font-medium truncate" style={{ color: C.textSecondary }}>{a.email}</span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                             <button onClick={() => setEditModal(a)} className="w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90 hover:bg-white/80" style={{ color: C.textSecondary }}>
                                 <Pencil className="w-3.5 h-3.5" />
                             </button>

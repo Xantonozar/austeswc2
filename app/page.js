@@ -13,12 +13,14 @@ import MojarSchool from "@/components/mojar-school";
 import UsnotarHasi from "@/components/usnotar-hasi";
 import Greenova from "@/components/greenova";
 import LatestActivities from "@/components/latest-activities";
+import Ongoing from "@/components/ongoing";
 import { InteractiveGridPatternDemo } from "@/components/grid";
 
 export default function Home() {
   return (
     <div className="w-full relative flex flex-col">
       <InteractiveGridPatternDemo />
+      <Ongoing />
 
       <Environmental />
       <Highlight />

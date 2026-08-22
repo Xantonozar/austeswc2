@@ -1,0 +1,120 @@
+================================================================================
+BACKEND LOG - Schedule Grid OCR Extraction
+================================================================================
+Timestamp: 2026-07-30T10:23:45.123Z
+Source: AI Vision Model (GPT-4V/Claude Vision)
+Image: schedule_image_01.jpg
+Processing Time: 4.2s
+================================================================================
+
+=== RAW AI RESPONSE START ===
+
+Row 1 (SAT)
+Line Audit:
+B|C: PRESENT | C|D: PRESENT | D|E: PRESENT | E|F: MISSING | F|G: MISSING | G|H: PRESENT | H|I: PRESENT | I|J: PRESENT | J|K: PRESENT | K|L: PRESENT | L|M: PRESENT
+
+Extraction:
+* **A1:** Standard | `SAT`
+* **B1:** Standard | `[Empty]`
+* **C1:** Standard | `[Empty]`
+* **D1:** Standard | `[Empty]`
+* **E1:G1:** Merged (3-column span) | `CE 400\nRESERVED\n(TBA)`
+* **H1:** Standard | `CE 431\n3A05\n(MR. ASIF)`
+* **I1:** Standard | `CE 411\n3A05\n(DR. MAHMUD)`
+* **J1:** Standard | `CE 415\n3A05\n(DR. GALIB)`
+* **K1:** Standard | `[Empty]`
+* **L1:** Standard | `[Empty]`
+* **M1:** Standard | `[Empty]`
+
+Row 2 (SUN)
+Line Audit:
+B|C: PRESENT | C|D: PRESENT | D|E: PRESENT | E|F: PRESENT | F|G: PRESENT | G|H: MISSING | H|I: MISSING | I|J: MISSING | J|K: PRESENT | K|L: PRESENT | L|M: PRESENT
+
+Extraction:
+* **A2:** Standard | `SUN`
+* **B2:** Standard | `CE 401\n3A05\n(DR. NASIM)`
+* **C2:** Standard | `CE 401\n3A05\n(DR. NASIM)`
+* **D2:** Standard | `[Empty]`
+* **E2:** Standard | `CE 432\n3A05\n(MR. HASSAN)`
+* **F2:** Standard | `[Empty]`
+* **G2:I2:** Merged (3-column span) | `CE 499\nLAB\n(DR. ALI)`
+* **J2:** Standard | `[Empty]`
+* **K2:** Standard | `[Empty]`
+* **L2:** Standard | `[Empty]`
+* **M2:** Standard | `[Empty]`
+
+Row 3 (MON)
+Line Audit:
+B|C: PRESENT | C|D: MISSING | D|E: MISSING | E|F: PRESENT | F|G: PRESENT | G|H: PRESENT | H|I: PRESENT | I|J: MISSING | J|K: MISSING | K|L: PRESENT | L|M: PRESENT
+
+Extraction:
+* **A3:** Standard | `MON`
+* **B3:** Standard | `[Empty]`
+* **C3:E3:** Merged (3-column span) | `CE 420\n3A01\n(DR. SAIMA)`
+* **F3:** Standard | `CE 421\n3A05\n(MR. TANVEER)`
+* **G3:** Standard | `[Empty]`
+* **H3:** Standard | `[Empty]`
+* **I3:J3:** Merged (2-column span) | `CE 499\nLAB\n(DR. ALI)`
+* **K3:** Standard | `[Empty]`
+* **L3:** Standard | `[Empty]`
+* **M3:** Standard | `[Empty]`
+
+Row 4 (TUE)
+Line Audit:
+B|C: PRESENT | C|D: PRESENT | D|E: PRESENT | E|F: PRESENT | F|G: MISSING | G|H: MISSING | H|I: PRESENT | I|J: PRESENT | J|K: PRESENT | K|L: PRESENT | L|M: PRESENT
+
+Extraction:
+* **A4:** Standard | `TUE`
+* **B4:** Standard | `[Empty]`
+* **C4:** Standard | `[Empty]`
+* **D4:** Standard | `[Empty]`
+* **E4:** Standard | `[Empty]`
+* **F4:G4:** Merged (2-column span) | `CE 450\n3A05\n(DR. FAROOQ)`
+* **H4:** Standard | `CE 451\n3A05\n(MR. ASIF)`
+* **I4:** Standard | `[Empty]`
+* **J4:** Standard | `[Empty]`
+* **K4:** Standard | `[Empty]`
+* **L4:** Standard | `[Empty]`
+* **M4:** Standard | `[Empty]`
+
+Row 5 (WED)
+Line Audit:
+B|C: PRESENT | C|D: PRESENT | D|E: PRESENT | E|F: PRESENT | F|G: PRESENT | G|H: PRESENT | H|I: MISSING | I|J: MISSING | J|K: MISSING | K|L: PRESENT | L|M: PRESENT
+
+Extraction:
+* **A5:** Standard | `WED`
+* **B5:** Standard | `CE 401\n3A05\n(DR. NASIM)`
+* **C5:** Standard | `[Empty]`
+* **D5:** Standard | `[Empty]`
+* **E5:** Standard | `[Empty]`
+* **F5:** Standard | `[Empty]`
+* **G5:** Standard | `[Empty]`
+* **H5:J5:** Merged (3-column span) | `CE 499\nLAB\n(DR. ALI)`
+* **K5:** Standard | `[Empty]`
+* **L5:** Standard | `[Empty]`
+* **M5:** Standard | `[Empty]`
+
+Row 6 (THU)
+Line Audit:
+B|C: PRESENT | C|D: PRESENT | D|E: PRESENT | E|F: PRESENT | F|G: PRESENT | G|H: PRESENT | H|I: PRESENT | I|J: PRESENT | J|K: PRESENT | K|L: PRESENT | L|M: PRESENT
+
+Extraction:
+* **A6:** Standard | `THU`
+* **B6:** Standard | `[Empty]`
+* **C6:** Standard | `[Empty]`
+* **D6:** Standard | `[Empty]`
+* **E6:** Standard | `[Empty]`
+* **F6:** Standard | `[Empty]`
+* **G6:** Standard | `[Empty]`
+* **H6:** Standard | `[Empty]`
+* **I6:** Standard | `[Empty]`
+* **J6:** Standard | `[Empty]`
+* **K6:** Standard | `[Empty]`
+* **L6:** Standard | `[Empty]`
+* **M6:** Standard | `[Empty]`
+
+=== RAW AI RESPONSE END ===
+
+================================================================================
+END LOG
+================================================================================

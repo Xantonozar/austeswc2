@@ -1,12 +1,47 @@
 "use client";
 
-import { Facebook, Instagram, Linkedin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Facebook, Instagram, Linkedin, Mail, Phone } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 
+const PANEL_POSITIONS = ['Advisor', 'Treasurer', 'President', 'Vice President', 'General Secretary', 'Joint Secretary', 'Organizing Secretary'];
+const POSITION_ORDER = { 'Advisor': 0, 'Treasurer': 1, 'President': 2, 'General Secretary': 3, 'Vice President': 4, 'Joint Secretary': 5, 'Organizing Secretary': 6 };
+
 export default function PanelMembers() {
-  // Current members (Fall 25)
-  const fall25Members = [];
+  const [fall25Members, setFall25Members] = useState([]);
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  const copyPhone = (key, phone) => {
+    if (phone) {
+      navigator.clipboard?.writeText(phone);
+    }
+    setCopiedKey(key);
+    setTimeout(() => {
+      setCopiedKey(prev => (prev === key ? null : prev));
+    }, 2000);
+  };
+
+  useEffect(() => {
+    fetch('/api/datacollect')
+      .then(res => res.json())
+      .then(data => {
+        const panel = (data.records || [])
+          .filter(r => PANEL_POSITIONS.includes(r.position) && r.imageUrl)
+          .sort((a, b) => (POSITION_ORDER[a.position] ?? 99) - (POSITION_ORDER[b.position] ?? 99))
+          .map(r => ({
+            fullName: r.name,
+            designation: r.position,
+            department: r.department || '',
+            image: r.imageUrl,
+            email: r.email || '',
+            phone: r.phone || '',
+            social: { facebook: '#', instagram: '#', linkedin: '#' },
+          }));
+        setFall25Members(panel);
+      })
+      .catch(() => {});
+  }, []);
 
   // Spring 25 members
   const spring25Members = [
@@ -407,7 +442,8 @@ export default function PanelMembers() {
   };
 
   // Helper function to render member cards
-  const renderMemberCards = (members) => {
+  // showContact=true renders phone & email icons instead of social media
+  const renderMemberCards = (members, showContact = false) => {
     const groupedMembers = groupMembersByDesignation(members);
 
     return Object.entries(groupedMembers).map(([designation, memberList]) => (
@@ -452,37 +488,61 @@ export default function PanelMembers() {
                 <p className="text-lg font-semibold text-green-600">
                   {member.designation}
                 </p>
-                <p className="text-sm text-emerald-700 max-w-xs mx-auto leading-relaxed">
-                  {member.department}
-                </p>
               </div>
 
-              {/* Social Media Icons */}
+              {/* Social Media / Contact Icons */}
               <div className="flex justify-center space-x-4 mt-6">
-                <a
-                  href={member.social.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white hover:bg-emerald-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  <Facebook size={18} />
-                </a>
-                <a
-                  href={member.social.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white hover:from-emerald-600 hover:to-green-600 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  <Instagram size={18} />
-                </a>
-                <a
-                  href={member.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white hover:bg-teal-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  <Linkedin size={18} />
-                </a>
+                {showContact ? (
+                  <>
+                    <a
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(member.email || '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white hover:bg-emerald-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <Mail size={18} />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => copyPhone(`${designation}-${index}`, member.phone)}
+                      className="relative w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white hover:from-emerald-600 hover:to-green-600 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <Phone size={18} />
+                      {copiedKey === `${designation}-${index}` && (
+                        <span className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg z-20">
+                          Copied: {member.phone}
+                        </span>
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      href={member.social.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white hover:bg-emerald-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <Facebook size={18} />
+                    </a>
+                    <a
+                      href={member.social.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white hover:from-emerald-600 hover:to-green-600 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <Instagram size={18} />
+                    </a>
+                    <a
+                      href={member.social.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white hover:bg-teal-700 transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                      <Linkedin size={18} />
+                    </a>
+                  </>
+                )}
               </div>
             </motion.div>
           ))}
@@ -543,7 +603,7 @@ export default function PanelMembers() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              {renderMemberCards(fall25Members)}
+              {renderMemberCards(fall25Members, true)}
             </motion.div>
           </TabsContent>
 
@@ -553,7 +613,7 @@ export default function PanelMembers() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              {renderMemberCards(fall25Members)}
+              {renderMemberCards(fall25Members, true)}
             </motion.div>
           </TabsContent>
 
