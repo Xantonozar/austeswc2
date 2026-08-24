@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet, Camera } from "lucide-react";
+import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet, Camera, Upload, Users, FileText, BadgePercent } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CheckStatusPage() {
@@ -13,449 +13,247 @@ export default function CheckStatusPage() {
     const [bkashTxId, setBkashTxId] = useState("");
     const [paymentMethod, setPaymentMethod] = useState("bkash");
     const [activeCompId, setActiveCompId] = useState(null);
+    const [posterData, setPosterData] = useState({});
+
+    const getPosterState = (id) => posterData[id] || { senderNumber: "", isClubMember: false, clubMemberId: "", screenshotBase64: "", screenshotName: "", photosBase64: [], photoNames: [], paymentMethod: "bkash", trxId: "" };
+    const setPosterState = (id, patch) => setPosterData(prev => ({ ...prev, [id]: { ...getPosterState(id), ...patch } }));
 
     const handleCheckStatus = async (e) => {
         e.preventDefault();
-        if (!email) {
-            toast.error("Please enter your email address");
-            return;
-        }
-
-        setLoading(true);
-        setResults(null);
-
+        if (!email) { toast.error("Please enter your email address"); return; }
+        setLoading(true); setResults(null);
         try {
-            const response = await fetch("/api/competition/payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "check_status", email }),
-            });
-
+            const response = await fetch("/api/competition/payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "check_status", email: email.toLowerCase().trim() }) });
             const data = await response.json();
-
-            if (response.ok) {
-                setResults(data.data);
-            } else if (response.status === 404 && data.error === 'not_found') {
-                setResults([]);
-            } else {
-                toast.error(data.message || "Registration not found");
-            }
-        } catch (error) {
-            toast.error("An error occurred. Please try again.");
-        } finally {
-            setLoading(false);
-        }
+            if (response.ok) setResults(data.data);
+            else if (response.status === 404 && data.error === 'not_found') setResults([]);
+            else toast.error(data.message || "Registration not found");
+        } catch { toast.error("An error occurred. Please try again."); } finally { setLoading(false); }
     };
 
     const handlePaymentSubmit = async (compId) => {
-        if (!bkashTxId) {
-            toast.error(`Please enter your ${paymentMethod} Transaction ID`);
-            return;
-        }
-
-        setPaymentLoading(true);
-        setActiveCompId(compId);
-
+        if (!bkashTxId) { toast.error(`Please enter your ${paymentMethod} Transaction ID`); return; }
+        setPaymentLoading(true); setActiveCompId(compId);
         try {
-            const response = await fetch("/api/competition/payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: compId, bkashTxId, paymentMethod }),
-            });
-
+            const response = await fetch("/api/competition/payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: compId, bkashTxId, paymentMethod }) });
             const data = await response.json();
+            if (response.ok) { toast.success("Payment submitted successfully!"); setResults(prev => prev.map(c => c._id === compId && data.data ? { ...c, ...data.data } : c)); setBkashTxId(""); }
+            else toast.error(data.message || "Failed to submit payment");
+        } catch { toast.error("An error occurred. Please try again."); } finally { setPaymentLoading(false); setActiveCompId(null); }
+    };
 
-            if (response.ok) {
-                toast.success("Payment submitted successfully!");
-                setResults((prev) =>
-                    prev.map((comp) =>
-                        comp._id === compId && data.data ? { ...comp, ...data.data } : comp
-                    )
-                );
-                setBkashTxId("");
-            } else {
-                toast.error(data.message || "Failed to submit payment");
-            }
-        } catch (error) {
-            toast.error("An error occurred. Please try again.");
-        } finally {
-            setPaymentLoading(false);
-            setActiveCompId(null);
-        }
+    const handlePosterSubmit = async (comp) => {
+        const s = getPosterState(comp._id);
+        if (!s.senderNumber.trim()) { toast.error("Sender bKash/Nagad number required"); return; }
+        if (!s.trxId.trim()) { toast.error("Transaction ID required"); return; }
+        if (!s.screenshotBase64) { toast.error("Payment screenshot required"); return; }
+        if (!s.photosBase64 || s.photosBase64.length === 0) { toast.error("At least one team photo required"); return; }
+        if (s.isClubMember && !s.clubMemberId.trim()) { toast.error("Club Member ID required for discount"); return; }
+        setPaymentLoading(true); setActiveCompId(comp._id);
+        try {
+            const payload = {
+                id: comp._id,
+                bkashTxId: s.trxId.trim().toUpperCase(),
+                paymentMethod: s.paymentMethod,
+                paymentSenderNumber: s.senderNumber.trim(),
+                paymentScreenshotBase64: s.screenshotBase64,
+                teamPhotosBase64: s.photosBase64,
+                isClubMember: s.isClubMember,
+                clubMemberId: s.clubMemberId.trim(),
+                paymentAmount: s.isClubMember ? 399 : 499,
+                round2PosterTitle: comp.posterTitle
+            };
+            const res = await fetch("/api/competition/payment", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            if (res.ok) { toast.success("Poster Round 2 submitted successfully!"); setResults(prev => prev.map(c => c._id === comp._id ? { ...c, ...data.data } : c)); }
+            else toast.error(data.message || "Failed to submit");
+        } catch { toast.error("Submission failed"); } finally { setPaymentLoading(false); setActiveCompId(null); }
+    };
+
+    const handleFileToBase64 = (file, cb) => {
+        const reader = new FileReader();
+        reader.onload = e => cb(e.target.result, file.name);
+        reader.readAsDataURL(file);
     };
 
     const getStatusBadge = (status) => {
         switch (status) {
-            case "registered":
-                return (
-                    <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Registration Under Review
-                    </span>
-                );
-            case "selected":
-                return (
-                    <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
-                        <AlertCircle className="w-3.5 h-3.5" /> Selected for Round 2 (Payment Required)
-                    </span>
-                );
-            case "paid":
-                return (
-                    <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Round 2 Payment Received
-                    </span>
-                );
-            case "eliminated":
-                return (
-                    <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
-                        <XCircle className="w-3.5 h-3.5" /> Not Selected for Next Round
-                    </span>
-                );
-            case "rejected":
-                return (
-                    <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold">
-                        <XCircle className="w-3.5 h-3.5" /> Payment Rejected
-                    </span>
-                );
+            case "registered": return <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Registration Under Review</span>;
+            case "selected": return <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold"><AlertCircle className="w-3.5 h-3.5" /> Selected for Round 2 (Payment Required)</span>;
+            case "paid": return <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> Round 2 Payment Received</span>;
+            case "eliminated": return <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold"><XCircle className="w-3.5 h-3.5" /> Not Selected</span>;
+            case "rejected": return <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold"><XCircle className="w-3.5 h-3.5" /> Payment Rejected</span>;
             default:
-                if (status === "verified") {
-                    return (
-                        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Spot Confirmed!
-                        </span>
-                    );
-                }
+                if (status === "verified") return <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> Spot Confirmed!</span>;
                 return <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{status}</span>;
         }
     };
 
-    const formatType = (type) => type === 'eco-pitch' ? 'ECO PITCH 180' : type.replace("-", " ").toUpperCase();
+    const formatType = (type) => type === 'eco-pitch' ? 'ECO PITCH 180' : type === 'poster-presentation' ? 'POSTER PRESENTATION' : type.replace("-", " ").toUpperCase();
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] pt-24 pb-20 font-sans">
             <div className="max-w-3xl mx-auto px-4 sm:px-6">
-
-                {/* Header Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-10"
-                >
-                    <div className="inline-flex items-center justify-center mb-4">
-                        <span className="bg-[#1B4B43]/10 text-[#1B4B43] px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide">
-                            Participant Portal
-                        </span>
-                    </div>
-                    <h1 className="text-2xl md:text-4xl font-bold text-[#1B4B43] mb-3 px-2">
-                        Check Registration Status
-                    </h1>
-                    <p className="text-sm md:text-base text-gray-600 max-w-lg mx-auto px-4">
-                        Enter the email address you used during registration to view your application status or submit Round 2 payments.
-                    </p>
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
+                    <div className="inline-flex items-center justify-center mb-4"><span className="bg-[#1B4B43]/10 text-[#1B4B43] px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide">Participant Portal</span></div>
+                    <h1 className="text-2xl md:text-4xl font-bold text-[#1B4B43] mb-3 px-2">Check Registration Status</h1>
+                    <p className="text-sm md:text-base text-gray-600 max-w-lg mx-auto px-4">Enter the email you used during registration to view status or submit Round 2 payments.</p>
                 </motion.div>
 
-                {/* Search Box */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-8 relative overflow-hidden"
-                >
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
                     <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#E8F9FF] rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-
                     <form onSubmit={handleCheckStatus} className="relative z-10">
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <div className="relative flex-1">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Search className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="name@example.com"
-                                    className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1B4B43] focus:border-transparent transition-all outline-none"
-                                    required
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full sm:w-auto bg-[#1B4B43] hover:bg-[#133630] text-white px-8 py-3.5 rounded-xl font-semibold transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-                            >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Check Status"}
-                            </button>
+                            <div className="relative flex-1"><div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Search className="h-5 w-5 text-gray-400" /></div><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com" className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1B4B43] focus:border-transparent outline-none" required /></div>
+                            <button type="submit" disabled={loading} className="w-full sm:w-auto bg-[#1B4B43] hover:bg-[#133630] text-white px-8 py-3.5 rounded-xl font-semibold disabled:opacity-70 flex items-center justify-center gap-2">{loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Check Status"}</button>
                         </div>
                     </form>
                 </motion.div>
 
-                {/* Results Area */}
                 <AnimatePresence mode="wait">
                     {results === null && !loading && (
-                        <motion.div
-                            key="hint"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="text-center py-14 bg-white rounded-2xl border border-dashed border-gray-200"
-                        >
-                            <div className="w-16 h-16 bg-[#E8F9FF] rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Search className="w-7 h-7 text-[#1B4B43]" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[#1B4B43] mb-1">Enter Your Email Above</h3>
-                            <p className="text-gray-500 text-sm max-w-xs mx-auto">
-                                Enter the email you used when registering to view your competition status and submit payments.
-                            </p>
+                        <motion.div key="hint" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-center py-14 bg-white rounded-2xl border border-dashed border-gray-200">
+                            <div className="w-16 h-16 bg-[#E8F9FF] rounded-full flex items-center justify-center mx-auto mb-4"><Search className="w-7 h-7 text-[#1B4B43]" /></div>
+                            <h3 className="text-lg font-bold text-[#1B4B43] mb-1">Enter Your Email Above</h3><p className="text-gray-500 text-sm max-w-xs mx-auto">View your competition status and submit payments.</p>
                         </motion.div>
                     )}
 
                     {results && results.length > 0 && (
-                        <motion.div
-                            key="results"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="space-y-6"
-                        >
-                            <h3 className="text-lg font-bold text-[#1B4B43] px-2">
-                                Found {results.length} Registration{results.length > 1 ? 's' : ''}
-                            </h3>
-
+                        <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                            <h3 className="text-lg font-bold text-[#1B4B43] px-2">Found {results.length} Registration{results.length > 1 ? 's' : ''}</h3>
                             {results.map((comp) => (
                                 <div key={comp._id} className="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-gray-100">
                                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
                                         <div className="order-2 md:order-1">
                                             <p className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Competition</p>
                                             <h4 className="text-lg md:text-xl font-bold text-[#1B4B43]">{formatType(comp.type)}</h4>
-                                            <p className="text-xs md:text-sm text-gray-600 mt-1">
-                                                Registered as: <span className="font-semibold">{comp.teamName || comp.name}</span>
-                                            </p>
+                                            <p className="text-xs md:text-sm text-gray-600 mt-1">Registered as: <span className="font-semibold">{comp.teamName || comp.name}</span></p>
+                                            {comp.type === 'poster-presentation' && comp.posterTitle && <p className="text-xs text-gray-500 mt-1 flex items-center gap-1"><FileText className="w-3 h-3" /> {comp.posterTitle} {comp.trackCategory ? `• ${comp.trackCategory}` : ''}</p>}
                                         </div>
-                                        <div className="order-1 md:order-2 self-start md:self-auto">
-                                            {getStatusBadge(
-                                                comp.status === 'paid' && comp.paymentVerifiedRound2
-                                                    ? 'verified'
-                                                    : comp.status === 'registered' && comp.paymentVerified
-                                                        ? 'Registration Verified'
-                                                        : comp.status
-                                            )}
-                                        </div>
+                                        <div className="order-1 md:order-2 self-start md:self-auto">{getStatusBadge(comp.status === 'paid' && comp.paymentVerifiedRound2 ? 'verified' : comp.status)}</div>
                                     </div>
 
-                                    {/* Payment Section */}
                                     {(comp.status === "selected" || comp.status === "rejected") && (
-                                        <div className="mt-6 p-5 md:p-6 rounded-xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] shadow-lg relative overflow-hidden group">
-                                            <div className="absolute top-0 right-0 p-2">
-                                                <span className="relative flex h-3 w-3">
-                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1B4B43] opacity-75"></span>
-                                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#1B4B43]"></span>
-                                                </span>
-                                            </div>
+                                        <div className="mt-6">
+                                            {comp.type === 'poster-presentation' ? (
+                                                <div className="rounded-2xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] p-5 md:p-6 space-y-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-3 bg-white rounded-xl shadow"><Wallet className="w-6 h-6 text-[#1B4B43]" /></div>
+                                                        <div><h5 className="font-black text-[#1B4B43]">Round 2 — Grand Finale</h5><p className="text-xs text-gray-600">BDT 499/team • 20% off for AUSTESWC members</p></div>
+                                                    </div>
 
-                                            {(() => {
-                                                const isRound2 = comp.paymentVerified === true || comp.status === 'selected' || comp.status === 'paid';
-                                                
-                                                // Fee logic: Eco Capture = 300 BDT per selected photo, others unchanged
-                                                const selectedPhotosCount = comp.type === 'eco-capture' && comp.photos 
-                                                    ? comp.photos.filter(p => p.selected).length 
-                                                    : 0;
-                                                
-                                                const fee = isRound2
-                                                    ? (comp.type === 'eco-pitch' ? 720 : (comp.type === 'eco-capture' ? selectedPhotosCount * 300 : 100))
-                                                    : (comp.type === 'eco-pitch' ? 300 : (comp.type === 'eco-capture' ? 0 : 100));
-
-                                                const roundLabel = isRound2 ? 'Round 2' : 'Round 1';
-                                                
-                                                // Get selected photos for eco-capture
-                                                const selectedPhotos = comp.type === 'eco-capture' && comp.photos 
-                                                    ? comp.photos.filter(p => p.selected) 
-                                                    : [];
-
-                                                return (
-                                                    <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
-                                                        <div className="p-3 md:p-4 bg-white rounded-2xl shadow-md transform group-hover:scale-110 transition-transform duration-300">
-                                                            <Wallet className="w-6 h-6 md:w-8 md:h-8 text-[#1B4B43]" />
-                                                        </div>
-                                                        <div className="flex-1 text-center md:text-left w-full">
-                                                            <div className="flex flex-col md:flex-row items-center gap-2 mb-2">
-                                                                <h5 className="font-black text-[#1B4B43] text-lg md:text-xl">
-                                                                    {comp.status === 'rejected' ? `Action Required: ${roundLabel} Payment Rejected` : `Action Required: ${roundLabel} Payment`}
-                                                                </h5>
-                                                            </div>
-                                                            
-                                                            {/* Show selected photos for Eco Capture */}
-                                                            {comp.type === 'eco-capture' && selectedPhotos.length > 0 && (
-                                                                <div className="mb-6">
-                                                                    <div className="flex items-center gap-2 mb-3">
-                                                                        <Camera className="w-4 h-4 text-[#1B4B43]" />
-                                                                        <span className="text-sm font-bold text-[#1B4B43]">
-                                                                            {selectedPhotos.length} Photo{selectedPhotos.length > 1 ? 's' : ''} Selected for Round 2
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className="space-y-4">
-                                                                        {selectedPhotos.map((photo, idx) => (
-                                                                            <div key={idx} className="bg-white rounded-xl p-4 border border-[#1B4B43]/20 shadow-sm">
-                                                                                <div className="flex gap-4">
-                                                                                    <div className="shrink-0">
-                                                                                        <img 
-                                                                                            src={photo.url.replace('/upload/', '/upload/w_120,h_120,c_fill,q_auto,f_auto/')} 
-                                                                                            alt={`Selected photo ${idx + 1}`}
-                                                                                            className="w-20 h-20 md:w-24 md:h-24 rounded-lg object-cover border-2 border-[#1B4B43]/30"
-                                                                                        />
-                                                                                    </div>
-                                                                                    <div className="flex-1 min-w-0">
-                                                                                        <div className="flex items-center gap-2 mb-2">
-                                                                                            <span className="px-2 py-0.5 bg-[#1B4B43] text-white text-[10px] font-bold rounded-full">
-                                                                                                Photo #{idx + 1}
-                                                                                            </span>
-                                                                                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full flex items-center gap-1">
-                                                                                                <CheckCircle2 className="w-3 h-3" /> Selected
-                                                                                            </span>
-                                                                                        </div>
-                                                                                        <p className="text-sm text-gray-600 italic line-clamp-3">"{photo.story}"</p>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        ))}
-                                                                    </div>
-                                                                    <div className="mt-4 p-3 bg-[#1B4B43]/10 rounded-lg">
-                                                                        <p className="text-sm font-bold text-[#1B4B43]">
-                                                                            Fee Calculation: {selectedPhotos.length} photo{selectedPhotos.length > 1 ? 's' : ''} × 300 BDT = <span className="text-lg">{fee} BDT</span>
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                            
-                                                            <p className="text-xs md:text-sm text-gray-700 mb-6 font-medium leading-relaxed">
-                                                                {comp.status === 'rejected'
-                                                                    ? `Your previous ${roundLabel} payment verification failed. Please re-check your Transaction ID and submit the correct details below to continue.`
-                                                                    : comp.type === 'eco-capture' && selectedPhotos.length > 0
-                                                                        ? `Congratulations! Your photos have been selected. To proceed to ${roundLabel}, please complete the payment of ${fee} BDT (300 BDT per selected photo) via bKash or Nagad.`
-                                                                        : `Congratulations! To proceed to ${roundLabel}, please complete the payment of ${fee} BDT via bKash or Nagad.`}
-                                                            </p>
-
-                                                            {fee > 0 ? (
-                                                                <>
-                                                                    <div className="grid grid-cols-2 gap-2 mb-4">
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => setPaymentMethod('bkash')}
-                                                                            className={`py-2.5 rounded-xl border-2 font-bold transition-all ${paymentMethod === 'bkash' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/40 text-gray-500'}`}
-                                                                        >
-                                                                            bKash
-                                                                        </button>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => setPaymentMethod('nagad')}
-                                                                            className={`py-2.5 rounded-xl border-2 font-bold transition-all ${paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/40 text-gray-500'}`}
-                                                                        >
-                                                                            Nagad
-                                                                        </button>
-                                                                    </div>
-
-                                                                    <div className="bg-white/80 backdrop-blur-sm px-4 md:px-6 py-4 rounded-2xl flex flex-col gap-2 mb-6 border-2 border-dashed border-[#1B4B43]/30">
-                                                                        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3">
-                                                                            <div className="flex flex-col items-center sm:items-start">
-                                                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Send Money To ({paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</span>
-                                                                                <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-[#1B4B43]">01639802823</span>
-                                                                            </div>
-                                                                            <div className="flex flex-col items-center sm:items-end">
-                                                                                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Amount</span>
-                                                                                <span className="font-mono font-black text-xl md:text-2xl tracking-widest text-[#1B4B43]">{fee} BDT</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="flex items-start gap-2 pt-2 border-t border-gray-100">
-                                                                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 mt-1.5 shrink-0"></div>
-                                                                            <p className="text-[10px] md:text-[11px] text-gray-600 font-bold italic text-left">Reference: Must include your Team/Personal name.</p>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <form
-                                                                        onSubmit={(e) => { e.preventDefault(); handlePaymentSubmit(comp._id); }}
-                                                                        className="space-y-3"
-                                                                    >
-                                                                        <div className="relative">
-                                                                            <input
-                                                                                type="text"
-                                                                                placeholder={`Enter ${paymentMethod === 'bkash' ? 'bKash' : 'Nagad'} Transaction ID`}
-                                                                                value={activeCompId === comp._id ? bkashTxId : ""}
-                                                                                onChange={(e) => {
-                                                                                    setBkashTxId(e.target.value);
-                                                                                    setActiveCompId(comp._id);
-                                                                                }}
-                                                                                className="w-full pl-4 pr-4 py-3.5 md:py-4 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] focus:ring-4 focus:ring-[#1B4B43]/10 outline-none text-sm md:text-base font-bold uppercase tracking-wider transition-all"
-                                                                                required
-                                                                            />
-                                                                        </div>
-                                                                        <button
-                                                                            type="submit"
-                                                                            disabled={paymentLoading && activeCompId === comp._id}
-                                                                            className="w-full bg-[#1B4B43] text-white py-3.5 md:py-4 rounded-xl text-sm md:text-base font-black hover:bg-[#133630] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl shadow-[#1B4B43]/20"
-                                                                        >
-                                                                            {paymentLoading && activeCompId === comp._id ? (
-                                                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                                                            ) : (
-                                                                                <>Submit Transaction ID</>
-                                                                            )}
-                                                                        </button>
-                                                                    </form>
-                                                                </>
-                                                            ) : (
-                                                                <div className="bg-white/80 p-6 rounded-2xl border border-[#1B4B43]/20 text-center">
-                                                                    <p className="font-bold text-[#1B4B43]">No payment required for this round.</p>
-                                                                    <p className="text-xs text-slate-500 mt-1">Please wait for further instructions.</p>
-                                                                </div>
-                                                            )}
+                                                    <div className="bg-white rounded-xl p-4 border border-gray-100 space-y-2 text-sm">
+                                                        <p className="font-bold text-[#1B4B43] flex items-center gap-2"><Users className="w-4 h-4" /> Team Identification</p>
+                                                        <div className="grid sm:grid-cols-2 gap-2 text-xs text-gray-700">
+                                                            <p><span className="text-gray-500">Team:</span> <span className="font-semibold">{comp.teamName}</span></p>
+                                                            <p><span className="text-gray-500">Leader:</span> <span className="font-semibold">{comp.members?.[0]?.name} • {comp.members?.[0]?.phone}</span></p>
+                                                            <p className="sm:col-span-2"><span className="text-gray-500">Poster Title:</span> <span className="font-semibold">{comp.posterTitle || comp.round2PosterTitle || '-'}</span></p>
                                                         </div>
                                                     </div>
-                                                );
-                                            })()}
+
+                                                    {(() => { const s = getPosterState(comp._id); const fee = s.isClubMember ? 399 : 499; return (<>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <button type="button" onClick={() => setPosterState(comp._id, { paymentMethod: 'bkash' })} className={`py-3 rounded-xl border-2 font-bold ${s.paymentMethod === 'bkash' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/60 text-gray-500'}`}>bKash</button>
+                                                            <button type="button" onClick={() => setPosterState(comp._id, { paymentMethod: 'nagad' })} className={`py-3 rounded-xl border-2 font-bold ${s.paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/60 text-gray-500'}`}>Nagad</button>
+                                                        </div>
+
+                                                        <div className="bg-white/80 backdrop-blur px-4 py-4 rounded-2xl flex flex-col gap-2 border-2 border-dashed border-[#1B4B43]/30">
+                                                            <div className="flex justify-between items-center">
+                                                                <div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To ({s.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</p><p className="font-mono font-black text-xl text-[#1B4B43]">01639802823</p></div>
+                                                                <div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p>{s.isClubMember && <p className="text-[10px] text-green-700 font-bold line-through">499 BDT</p>}</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <label className="flex items-center gap-2 text-sm bg-white p-3 rounded-xl border cursor-pointer">
+                                                            <input type="checkbox" checked={s.isClubMember} onChange={e => setPosterState(comp._id, { isClubMember: e.target.checked })} className="w-4 h-4 rounded text-[#1B4B43]" />
+                                                            <span className="font-semibold text-gray-700 flex items-center gap-1"><BadgePercent className="w-4 h-4 text-green-600" /> AUSTESWC Member (20% off)</span>
+                                                        </label>
+                                                        {s.isClubMember && (
+                                                            <input value={s.clubMemberId} onChange={e => setPosterState(comp._id, { clubMemberId: e.target.value })} placeholder="Enter Club Member ID" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm" />
+                                                        )}
+
+                                                        <div className="space-y-3">
+                                                            <input value={s.senderNumber} onChange={e => setPosterState(comp._id, { senderNumber: e.target.value })} placeholder="Sender bKash/Nagad Number *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm" />
+                                                            <input value={s.trxId} onChange={e => setPosterState(comp._id, { trxId: e.target.value })} placeholder="Transaction ID (TrxID) *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm font-mono uppercase" />
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1"><Upload className="w-4 h-4" /> Payment Screenshot *</p>
+                                                            <label className={`flex flex-col items-center justify-center w-full py-6 border-2 border-dashed rounded-xl cursor-pointer ${s.screenshotBase64 ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-white hover:border-[#1B4B43]'}`}>
+                                                                <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files[0]; if (f) handleFileToBase64(f, (b64, name) => setPosterState(comp._id, { screenshotBase64: b64, screenshotName: name })); }} />
+                                                                {s.screenshotBase64 ? <><CheckCircle2 className="w-8 h-8 text-green-600 mb-2" /><p className="text-xs font-bold text-green-800">{s.screenshotName}</p><p className="text-[10px] text-green-600">Ready</p></> : <><Upload className="w-6 h-6 text-gray-400 mb-2" /><p className="text-xs text-gray-600">Tap to upload screenshot</p><p className="text-[10px] text-gray-400">JPG/PNG, max 10MB</p></>}
+                                                            </label>
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1"><Camera className="w-4 h-4" /> Team / Individual Photos * <span className="font-normal text-gray-500">(for FB "Meet the Finalists", 1–4 photos)</span></p>
+                                                            <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed rounded-xl cursor-pointer bg-white hover:border-[#1B4B43] border-gray-300">
+                                                                <input type="file" accept="image/*" multiple className="hidden" onChange={e => {
+                                                                    const files = Array.from(e.target.files).slice(0, 4);
+                                                                    if (files.length === 0) return;
+                                                                    const promises = files.map(f => new Promise(res => handleFileToBase64(f, (b64, name) => res({ b64, name }))));
+                                                                    Promise.all(promises).then(arr => setPosterState(comp._id, { photosBase64: arr.map(a => a.b64), photoNames: arr.map(a => a.name) }));
+                                                                }} />
+                                                                <Camera className="w-6 h-6 text-gray-400 mb-2" />
+                                                                <p className="text-xs text-gray-600">Tap to upload photos</p>
+                                                                <p className="text-[10px] text-gray-400">Multiple allowed • JPG/PNG</p>
+                                                            </label>
+                                                            {s.photoNames?.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{s.photoNames.map((n, i) => <span key={i} className="text-[10px] bg-white border px-2 py-1 rounded-full font-medium">{n}</span>)}</div>}
+                                                            {s.photosBase64?.length > 0 && <div className="mt-3 grid grid-cols-4 gap-2">{s.photosBase64.map((b64, i) => <img key={i} src={b64} alt={`photo ${i}`} className="w-full h-20 object-cover rounded-lg border" />)}</div>}
+                                                        </div>
+
+                                                        <button onClick={() => handlePosterSubmit(comp)} disabled={paymentLoading && activeCompId === comp._id} className="w-full bg-[#1B4B43] text-white py-4 rounded-xl font-black hover:bg-[#133630] flex items-center justify-center gap-2 disabled:opacity-70">
+                                                            {paymentLoading && activeCompId === comp._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Submit Round 2 <ArrowRight className="w-4 h-4" /></>}
+                                                        </button>
+                                                    </>); })()}
+                                                </div>
+                                            ) : (
+                                                (() => {
+                                                    const isRound2 = comp.paymentVerified === true || comp.status === 'selected';
+                                                    const selectedPhotosCount = comp.type === 'eco-capture' && comp.photos ? comp.photos.filter(p => p.selected).length : 0;
+                                                    const fee = isRound2 ? (comp.type === 'eco-pitch' ? 720 : (comp.type === 'eco-capture' ? selectedPhotosCount * 300 : 100)) : 0;
+                                                    const roundLabel = isRound2 ? 'Round 2' : 'Round 1';
+                                                    const selectedPhotos = comp.type === 'eco-capture' && comp.photos ? comp.photos.filter(p => p.selected) : [];
+                                                    return (
+                                                        <div className="p-5 md:p-6 rounded-xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] shadow-lg">
+                                                            <div className="flex flex-col items-center gap-4">
+                                                                <div className="p-3 bg-white rounded-2xl shadow"><Wallet className="w-7 h-7 text-[#1B4B43]" /></div>
+                                                                <h5 className="font-black text-[#1B4B43] text-lg">{comp.status === 'rejected' ? `Action Required: ${roundLabel} Payment Rejected` : `Action Required: ${roundLabel} Payment`}</h5>
+                                                                {comp.type === 'eco-capture' && selectedPhotos.length > 0 && <div className="w-full space-y-3">{selectedPhotos.map((photo, idx) => (
+                                                                    <div key={idx} className="bg-white rounded-xl p-3 flex gap-3 border"><img src={photo.url.replace('/upload/', '/upload/w_120,h_120,c_fill,q_auto,f_auto/')} alt="" className="w-20 h-20 rounded-lg object-cover" /><p className="text-xs italic line-clamp-3">"{photo.story}"</p></div>
+                                                                ))}<p className="text-sm font-bold text-[#1B4B43] text-center">Fee: {selectedPhotos.length} × 300 = {fee} BDT</p></div>}
+                                                                <p className="text-xs text-gray-700 text-center">{comp.status === 'rejected' ? `Re-submit ${roundLabel} payment details.` : `Complete ${fee} BDT payment via bKash/Nagad.`}</p>
+                                                                {fee > 0 && (
+                                                                    <><div className="grid grid-cols-2 gap-2 w-full"><button onClick={() => setPaymentMethod('bkash')} className={`py-2.5 rounded-xl border-2 font-bold ${paymentMethod === 'bkash' ? 'border-[#1B4B43] bg-white' : 'border-transparent bg-white/40'}`}>bKash</button><button onClick={() => setPaymentMethod('nagad')} className={`py-2.5 rounded-xl border-2 font-bold ${paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-white' : 'border-transparent bg-white/40'}`}>Nagad</button></div>
+                                                                    <div className="bg-white/80 px-4 py-4 rounded-2xl w-full flex justify-between border-2 border-dashed border-[#1B4B43]/30"><div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To</p><p className="font-mono font-black text-xl text-[#1B4B43]">01639802823</p></div><div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p></div></div>
+                                                                    <form onSubmit={e => { e.preventDefault(); handlePaymentSubmit(comp._id); }} className="w-full space-y-3">
+                                                                        <input type="text" placeholder={`Enter ${paymentMethod} Transaction ID`} value={activeCompId === comp._id ? bkashTxId : ""} onChange={e => { setBkashTxId(e.target.value); setActiveCompId(comp._id); }} className="w-full px-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none font-bold uppercase" required />
+                                                                        <button type="submit" disabled={paymentLoading && activeCompId === comp._id} className="w-full bg-[#1B4B43] text-white py-4 rounded-xl font-black flex items-center justify-center gap-2">{paymentLoading && activeCompId === comp._id ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit Transaction ID"}</button>
+                                                                    </form></>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()
+                                            )}
                                         </div>
                                     )}
 
-                                    {/* Status Messages */}
-                                    {comp.status === "registered" && (
-                                        <div className="p-4 rounded-lg bg-blue-50 text-blue-800 text-sm mt-4">
-                                            Your submission is currently being reviewed by our team. We will notify you via email if you are selected for the next round.
-                                        </div>
-                                    )}
-                                    {comp.status === "eliminated" && (
-                                        <div className="p-4 rounded-lg bg-gray-50 text-gray-600 text-sm mt-4">
-                                            Thank you for participating. Unfortunately, your entry was not selected for Round 2 this time. We encourage you to participate in future events!
-                                        </div>
-                                    )}
-                                    {comp.status === "paid" && (
-                                        <div className="p-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm mt-4">
-                                            We have received your {comp.paymentMethodRound2 || 'payment'} transaction ID ({comp.bkashTxIdRound2}). Our team is verifying the payment, and you will receive a final confirmation email shortly.
-                                        </div>
-                                    )}
-                                    {(comp.status === "verified" || (comp.status === "paid" && comp.paymentVerifiedRound2)) && (
-                                        <div className="p-4 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-200 text-sm mt-4 font-medium">
-                                            Your payment has been verified! See you at the final event. Check your email for further instructions.
-                                        </div>
-                                    )}
-
+                                    {comp.status === "registered" && <div className="p-4 rounded-lg bg-blue-50 text-blue-800 text-sm mt-4">Under review. You'll be notified via email if selected.</div>}
+                                    {comp.status === "eliminated" && <div className="p-4 rounded-lg bg-gray-50 text-gray-600 text-sm mt-4">Thank you for participating. Not selected this time.</div>}
+                                    {comp.status === "paid" && <div className="p-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm mt-4">Payment {comp.paymentMethodRound2 || 'bKash'} ({comp.bkashTxIdRound2}) received. Verifying shortly.</div>}
                                 </div>
                             ))}
                         </motion.div>
                     )}
 
                     {results !== null && results.length === 0 && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="text-center py-12 bg-white rounded-2xl border border-gray-100"
-                        >
-                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Search className="w-6 h-6 text-gray-400" />
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-1">No Registrations Found</h3>
-                            <p className="text-gray-500 max-w-sm mx-auto text-sm">
-                                We couldn't find any competition registrations for <strong>{email}</strong>. Please double-check your email address and try again.
-                            </p>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 bg-white rounded-2xl border border-gray-100">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><Search className="w-6 h-6 text-gray-400" /></div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">No Registrations Found</h3><p className="text-gray-500 text-sm">No registrations for <strong>{email}</strong></p>
                         </motion.div>
                     )}
                 </AnimatePresence>
-
             </div>
         </div>
     );

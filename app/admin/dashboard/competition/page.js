@@ -164,7 +164,9 @@ export default function CompetitionAdmin() {
             "CA Reference": c.caReference || "N/A",
             "Email": c.email,
             "Phone": c.phone,
-            "Members": c.members?.map(m => m.name).join(", ") || "N/A",
+            "Members": c.members?.map(m => `${m.name} (${m.studentId || ''} ${m.department || ''})`).join(", ") || "N/A",
+            "Track": c.trackCategory || "N/A",
+            "Poster Title": c.posterTitle || c.round2PosterTitle || "N/A",
             "Status": c.status.toUpperCase(),
             "Payment Method": c.paymentMethod || "bkash",
             "Payment Verfied": c.paymentVerified ? "YES" : "NO",
@@ -172,6 +174,11 @@ export default function CompetitionAdmin() {
             "R2 Payment Method": c.paymentMethodRound2 || "bkash",
             "R2 Payment Verified": c.paymentVerifiedRound2 ? "YES" : "NO",
             "R2 Tx ID": c.bkashTxIdRound2 || "N/A",
+            "R2 Sender Number": c.paymentSenderNumber || "N/A",
+            "R2 Amount": c.paymentAmount || (c.type === 'poster-presentation' && c.bkashTxIdRound2 ? (c.isClubMember ? 399 : 499) : "N/A"),
+            "R2 Club Member": c.isClubMember ? `YES (${c.clubMemberId})` : "NO",
+            "R2 Screenshot": c.paymentScreenshotUrl || "N/A",
+            "R2 Team Photos": c.teamPhotos?.map(p => p.url).join(", ") || "N/A",
             "Date": new Date(c.createdAt).toLocaleDateString()
         }));
 
@@ -193,7 +200,7 @@ export default function CompetitionAdmin() {
         };
 
         // Initialize all competition types
-        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch'];
+        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation'];
         types.forEach(type => {
             groupedData.competitions[type] = {
                 count: 0,
@@ -239,9 +246,14 @@ export default function CompetitionAdmin() {
                 // Green Story specific - video link
                 videoLink: c.type === 'green-story' ? (c.videoLink || null) : undefined,
                 
-                // Eco Pitch specific - PDF document
-                pdfUrl: c.type === 'eco-pitch' ? (c.pdfUrl || null) : undefined,
-                pdfPublicId: c.type === 'eco-pitch' ? (c.pdfPublicId || null) : undefined,
+                // Eco Pitch / Poster Presentation specific - PDF document
+                pdfUrl: (c.type === 'eco-pitch' || c.type === 'poster-presentation') ? (c.pdfUrl || null) : undefined,
+                pdfPublicId: (c.type === 'eco-pitch' || c.type === 'poster-presentation') ? (c.pdfPublicId || null) : undefined,
+                trackCategory: c.trackCategory || null,
+                posterTitle: c.posterTitle || null,
+                round2PosterTitle: c.round2PosterTitle || null,
+                confirmAi: c.confirmAi || false,
+                confirmRules: c.confirmRules || false,
                 
                 // Status and round
                 status: c.status,
@@ -256,6 +268,13 @@ export default function CompetitionAdmin() {
                 bkashTxIdRound2: c.bkashTxIdRound2 || null,
                 paymentMethodRound2: c.paymentMethodRound2 || 'bkash',
                 paymentVerifiedRound2: c.paymentVerifiedRound2 || false,
+                paymentSenderNumber: c.paymentSenderNumber || null,
+                paymentScreenshotUrl: c.paymentScreenshotUrl || null,
+                paymentScreenshotPublicId: c.paymentScreenshotPublicId || null,
+                paymentAmount: c.paymentAmount || null,
+                isClubMember: c.isClubMember || false,
+                clubMemberId: c.clubMemberId || null,
+                teamPhotos: c.teamPhotos?.map(p => ({ url: p.url, publicId: p.publicId })) || [],
                 
                 // Timestamps
                 createdAt: c.createdAt,
@@ -311,7 +330,8 @@ export default function CompetitionAdmin() {
             'eco-capture': 'Eco Capture',
             'eco-buzzers': 'Green Buzzers Battle',
             'green-story': 'Green Story',
-            'eco-pitch': 'Eco Pitch 180'
+            'eco-pitch': 'Eco Pitch 180',
+            'poster-presentation': 'Poster Presentation'
         };
 
         const exportData = {
@@ -390,6 +410,39 @@ export default function CompetitionAdmin() {
                             universityName: m.universityName
                         })) || []
                     } : {}),
+
+                    ...(type === 'poster-presentation' ? {
+                        teamName: c.teamName,
+                        teamLeaderEmail: c.email,
+                        teamLeaderPhone: c.phone,
+                        caReference: c.caReference || null,
+                        trackCategory: c.trackCategory || null,
+                        posterTitle: c.posterTitle || null,
+                        round2PosterTitle: c.round2PosterTitle || null,
+                        abstractDocumentUrl: c.pdfUrl,
+                        abstractDocumentPublicId: c.pdfPublicId,
+                        teamMembers: c.members?.map((m, idx) => ({
+                            memberNumber: idx + 1,
+                            name: m.name,
+                            email: m.email,
+                            phone: m.phone,
+                            studentId: m.studentId,
+                            universityName: m.universityName,
+                            department: m.department,
+                            semester: m.semester
+                        })) || [],
+                        round2Payment: {
+                            transactionId: c.bkashTxIdRound2 || null,
+                            paymentMethod: c.paymentMethodRound2 || 'bkash',
+                            verified: c.paymentVerifiedRound2 || false,
+                            senderNumber: c.paymentSenderNumber || null,
+                            screenshotUrl: c.paymentScreenshotUrl || null,
+                            amount: c.paymentAmount || null,
+                            isClubMember: c.isClubMember || false,
+                            clubMemberId: c.clubMemberId || null,
+                            teamPhotos: c.teamPhotos?.map(p => p.url) || []
+                        }
+                    } : {}),
                     
                     // Status & Round
                     status: c.status,
@@ -402,12 +455,12 @@ export default function CompetitionAdmin() {
                         verified: c.paymentVerified || false
                     },
                     
-                    // Payment info (Round 2)
+                    ...(type !== 'poster-presentation' ? {
                     round2Payment: {
                         transactionId: c.bkashTxIdRound2 || null,
                         paymentMethod: c.paymentMethodRound2 || 'bkash',
                         verified: c.paymentVerifiedRound2 || false
-                    },
+                    }} : {}),
                     
                     // Timestamps
                     registeredAt: c.createdAt,
@@ -507,7 +560,8 @@ export default function CompetitionAdmin() {
             'eco-capture': { bg: "bg-cyan-50", text: "text-cyan-700", icon: Camera },
             'eco-buzzers': { bg: "bg-amber-50", text: "text-amber-700", icon: Zap },
             'green-story': { bg: "bg-green-50", text: "text-green-700", icon: Video },
-            'eco-pitch': { bg: "bg-pink-50", text: "text-pink-700", icon: FileText }
+            'eco-pitch': { bg: "bg-pink-50", text: "text-pink-700", icon: FileText },
+            'poster-presentation': { bg: "bg-indigo-50", text: "text-indigo-700", icon: FileText }
         };
         const config = styles[type] || { bg: "bg-slate-50", text: "text-slate-700", icon: User };
         const Icon = config.icon;
@@ -517,6 +571,7 @@ export default function CompetitionAdmin() {
             'eco-buzzers': 'Green Buzzers Battle',
             'green-story': 'Green Story',
             'eco-pitch': 'Eco Pitch 180',
+            'poster-presentation': 'Poster Presentation',
         };
 
         return (
@@ -571,6 +626,7 @@ export default function CompetitionAdmin() {
                             <option value="eco-buzzers">Green Buzzers Battle</option>
                             <option value="green-story">Green Story</option>
                             <option value="eco-pitch">Eco Pitch 180</option>
+                            <option value="poster-presentation">Poster Presentation</option>
                         </select>
 
                         <button onClick={handleExport} className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" disabled={loading || filteredCompetitors.length === 0}>
@@ -664,6 +720,20 @@ export default function CompetitionAdmin() {
                                             <div>
                                                 <p className="text-sm font-bold text-slate-800">Eco Pitch 180</p>
                                                 <p className="text-[10px] text-slate-400">PDF URLs, team info, universities</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Poster Presentation */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('poster-presentation')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-indigo-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                                                <FileText className="w-4 h-4 text-indigo-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Poster Presentation</p>
+                                                <p className="text-[10px] text-slate-400">Abstract PDF URLs, team info</p>
                                             </div>
                                         </button>
                                     </div>
@@ -786,12 +856,12 @@ export default function CompetitionAdmin() {
                                                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">{comp.photos?.length} frames</span>
                                                 </div>
                                             )}
-                                            {['eco-pitch', 'green-story', 'eco-buzzers'].includes(comp.type) && (
+                                            {['eco-pitch', 'green-story', 'eco-buzzers', 'poster-presentation'].includes(comp.type) && (
                                                 <button
                                                     onClick={() => setSelectedEntry(comp)}
                                                     className="flex items-center gap-2.5 bg-white border border-slate-200 hover:border-emerald-500 hover:text-emerald-600 text-slate-600 font-black px-4 py-2 rounded-xl transition-all text-[10px] uppercase tracking-wider shadow-sm active:scale-95"
                                                 >
-                                                    {comp.type === 'eco-pitch' ? <FileText className="w-3.5 h-3.5" /> :
+                                                    {comp.type === 'eco-pitch' || comp.type === 'poster-presentation' ? <FileText className="w-3.5 h-3.5" /> :
                                                         comp.type === 'green-story' ? <Video className="w-3.5 h-3.5" /> :
                                                             <Users className="w-3.5 h-3.5" />}
                                                     Asset
@@ -857,7 +927,7 @@ export default function CompetitionAdmin() {
                                                         <div className="flex flex-col">
                                                             <div className="flex items-center gap-1.5 mb-1">
                                                                 <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">Tx ID (R2)</span>
-                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{comp.type === 'eco-pitch' ? '700 TK' : '100 TK'}</span>
+                                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{comp.type === 'poster-presentation' ? (comp.paymentAmount ? `${comp.paymentAmount} TK` : comp.isClubMember ? '399 TK' : '499 TK') : comp.type === 'eco-pitch' ? '700 TK' : '100 TK'}</span>
                                                                 <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider shadow-sm border ${comp.paymentMethodRound2 === 'rocket' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-pink-100 text-pink-700 border-pink-200'}`}>
                                                                     {comp.paymentMethodRound2 || 'bkash'}
                                                                 </span>
@@ -1258,6 +1328,16 @@ export default function CompetitionAdmin() {
                                                                            <GraduationCap className="w-3 h-3 text-emerald-500" /> {m.universityName}
                                                                         </div>
                                                                     )}
+                                                                    {m.department && (
+                                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                                                           <GraduationCap className="w-3 h-3 text-emerald-500" /> {m.department} {m.semester ? `• ${m.semester}` : ''}
+                                                                        </div>
+                                                                    )}
+                                                                    {m.studentId && (
+                                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                                                            <FileText className="w-3 h-3 text-emerald-500" /> ID: {m.studentId}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -1269,7 +1349,7 @@ export default function CompetitionAdmin() {
                                             <section className="space-y-8">
                                                 <div className="flex items-center gap-3 px-2">
                                                     <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">
-                                                        {selectedEntry.type === 'eco-pitch' ? <FileText className="w-4 h-4" /> :
+                                                        {selectedEntry.type === 'eco-pitch' || selectedEntry.type === 'poster-presentation' ? <FileText className="w-4 h-4" /> :
                                                             selectedEntry.type === 'green-story' ? <Video className="w-4 h-4" /> :
                                                                 <Zap className="w-4 h-4" />}
                                                     </div>
@@ -1277,8 +1357,8 @@ export default function CompetitionAdmin() {
                                                 </div>
 
                                                 <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-8 border-white bg-white">
-                                                    {/* Eco Pitch Asset */}
-                                                    {selectedEntry.type === 'eco-pitch' && (() => {
+                                                    {/* Eco Pitch / Poster Presentation Asset */}
+                                                    {(selectedEntry.type === 'eco-pitch' || selectedEntry.type === 'poster-presentation') && (() => {
                                                         const rawPdfUrl = selectedEntry.pdfUrl
                                                             ? selectedEntry.pdfUrl.replace('/image/upload/', '/raw/upload/')
                                                             : null;
@@ -1288,8 +1368,14 @@ export default function CompetitionAdmin() {
                                                                 <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-emerald-600">
                                                                     <FileText className="w-10 h-10" />
                                                                 </div>
-                                                                <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Research Abstract Document</h4>
-                                                                <p className="text-slate-500 text-sm mb-10 max-w-sm mx-auto font-medium">Original document submitted for the 3-minute thesis presentation.</p>
+                                                                <h4 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
+                                                                    {selectedEntry.type === 'poster-presentation' ? 'Abstract Document' : 'Research Abstract Document'}
+                                                                </h4>
+                                                                <p className="text-slate-500 text-sm mb-10 max-w-sm mx-auto font-medium">
+                                                                    {selectedEntry.type === 'poster-presentation'
+                                                                        ? 'Original abstract submitted during poster presentation registration.'
+                                                                        : 'Original document submitted for the 3-minute thesis presentation.'}
+                                                                </p>
 
                                                                 {!rawPdfUrl ? (
                                                                     <div className="p-6 bg-rose-50 rounded-2xl border border-rose-100 text-rose-700 text-sm font-bold flex items-center justify-center gap-2">
@@ -1360,6 +1446,44 @@ export default function CompetitionAdmin() {
                                                     )}
                                                 </div>
                                             </section>
+
+                                            {selectedEntry.type === 'poster-presentation' && (
+                                                <section className="space-y-6 mt-8">
+                                                    <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 flex flex-wrap gap-4 text-sm">
+                                                        {selectedEntry.trackCategory && <span className="px-3 py-1.5 bg-white border border-indigo-200 rounded-xl font-bold text-indigo-800 text-xs">Track: {selectedEntry.trackCategory}</span>}
+                                                        {selectedEntry.posterTitle && <span className="px-3 py-1.5 bg-white border border-indigo-200 rounded-xl font-bold text-slate-700 text-xs flex-1">Title: {selectedEntry.posterTitle}</span>}
+                                                        {selectedEntry.confirmAi !== undefined && <span className={`px-3 py-1.5 rounded-xl font-bold text-xs border ${selectedEntry.confirmAi ? 'bg-green-50 border-green-200 text-green-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`}>{selectedEntry.confirmAi ? '✓ AI <30% confirmed' : '✗ AI not confirmed'}</span>}
+                                                    </div>
+
+                                                    {(selectedEntry.bkashTxIdRound2 || selectedEntry.paymentSenderNumber || selectedEntry.paymentScreenshotUrl) && (
+                                                        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
+                                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-pink-600 flex items-center gap-2">Round 2 — Payment & Media</h3>
+                                                            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                                                                {selectedEntry.bkashTxIdRound2 && <div className="bg-pink-50 border border-pink-100 rounded-xl p-3"><p className="text-[10px] font-black uppercase text-pink-500">TrxID</p><p className="font-mono font-black">{selectedEntry.bkashTxIdRound2} <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border">{selectedEntry.paymentMethodRound2}</span></p></div>}
+                                                                {selectedEntry.paymentSenderNumber && <div className="bg-slate-50 border border-slate-100 rounded-xl p-3"><p className="text-[10px] font-black uppercase text-slate-400">Sender Number</p><p className="font-bold">{selectedEntry.paymentSenderNumber}</p></div>}
+                                                                {selectedEntry.paymentAmount && <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3"><p className="text-[10px] font-black uppercase text-emerald-600">Amount</p><p className="font-black text-lg">{selectedEntry.paymentAmount} BDT {selectedEntry.isClubMember && <span className="text-xs font-bold text-green-700 bg-white px-2 py-0.5 rounded-full border ml-2">20% OFF</span>}</p></div>}
+                                                                {selectedEntry.isClubMember && <div className="bg-amber-50 border border-amber-100 rounded-xl p-3"><p className="text-[10px] font-black uppercase text-amber-600">Club Member</p><p className="font-bold">{selectedEntry.clubMemberId || 'YES'}</p></div>}
+                                                            </div>
+                                                            {selectedEntry.paymentScreenshotUrl && (
+                                                                <div>
+                                                                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Payment Screenshot</p>
+                                                                    <img src={selectedEntry.paymentScreenshotUrl} alt="Payment Screenshot" className="max-w-sm w-full rounded-xl border-4 border-white shadow-md cursor-pointer hover:scale-[1.02] transition" onClick={() => setFullscreenImage(selectedEntry.paymentScreenshotUrl)} />
+                                                                </div>
+                                                            )}
+                                                            {selectedEntry.teamPhotos && selectedEntry.teamPhotos.length > 0 && (
+                                                                <div>
+                                                                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Team / Finalist Photos ({selectedEntry.teamPhotos.length})</p>
+                                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                                        {selectedEntry.teamPhotos.map((p, i) => (
+                                                                            <img key={i} src={p.url} alt={`Team photo ${i+1}`} className="w-full h-28 object-cover rounded-xl border-2 border-white shadow cursor-pointer hover:opacity-90" onClick={() => setFullscreenImage(p.url)} />
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </section>
+                                            )}
                                         </div>
                                     )}
                                 </div>

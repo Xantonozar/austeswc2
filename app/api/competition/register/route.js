@@ -8,7 +8,7 @@ export async function POST(req) {
         const body = await req.json();
 
         // Type checking
-        const validTypes = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch'];
+        const validTypes = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation'];
         if (!validTypes.includes(body.type)) {
             return new Response(JSON.stringify({ error: 'invalid_type', message: 'Invalid competition type' }), { status: 400 });
         }
@@ -41,8 +41,8 @@ export async function POST(req) {
             processedData.status = 'registered'; // Free first round
         }
 
-        // Process Eco Pitch PDF — use dedicated raw uploader
-        if (body.type === 'eco-pitch' && body.pdfBase64) {
+        // Process Eco Pitch / Poster Presentation PDF — use dedicated raw uploader
+        if ((body.type === 'eco-pitch' || body.type === 'poster-presentation') && body.pdfBase64) {
             try {
                 const { uploadPdfBase64 } = await import('@/lib/cloudinary');
                 console.log('[Eco Pitch] Uploading PDF, base64 length:', body.pdfBase64.length);

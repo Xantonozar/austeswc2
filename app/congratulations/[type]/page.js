@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PartyPopper, ArrowRight, Camera, Zap, FileVideo, Mic2, ShieldCheck, Mail } from "lucide-react";
+import { PartyPopper, ArrowRight, Camera, Zap, FileVideo, Mic2, ShieldCheck, Mail, FileText } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 
@@ -38,6 +38,15 @@ export default function CongratulationsPage({ params }) {
                     icon: FileVideo,
                     nextSteps: "Your payment of 700 TK is under verification. Once confirmed, your team's video will be reviewed by our panel. Keep an eye on your inbox!",
                     bgClass: "bg-[#F3F9F1]",
+                    iconColor: "text-[#1B4B43]"
+                };
+            case "poster-presentation":
+                return {
+                    title: "Poster Presentation",
+                    message: "Your team registration and abstract PDF have been submitted successfully.",
+                    icon: FileText,
+                    nextSteps: "Our team will review your abstract. If your poster is shortlisted, we will contact you via email with the next steps and event details.",
+                    bgClass: "bg-[#E8F9FF]",
                     iconColor: "text-[#1B4B43]"
                 };
             case "eco-pitch":

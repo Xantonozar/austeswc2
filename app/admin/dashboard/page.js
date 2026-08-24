@@ -319,6 +319,7 @@ export default function AdminDashboardOverview() {
                                 <ProgBar label="Eco Buzzers" count={compBreakdown['eco-buzzers'] || 0} total={filteredCompetitions.length} color="bg-amber-500" icon={Zap} />
                                 <ProgBar label="Green Story" count={compBreakdown['green-story'] || 0} total={filteredCompetitions.length} color="bg-green-500" icon={Video} />
                                 <ProgBar label="Eco Pitch" count={compBreakdown['eco-pitch'] || 0} total={filteredCompetitions.length} color="bg-pink-500" icon={FileText} />
+                                <ProgBar label="Poster Presentation" count={compBreakdown['poster-presentation'] || 0} total={filteredCompetitions.length} color="bg-indigo-500" icon={FileText} />
                             </div>
                         </div>
                         <Link href="/admin/dashboard/competition" className="w-full py-3 mt-6 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center gap-2 group transition-all">

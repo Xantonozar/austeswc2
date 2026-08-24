@@ -13,7 +13,9 @@ const MemberSchema = new mongoose.Schema({
         email: { type: String },
         phone: { type: String },
         studentId: { type: String },
-        universityName: { type: String }
+        universityName: { type: String },
+        department: { type: String },
+        semester: { type: String }
     }],
 
     // For Eco Capture
@@ -27,9 +29,13 @@ const MemberSchema = new mongoose.Schema({
     // For Green Story
     videoLink: { type: String },
 
-    // For Eco Pitch
+    // For Eco Pitch / Poster
     pdfUrl: { type: String },
     pdfPublicId: { type: String },
+    trackCategory: { type: String, enum: ['Save Environment', 'Save People', 'Save Society', 'Other'] },
+    posterTitle: { type: String },
+    confirmAi: { type: Boolean, default: false },
+    confirmRules: { type: Boolean, default: false },
 
     // Campus Ambassador Reference
     caReference: { type: String, default: '' },
@@ -37,7 +43,7 @@ const MemberSchema = new mongoose.Schema({
     // Competition tracking
     type: {
         type: String,
-        enum: ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch'],
+        enum: ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation'],
         required: true
     },
     status: {
@@ -59,6 +65,17 @@ const MemberSchema = new mongoose.Schema({
     bkashTxIdRound2: { type: String },
     paymentMethodRound2: { type: String, enum: ['bkash', 'nagad'], default: 'bkash' },
     paymentVerifiedRound2: { type: Boolean, default: false },
+    paymentSenderNumber: { type: String },
+    paymentScreenshotUrl: { type: String },
+    paymentScreenshotPublicId: { type: String },
+    paymentAmount: { type: Number },
+    isClubMember: { type: Boolean, default: false },
+    clubMemberId: { type: String },
+    round2PosterTitle: { type: String },
+    teamPhotos: [{
+        url: { type: String },
+        publicId: { type: String }
+    }],
 
     createdAt: {
         type: Date,
