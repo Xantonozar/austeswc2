@@ -63,7 +63,7 @@ export default function CheckStatusPage() {
             const payload = {
                 id: comp._id,
                 bkashTxId: s.trxId.trim().toUpperCase(),
-                paymentMethod: s.paymentMethod,
+                paymentMethod: 'bkash',
                 paymentSenderNumber: s.senderNumber.trim(),
                 paymentScreenshotBase64: s.screenshotBase64,
                 teamPhotosBase64: s.photosBase64,
@@ -161,14 +161,11 @@ export default function CheckStatusPage() {
                                                     </div>
 
                                                     {(() => { const s = getPosterState(comp._id); const fee = s.isClubMember ? 399 : 499; return (<>
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            <button type="button" onClick={() => setPosterState(comp._id, { paymentMethod: 'bkash' })} className={`py-3 rounded-xl border-2 font-bold ${s.paymentMethod === 'bkash' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/60 text-gray-500'}`}>bKash</button>
-                                                            <button type="button" onClick={() => setPosterState(comp._id, { paymentMethod: 'nagad' })} className={`py-3 rounded-xl border-2 font-bold ${s.paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-white text-[#1B4B43]' : 'border-transparent bg-white/60 text-gray-500'}`}>Nagad</button>
-                                                        </div>
+                                                        <div className="bg-white px-4 py-3 rounded-xl border-2 border-[#1B4B43] flex items-center justify-center gap-2 font-black text-[#1B4B43]"><Wallet className="w-4 h-4" /> bKash Payment Only</div>
 
                                                         <div className="bg-white/80 backdrop-blur px-4 py-4 rounded-2xl flex flex-col gap-2 border-2 border-dashed border-[#1B4B43]/30">
                                                             <div className="flex justify-between items-center">
-                                                                <div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To ({s.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'}) • {presidentName}</p><p className="font-mono font-black text-xl text-[#1B4B43] select-all">{presidentNumber}</p></div>
+                                                                <div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To (bKash) • {presidentName}</p><p className="font-mono font-black text-xl text-[#1B4B43] select-all">{presidentNumber}</p></div>
                                                                 <div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p>{s.isClubMember && <p className="text-[10px] text-green-700 font-bold line-through">499 BDT</p>}</div>
                                                             </div>
                                                         </div>
@@ -182,8 +179,8 @@ export default function CheckStatusPage() {
                                                         )}
 
                                                         <div className="space-y-3">
-                                                            <input value={s.senderNumber} onChange={e => setPosterState(comp._id, { senderNumber: e.target.value })} placeholder="Sender bKash/Nagad Number *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm" />
-                                                            <input value={s.trxId} onChange={e => setPosterState(comp._id, { trxId: e.target.value })} placeholder="Transaction ID (TrxID) *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm font-mono uppercase" />
+                                                            <input value={s.senderNumber} onChange={e => setPosterState(comp._id, { senderNumber: e.target.value })} placeholder="Sender bKash Number *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm" />
+                                                            <input value={s.trxId} onChange={e => setPosterState(comp._id, { trxId: e.target.value })} placeholder="bKash Transaction ID (TrxID) *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm font-mono uppercase" />
                                                         </div>
 
                                                         <div>
