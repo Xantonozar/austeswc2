@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet, Camera, Upload, Users, FileText, BadgePercent } from "lucide-react";
 import toast from "react-hot-toast";
@@ -14,6 +14,15 @@ export default function CheckStatusPage() {
     const [paymentMethod, setPaymentMethod] = useState("bkash");
     const [activeCompId, setActiveCompId] = useState(null);
     const [posterData, setPosterData] = useState({});
+    const [presidentNumber, setPresidentNumber] = useState("01639802823");
+    const [presidentName, setPresidentName] = useState("President");
+
+    useEffect(() => {
+        fetch("/api/president-bkash").then(r => r.json()).then(d => {
+            if (d?.number) setPresidentNumber(d.number);
+            if (d?.name) setPresidentName(d.name);
+        }).catch(() => {});
+    }, []);
 
     const getPosterState = (id) => posterData[id] || { senderNumber: "", isClubMember: false, clubMemberId: "", screenshotBase64: "", screenshotName: "", photosBase64: [], photoNames: [], paymentMethod: "bkash", trxId: "" };
     const setPosterState = (id, patch) => setPosterData(prev => ({ ...prev, [id]: { ...getPosterState(id), ...patch } }));
@@ -159,7 +168,7 @@ export default function CheckStatusPage() {
 
                                                         <div className="bg-white/80 backdrop-blur px-4 py-4 rounded-2xl flex flex-col gap-2 border-2 border-dashed border-[#1B4B43]/30">
                                                             <div className="flex justify-between items-center">
-                                                                <div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To ({s.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'})</p><p className="font-mono font-black text-xl text-[#1B4B43]">01639802823</p></div>
+                                                                <div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To ({s.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'}) • {presidentName}</p><p className="font-mono font-black text-xl text-[#1B4B43] select-all">{presidentNumber}</p></div>
                                                                 <div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p>{s.isClubMember && <p className="text-[10px] text-green-700 font-bold line-through">499 BDT</p>}</div>
                                                             </div>
                                                         </div>
@@ -225,7 +234,7 @@ export default function CheckStatusPage() {
                                                                 <p className="text-xs text-gray-700 text-center">{comp.status === 'rejected' ? `Re-submit ${roundLabel} payment details.` : `Complete ${fee} BDT payment via bKash/Nagad.`}</p>
                                                                 {fee > 0 && (
                                                                     <><div className="grid grid-cols-2 gap-2 w-full"><button onClick={() => setPaymentMethod('bkash')} className={`py-2.5 rounded-xl border-2 font-bold ${paymentMethod === 'bkash' ? 'border-[#1B4B43] bg-white' : 'border-transparent bg-white/40'}`}>bKash</button><button onClick={() => setPaymentMethod('nagad')} className={`py-2.5 rounded-xl border-2 font-bold ${paymentMethod === 'nagad' ? 'border-[#1B4B43] bg-white' : 'border-transparent bg-white/40'}`}>Nagad</button></div>
-                                                                    <div className="bg-white/80 px-4 py-4 rounded-2xl w-full flex justify-between border-2 border-dashed border-[#1B4B43]/30"><div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To</p><p className="font-mono font-black text-xl text-[#1B4B43]">01639802823</p></div><div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p></div></div>
+                                                                    <div className="bg-white/80 px-4 py-4 rounded-2xl w-full flex justify-between border-2 border-dashed border-[#1B4B43]/30"><div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To • {presidentName}</p><p className="font-mono font-black text-xl text-[#1B4B43] select-all">{presidentNumber}</p></div><div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p></div></div>
                                                                     <form onSubmit={e => { e.preventDefault(); handlePaymentSubmit(comp._id); }} className="w-full space-y-3">
                                                                         <input type="text" placeholder={`Enter ${paymentMethod} Transaction ID`} value={activeCompId === comp._id ? bkashTxId : ""} onChange={e => { setBkashTxId(e.target.value); setActiveCompId(comp._id); }} className="w-full px-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none font-bold uppercase" required />
                                                                         <button type="submit" disabled={paymentLoading && activeCompId === comp._id} className="w-full bg-[#1B4B43] text-white py-4 rounded-xl font-black flex items-center justify-center gap-2">{paymentLoading && activeCompId === comp._id ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit Transaction ID"}</button>
