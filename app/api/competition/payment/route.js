@@ -9,7 +9,13 @@ export async function POST(req) {
         if (body.action === 'check_status') {
             const { email } = body;
             if (!email) return new Response(JSON.stringify({ error: 'missing_email', message: 'Email is required' }), { status: 400 });
-            const registrations = await Competition.find({ email: email.toLowerCase().trim() }).sort({ createdAt: -1 });
+            const emailLower = email.toLowerCase().trim();
+            const registrations = await Competition.find({
+                $or: [
+                    { email: emailLower },
+                    { 'members.email': emailLower }
+                ]
+            }).sort({ createdAt: -1 });
             if (!registrations || registrations.length === 0) return new Response(JSON.stringify({ error: 'not_found', message: 'No registrations found for this email' }), { status: 404 });
             return new Response(JSON.stringify({ result: 'success', data: registrations }), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }

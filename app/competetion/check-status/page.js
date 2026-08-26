@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet, Camera, Upload, Users, FileText, BadgePercent } from "lucide-react";
+import { Search, Loader2, CheckCircle2, XCircle, AlertCircle, ArrowRight, Wallet, Camera, Upload, Users, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CheckStatusPage() {
@@ -148,7 +148,7 @@ export default function CheckStatusPage() {
                                                 <div className="rounded-2xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] p-5 md:p-6 space-y-5">
                                                     <div className="flex items-center gap-3">
                                                         <div className="p-3 bg-white rounded-xl shadow"><Wallet className="w-6 h-6 text-[#1B4B43]" /></div>
-                                                        <div><h5 className="font-black text-[#1B4B43]">Round 2 — Grand Finale</h5><p className="text-xs text-gray-600">BDT 499/team • 20% off for AUSTESWC members</p></div>
+                                                        <div><h5 className="font-black text-[#1B4B43]">Round 2 — Grand Finale</h5><p className="text-xs text-gray-600">BDT 499/team</p></div>
                                                     </div>
 
                                                     <div className="bg-white rounded-xl p-4 border border-gray-100 space-y-2 text-sm">
@@ -160,23 +160,15 @@ export default function CheckStatusPage() {
                                                         </div>
                                                     </div>
 
-                                                    {(() => { const s = getPosterState(comp._id); const fee = s.isClubMember ? 399 : 499; return (<>
+                                                    {(() => { const s = getPosterState(comp._id); const fee = 499; return (<>
                                                         <div className="bg-white px-4 py-3 rounded-xl border-2 border-[#1B4B43] flex items-center justify-center gap-2 font-black text-[#1B4B43]"><Wallet className="w-4 h-4" /> bKash Payment Only</div>
 
                                                         <div className="bg-white/80 backdrop-blur px-4 py-4 rounded-2xl flex flex-col gap-2 border-2 border-dashed border-[#1B4B43]/30">
                                                             <div className="flex justify-between items-center">
                                                                 <div><p className="text-[10px] font-bold text-gray-500 uppercase">Send Money To (bKash) • {presidentName}</p><p className="font-mono font-black text-xl text-[#1B4B43] select-all">{presidentNumber}</p></div>
-                                                                <div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p>{s.isClubMember && <p className="text-[10px] text-green-700 font-bold line-through">499 BDT</p>}</div>
+                                                                <div className="text-right"><p className="text-[10px] font-bold text-gray-500 uppercase">Amount</p><p className="font-mono font-black text-xl text-[#1B4B43]">{fee} BDT</p></div>
                                                             </div>
                                                         </div>
-
-                                                        <label className="flex items-center gap-2 text-sm bg-white p-3 rounded-xl border cursor-pointer">
-                                                            <input type="checkbox" checked={s.isClubMember} onChange={e => setPosterState(comp._id, { isClubMember: e.target.checked })} className="w-4 h-4 rounded text-[#1B4B43]" />
-                                                            <span className="font-semibold text-gray-700 flex items-center gap-1"><BadgePercent className="w-4 h-4 text-green-600" /> AUSTESWC Member (20% off)</span>
-                                                        </label>
-                                                        {s.isClubMember && (
-                                                            <input value={s.clubMemberId} onChange={e => setPosterState(comp._id, { clubMemberId: e.target.value })} placeholder="Enter Club Member ID" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm" />
-                                                        )}
 
                                                         <div className="space-y-3">
                                                             <input value={s.senderNumber} onChange={e => setPosterState(comp._id, { senderNumber: e.target.value })} placeholder="Sender bKash Number *" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1B4B43] outline-none text-sm" />

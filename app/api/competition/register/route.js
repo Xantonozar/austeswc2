@@ -41,6 +41,26 @@ export async function POST(req) {
             processedData.status = 'registered'; // Free first round
         }
 
+        // Process Poster Presentation member photos (Round 1)
+        if (body.type === 'poster-presentation' && Array.isArray(body.members)) {
+            const { uploadBase64 } = await import('@/lib/cloudinary');
+            const processedMembers = [];
+            for (const m of body.members) {
+                let photo = undefined;
+                if (m.photoBase64) {
+                    try {
+                        const result = await uploadBase64(m.photoBase64, 'eswc_competition_members');
+                        photo = { url: result.url, publicId: result.publicId };
+                    } catch (e) {
+                        console.error('[Poster] Member photo upload failed:', e);
+                    }
+                }
+                const { photoBase64, ...rest } = m;
+                processedMembers.push({ ...rest, photo });
+            }
+            processedData.members = processedMembers;
+        }
+
         // Process Eco Pitch / Poster Presentation PDF — use dedicated raw uploader
         if ((body.type === 'eco-pitch' || body.type === 'poster-presentation') && body.pdfBase64) {
             try {
@@ -92,10 +112,9 @@ export async function POST(req) {
         // Create record
         const registration = await Competition.create(processedData);
 
-        // Send confirmation email synchronously to prevent Vercel from killing the function
         const recipientName = processedData.name || processedData.teamName || 'Participant';
         try {
-            await sendCompetitionRegistrationEmail(processedData.email, recipientName, processedData.type);
+            await sendCompetitionRegistrationEmail(processedData.email, recipientName, processedData.type, { teamName: processedData.teamName || processedData.name, members: processedData.members || [] });
         } catch (emailError) {
             console.error('Failed to send registration email:', emailError);
             // We still return success for the registration itself even if email fails

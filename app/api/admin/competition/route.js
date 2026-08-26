@@ -69,10 +69,10 @@ export async function PATCH(req) {
 
         const participantName = updated.teamName || updated.name;
 
-        // Send selection email if status just changed to 'selected'
         if (status === 'selected' && competitor.status !== 'selected') {
             try {
-                await sendSelectionEmail(updated.email, participantName, updated.type);
+                const feeMap = { 'poster-presentation': '499', 'eco-pitch': '700', 'eco-buzzers': '100', 'eco-capture': '300', 'green-story': '499' };
+                await sendSelectionEmail(updated.email, participantName, updated.type, { teamName: updated.teamName || participantName, amount: feeMap[updated.type] || '499', members: updated.members || [] });
             } catch (emailError) {
                 console.error('Failed to send selection email:', emailError);
             }

@@ -1312,9 +1312,14 @@ export default function CompetitionAdmin() {
                                                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                                         {selectedEntry.members.map((m, i) => (
                                                             <div key={i} className="group flex flex-col gap-4 p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all">
-                                                                <div className="flex items-center justify-between border-b border-slate-50 pb-3">
+                                                                <div className="flex items-center gap-3 border-b border-slate-50 pb-3">
+                                                                    {m.photo?.url ? (
+                                                                        <img src={m.photo.url} alt={m.name} className="w-10 h-10 rounded-full object-cover border border-slate-200" />
+                                                                    ) : (
+                                                                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">N/A</div>
+                                                                    )}
                                                                     <span className="text-sm font-black text-slate-900">{m.name}</span>
-                                                                    <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Member 0{i + 1}</span>
+                                                                    <span className="ml-auto text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Member 0{i + 1}</span>
                                                                 </div>
                                                                 <div className="space-y-2">
                                                                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">

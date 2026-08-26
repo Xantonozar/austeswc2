@@ -14,6 +14,8 @@ export default function PosterPresentationRegister() {
 
     const departments = ['CSE', 'EEE', 'CE', 'ME', 'IPE', 'TE', 'Architecture', 'BBA', 'Other'];
     const tracks = ['Save Environment', 'Save People', 'Save Society', 'Other'];
+    const yearOptions = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+    const semesterOptions = ['1st Semester', '2nd Semester'];
 
     const [form, setForm] = useState({
         teamName: '',
@@ -26,7 +28,7 @@ export default function PosterPresentationRegister() {
         confirmRules: false
     });
 
-    const [members, setMembers] = useState([{ name: '', studentId: '', department: '', semester: '', email: '', phone: '' }]);
+    const [members, setMembers] = useState([{ name: '', studentId: '', department: '', semester: '', email: '', phone: '', photoBase64: '', photoFileName: '' }]);
 
     const handleFormChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -39,10 +41,53 @@ export default function PosterPresentationRegister() {
         setMembers(newMembers);
     };
 
+    const handleMemberPhoto = (index, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            toast.error('Only image files are allowed for member photo');
+            return;
+        }
+        if (file.size > 3 * 1024 * 1024) {
+            toast.error('Photo size must be less than 3MB');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const newMembers = [...members];
+            newMembers[index].photoBase64 = ev.target.result;
+            newMembers[index].photoFileName = file.name;
+            setMembers(newMembers);
+            toast.success('Photo attached');
+        };
+        reader.onerror = () => toast.error('Failed to read file');
+        reader.readAsDataURL(file);
+    };
+
     const addMember = () => {
         if (members.length < 3) {
-            setMembers([...members, { name: '', studentId: '', department: '', semester: '', email: '', phone: '' }]);
+            setMembers([...members, { name: '', studentId: '', department: '', semester: '', email: '', phone: '', photoBase64: '', photoFileName: '' }]);
         }
+    };
+
+    const getSemesterParts = (val) => {
+        if (!val) return { year: '', sem: '' };
+        if (val.includes('-')) { const [y, s] = val.split('-'); return { year: y.trim(), sem: s.trim() }; }
+        if (val.includes('•')) { const [y, s] = val.split('•'); return { year: y.trim(), sem: s.trim() }; }
+        if (yearOptions.includes(val)) return { year: val, sem: '' };
+        if (semesterOptions.includes(val)) return { year: '', sem: val };
+        return { year: '', sem: '' };
+    };
+
+    const handleSemesterPartChange = (index, part, value) => {
+        const cur = getSemesterParts(members[index].semester);
+        const nextYear = part === 'year' ? value : cur.year;
+        const nextSem = part === 'sem' ? value : cur.sem;
+        let nextVal = '';
+        if (nextYear && nextSem) nextVal = `${nextYear}-${nextSem}`;
+        else if (nextYear) nextVal = nextYear;
+        else if (nextSem) nextVal = nextSem;
+        handleMemberChange(index, 'semester', nextVal);
     };
 
     const removeMember = (index) => {
@@ -82,9 +127,16 @@ export default function PosterPresentationRegister() {
         if (!form.trackCategory) { toast.error('Please select Track/Category'); return false; }
         if (!form.posterTitle.trim()) { toast.error('Poster Topic Title is required'); return false; }
         const leader = members[0];
-        if (!leader.name.trim() || !leader.studentId.trim() || !leader.department.trim() || !leader.semester.trim() || !leader.email.trim() || !leader.phone.trim()) {
-            toast.error('Please complete all Team Leader details');
+        const leaderParts = getSemesterParts(leader.semester);
+        if (!leader.name.trim() || !leader.studentId.trim() || !leader.department.trim() || !leaderParts.year || !leaderParts.sem || !leader.email.trim() || !leader.phone.trim()) {
+            toast.error('Please complete all Team Leader details (Year & Semester required)');
             return false;
+        }
+        for (let i = 0; i < members.length; i++) {
+            if (!members[i].photoBase64) {
+                toast.error(`Please upload a photo for Member ${i + 1}`);
+                return false;
+            }
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leader.email.trim())) { toast.error('Leader email is invalid'); return false; }
         for (let i = 1; i < members.length; i++) {
@@ -125,7 +177,8 @@ export default function PosterPresentationRegister() {
                     department: m.department.trim(),
                     semester: m.semester.trim() || (idx === 0 ? m.semester.trim() : ''),
                     email: m.email.trim().toLowerCase(),
-                    phone: m.phone.trim()
+                    phone: m.phone.trim(),
+                    photoBase64: m.photoBase64
                 }))
             };
             const res = await fetch('/api/competition/register', {
@@ -218,6 +271,25 @@ export default function PosterPresentationRegister() {
                                     </button>
                                 )}
                                 <h4 className="text-xs font-bold text-[#1B4B43]/60 uppercase tracking-wider mb-3">Member {idx + 1} {idx === 0 ? '(Leader — mandatory)' : '(Optional)'}</h4>
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="relative">
+                                        {member.photoBase64 ? (
+                                            <img src={member.photoBase64} alt="member" className="w-16 h-16 rounded-full object-cover border-2 border-[#1B4B43]/20" />
+                                        ) : (
+                                            <div className="w-16 h-16 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                                <ImageIcon className="w-6 h-6 text-gray-400" />
+                                            </div>
+                                        )}
+                                        <label className="absolute -bottom-1 -right-1 bg-[#1B4B43] text-white rounded-full p-1.5 cursor-pointer hover:bg-[#12332D] transition-colors">
+                                            <Upload className="w-3 h-3" />
+                                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleMemberPhoto(idx, e)} />
+                                        </label>
+                                    </div>
+                                    <div className="text-sm">
+                                        <p className="font-semibold text-gray-700">Member Photo <span className="text-red-500">*</span></p>
+                                        <p className="text-xs text-gray-400">Image only • Max 3MB</p>
+                                    </div>
+                                </div>
                                 <div className="space-y-3">
                                     <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm" placeholder={`Full Name ${idx === 0 ? '*' : ''}`} />
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -230,12 +302,22 @@ export default function PosterPresentationRegister() {
                                             <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
                                         </div>
                                     </div>
-                                    {idx === 0 && (
-                                        <input value={member.semester} onChange={(e) => handleMemberChange(idx, 'semester', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm" placeholder="Semester / Year *" />
-                                    )}
-                                    {idx !== 0 && (
-                                        <input value={member.semester} onChange={(e) => handleMemberChange(idx, 'semester', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm" placeholder="Semester / Year (optional)" />
-                                    )}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="relative">
+                                            <select value={getSemesterParts(member.semester).year} onChange={(e) => handleSemesterPartChange(idx, 'year', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm appearance-none pr-8">
+                                                <option value="">{idx === 0 ? 'Year *' : 'Year'}</option>
+                                                {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+                                            </select>
+                                            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+                                        </div>
+                                        <div className="relative">
+                                            <select value={getSemesterParts(member.semester).sem} onChange={(e) => handleSemesterPartChange(idx, 'sem', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm appearance-none pr-8">
+                                                <option value="">{idx === 0 ? 'Semester *' : 'Semester'}</option>
+                                                {semesterOptions.map(s => <option key={s} value={s}>{s}</option>)}
+                                            </select>
+                                            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400" />
+                                        </div>
+                                    </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm" placeholder={idx === 0 ? 'Active Email *' : 'Email (optional)'} />
                                         <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#1B4B43] outline-none text-sm shadow-sm" placeholder="Contact Number *" />
@@ -293,7 +375,7 @@ export default function PosterPresentationRegister() {
                         </label>
                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
                             <p className="font-bold">Round 2 (for qualifying teams):</p>
-                            <p>BDT 499 per team • bKash/Nagad TrxID + screenshot • 20% off for AUSTESWC members • Team/individual photos for Facebook feature</p>
+                            <p>BDT 499 per team • bKash/Nagad TrxID + screenshot • Team/individual photos for Facebook feature</p>
                         </div>
                         <button type="submit" disabled={loading} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
                             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Submit Registration'}
