@@ -133,27 +133,25 @@ export default function ThreePitchRegister() {
                     universityName: m.universityName.trim()
                 }))
             };
-            if (JSON.stringify(payload).length > 4000000) {
+            const serializedPayload = JSON.stringify(payload);
+            if (serializedPayload.length > 4000000) {
                 toast.error('Submission is too large — files were not uploaded to Cloudinary. Please re-select the PDF, then submit again.', { id: toastId });
                 setLoading(false);
                 return;
             }
+            console.log('SUBMIT PAYLOAD SIZE (KB):', (new Blob([serializedPayload]).size / 1024).toFixed(2));
             const res = await fetch('/api/competition/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: serializedPayload
             });
-            let data;
-            try {
-                data = await res.json();
-            } catch {
-                const text = await res.text().catch(() => '');
-                if (res.status === 413 || /request entity too large/i.test(text)) {
-                    throw new Error('Submission rejected as too large. Your files may not have uploaded — please re-select the PDF, then submit again.');
-                }
-                throw new Error('Unexpected server response. Please try again.');
+            const responseText = await res.text();
+            let data = null;
+            try { data = JSON.parse(responseText); } catch { /* not JSON */ }
+            if (res.status === 413 || /request entity too large/i.test(responseText)) {
+                throw new Error('Submission rejected as too large. Your files may not uploaded — please re-select the PDF, then submit again.');
             }
-            if (!res.ok) throw new Error(data.message || data.error || 'Submission failed');
+            if (!res.ok) throw new Error(data?.message || data?.error || 'Submission failed');
             toast.success('Proposal Submitted Successfully!', { id: toastId });
             setTimeout(() => router.push('/congratulations/eco-pitch'), 1500);
         } catch (err) {
