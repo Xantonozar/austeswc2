@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Image as ImageIcon, Users, ArrowLeft, Loader2, Plus, Trash2, FileText, Upload, CheckCircle2, Star, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { uploadFileToCloudinary } from '@/lib/cloudinaryUpload';
 
 export default function PosterPresentationRegister() {
     const router = useRouter();
@@ -22,13 +23,15 @@ export default function PosterPresentationRegister() {
         trackCategory: '',
         posterTitle: '',
         caReference: '',
-        pdfBase64: '',
+        pdfUrl: '',
+        pdfPublicId: '',
         pdfFileName: '',
+        uploadingPdf: false,
         confirmAi: false,
         confirmRules: false
     });
 
-    const [members, setMembers] = useState([{ name: '', studentId: '', department: '', semester: '', email: '', phone: '', photoBase64: '', photoFileName: '' }]);
+    const [members, setMembers] = useState([{ name: '', studentId: '', department: '', semester: '', email: '', phone: '', photo: null, uploadingPhoto: false }]);
 
     const handleFormChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -41,7 +44,7 @@ export default function PosterPresentationRegister() {
         setMembers(newMembers);
     };
 
-    const handleMemberPhoto = (index, e) => {
+    const handleMemberPhoto = async (index, e) => {
         const file = e.target.files[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) {
@@ -52,21 +55,27 @@ export default function PosterPresentationRegister() {
             toast.error('Photo size must be less than 3MB');
             return;
         }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const newMembers = [...members];
-            newMembers[index].photoBase64 = ev.target.result;
-            newMembers[index].photoFileName = file.name;
-            setMembers(newMembers);
+        const newMembers = [...members];
+        newMembers[index].uploadingPhoto = true;
+        setMembers(newMembers);
+        try {
+            const result = await uploadFileToCloudinary(file, { folder: 'eswc_competition_members', resourceType: 'auto' });
+            const updated = [...members];
+            updated[index].photo = { url: result.url, publicId: result.publicId };
+            updated[index].uploadingPhoto = false;
+            setMembers(updated);
             toast.success('Photo attached');
-        };
-        reader.onerror = () => toast.error('Failed to read file');
-        reader.readAsDataURL(file);
+        } catch (err) {
+            const reverted = [...members];
+            reverted[index].uploadingPhoto = false;
+            setMembers(reverted);
+            toast.error(err.message || 'Failed to upload photo');
+        }
     };
 
     const addMember = () => {
         if (members.length < 3) {
-            setMembers([...members, { name: '', studentId: '', department: '', semester: '', email: '', phone: '', photoBase64: '', photoFileName: '' }]);
+            setMembers([...members, { name: '', studentId: '', department: '', semester: '', email: '', phone: '', photo: null, uploadingPhoto: false }]);
         }
     };
 
@@ -98,7 +107,7 @@ export default function PosterPresentationRegister() {
         }
     };
 
-    const handleFileUpload = (e) => {
+    const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
         if (file.type !== 'application/pdf') {
@@ -113,13 +122,15 @@ export default function PosterPresentationRegister() {
         if (!file.name.endsWith(expectedSuffix) && !file.name.toLowerCase().endsWith('.pdf')) {
             toast('Recommended naming: TeamName_EcoChampions4.0_Abstract.pdf', { icon: 'ℹ️' });
         }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            setForm(prev => ({ ...prev, pdfBase64: ev.target.result, pdfFileName: file.name }));
+        setForm(prev => ({ ...prev, uploadingPdf: true }));
+        try {
+            const result = await uploadFileToCloudinary(file, { folder: 'eswc_competition', resourceType: 'raw' });
+            setForm(prev => ({ ...prev, pdfUrl: result.url, pdfPublicId: result.publicId, pdfFileName: file.name, uploadingPdf: false }));
             toast.success('Abstract attached successfully');
-        };
-        reader.onerror = () => toast.error('Failed to read file');
-        reader.readAsDataURL(file);
+        } catch (err) {
+            setForm(prev => ({ ...prev, uploadingPdf: false }));
+            toast.error(err.message || 'Failed to upload abstract PDF');
+        }
     };
 
     const validate = () => {
@@ -133,7 +144,7 @@ export default function PosterPresentationRegister() {
             return false;
         }
         for (let i = 0; i < members.length; i++) {
-            if (!members[i].photoBase64) {
+            if (!members[i].photo || !members[i].photo.url) {
                 toast.error(`Please upload a photo for Member ${i + 1}`);
                 return false;
             }
@@ -147,7 +158,7 @@ export default function PosterPresentationRegister() {
             }
             if (m.email && m.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email.trim())) { toast.error(`Member ${i + 1} email is invalid`); return false; }
         }
-        if (!form.pdfBase64) { toast.error('Please upload Abstract PDF (max 10MB, 300 words)'); return false; }
+        if (!form.pdfUrl) { toast.error('Please upload Abstract PDF (max 10MB, 300 words)'); return false; }
         if (!form.confirmAi) { toast.error('Please confirm AI content declaration'); return false; }
         if (!form.confirmRules) { toast.error('Please agree to AUSTESWC official rules'); return false; }
         return true;
@@ -156,6 +167,10 @@ export default function PosterPresentationRegister() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (loading) return;
+        if (form.uploadingPdf || members.some(m => m.uploadingPhoto)) {
+            toast.error('Files are still uploading, please wait...');
+            return;
+        }
         if (!validate()) return;
         setLoading(true);
         const toastId = toast.loading('Submitting registration...');
@@ -168,7 +183,8 @@ export default function PosterPresentationRegister() {
                 caReference: form.caReference.trim(),
                 email: members[0].email.trim().toLowerCase(),
                 phone: members[0].phone.trim(),
-                pdfBase64: form.pdfBase64,
+                pdfUrl: form.pdfUrl,
+                pdfPublicId: form.pdfPublicId,
                 confirmAi: form.confirmAi,
                 confirmRules: form.confirmRules,
                 members: members.map((m, idx) => ({
@@ -178,7 +194,7 @@ export default function PosterPresentationRegister() {
                     semester: m.semester.trim() || (idx === 0 ? m.semester.trim() : ''),
                     email: m.email.trim().toLowerCase(),
                     phone: m.phone.trim(),
-                    photoBase64: m.photoBase64
+                    photo: m.photo ? { url: m.photo.url, publicId: m.photo.publicId } : undefined
                 }))
             };
             const res = await fetch('/api/competition/register', {
@@ -273,8 +289,12 @@ export default function PosterPresentationRegister() {
                                 <h4 className="text-xs font-bold text-[#1B4B43]/60 uppercase tracking-wider mb-3">Member {idx + 1} {idx === 0 ? '(Leader — mandatory)' : '(Optional)'}</h4>
                                 <div className="flex items-center gap-4 mb-3">
                                     <div className="relative">
-                                        {member.photoBase64 ? (
-                                            <img src={member.photoBase64} alt="member" className="w-16 h-16 rounded-full object-cover border-2 border-[#1B4B43]/20" />
+                                        {member.uploadingPhoto ? (
+                                            <div className="w-16 h-16 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                                <Loader2 className="w-6 h-6 text-[#1B4B43] animate-spin" />
+                                            </div>
+                                        ) : member.photo?.url ? (
+                                            <img src={member.photo.url} alt="member" className="w-16 h-16 rounded-full object-cover border-2 border-[#1B4B43]/20" />
                                         ) : (
                                             <div className="w-16 h-16 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
                                                 <ImageIcon className="w-6 h-6 text-gray-400" />
@@ -335,8 +355,16 @@ export default function PosterPresentationRegister() {
                             <div className="p-2 bg-gray-100 rounded-lg"><FileText className="w-5 h-5 text-gray-600" /></div>
                             <h3 className="font-bold text-[#1B4B43] text-lg">Abstract PDF Upload</h3>
                         </div>
-                        <div onClick={() => fileInputRef.current?.click()} className={`w-full py-8 px-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center ${form.pdfBase64 ? 'border-[#1B4B43] bg-[#E8F9FF]' : 'border-gray-300 hover:border-[#1B4B43] bg-white'}`}>
-                            {form.pdfBase64 ? (
+                        <div onClick={() => fileInputRef.current?.click()} className={`w-full py-8 px-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center ${form.pdfUrl ? 'border-[#1B4B43] bg-[#E8F9FF]' : 'border-gray-300 hover:border-[#1B4B43] bg-white'}`}>
+                            {form.uploadingPdf ? (
+                                <>
+                                    <div className="w-12 h-12 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center mb-3">
+                                        <Loader2 className="w-5 h-5 text-[#1B4B43] animate-spin" />
+                                    </div>
+                                    <p className="font-medium text-gray-700">Uploading abstract PDF...</p>
+                                    <p className="text-xs text-gray-400 mt-1">Please wait, do not close this page</p>
+                                </>
+                            ) : form.pdfUrl ? (
                                 <>
                                     <div className="w-12 h-12 rounded-full bg-[#1B4B43] flex items-center justify-center mb-3 text-white shadow-md">
                                         <CheckCircle2 className="w-6 h-6" />
@@ -377,8 +405,8 @@ export default function PosterPresentationRegister() {
                             <p className="font-bold">Round 2 (for qualifying teams):</p>
                             <p>BDT 499 per team • bKash/Nagad TrxID + screenshot • Team/individual photos for Facebook feature</p>
                         </div>
-                        <button type="submit" disabled={loading} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
-                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Submit Registration'}
+                        <button type="submit" disabled={loading || form.uploadingPdf || members.some(m => m.uploadingPhoto)} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
+                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (form.uploadingPdf || members.some(m => m.uploadingPhoto) ? 'Uploading files...' : 'Submit Registration')}
                         </button>
                     </div>
 

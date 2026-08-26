@@ -43,37 +43,47 @@ export async function POST(req) {
 
         // Process Poster Presentation member photos (Round 1)
         if (body.type === 'poster-presentation' && Array.isArray(body.members)) {
-            const { uploadBase64 } = await import('@/lib/cloudinary');
             const processedMembers = [];
             for (const m of body.members) {
                 let photo = undefined;
-                if (m.photoBase64) {
+                // Prefer client-side uploaded photo (url + publicId)
+                if (m.photo && m.photo.url && m.photo.publicId) {
+                    photo = { url: m.photo.url, publicId: m.photo.publicId };
+                } else if (m.photoBase64) {
+                    // Fallback: server-side upload of base64 (legacy)
                     try {
+                        const { uploadBase64 } = await import('@/lib/cloudinary');
                         const result = await uploadBase64(m.photoBase64, 'eswc_competition_members');
                         photo = { url: result.url, publicId: result.publicId };
                     } catch (e) {
                         console.error('[Poster] Member photo upload failed:', e);
                     }
                 }
-                const { photoBase64, ...rest } = m;
+                const { photoBase64, photo: _omitPhoto, ...rest } = m;
                 processedMembers.push({ ...rest, photo });
             }
             processedData.members = processedMembers;
         }
 
         // Process Eco Pitch / Poster Presentation PDF — use dedicated raw uploader
-        if ((body.type === 'eco-pitch' || body.type === 'poster-presentation') && body.pdfBase64) {
-            try {
-                const { uploadPdfBase64 } = await import('@/lib/cloudinary');
-                console.log('[Eco Pitch] Uploading PDF, base64 length:', body.pdfBase64.length);
-                const result = await uploadPdfBase64(body.pdfBase64, 'eswc_competition');
-                console.log('[Eco Pitch] PDF uploaded successfully:', result.url);
-                processedData.pdfUrl = result.url;
-                processedData.pdfPublicId = result.publicId;
+        if (body.type === 'eco-pitch' || body.type === 'poster-presentation') {
+            if (body.pdfUrl && body.pdfPublicId) {
+                // Client already uploaded the PDF directly to Cloudinary (avoids 4.5MB Vercel limit)
+                processedData.pdfUrl = body.pdfUrl;
+                processedData.pdfPublicId = body.pdfPublicId;
                 delete processedData.pdfBase64;
-            } catch (e) {
-                console.error('[Eco Pitch] PDF upload failed:', e);
-                return new Response(JSON.stringify({ error: 'pdf_upload_failed', message: e.message || 'PDF upload failed' }), { status: 500 });
+            } else if (body.pdfBase64) {
+                // Fallback: server-side upload of base64 (legacy)
+                try {
+                    const { uploadPdfBase64 } = await import('@/lib/cloudinary');
+                    const result = await uploadPdfBase64(body.pdfBase64, 'eswc_competition');
+                    processedData.pdfUrl = result.url;
+                    processedData.pdfPublicId = result.publicId;
+                    delete processedData.pdfBase64;
+                } catch (e) {
+                    console.error('[Eco Pitch] PDF upload failed:', e);
+                    return new Response(JSON.stringify({ error: 'pdf_upload_failed', message: e.message || 'PDF upload failed' }), { status: 500 });
+                }
             }
         }
 
