@@ -197,12 +197,26 @@ export default function PosterPresentationRegister() {
                     photo: m.photo ? { url: m.photo.url, publicId: m.photo.publicId } : undefined
                 }))
             };
+            if (JSON.stringify(payload).length > 4000000) {
+                toast.error('Submission is too large — files were not uploaded to Cloudinary. Please re-select the PDF and photos, then submit again.', { id: toastId });
+                setLoading(false);
+                return;
+            }
             const res = await fetch('/api/competition/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                const text = await res.text().catch(() => '');
+                if (res.status === 413 || /request entity too large/i.test(text)) {
+                    throw new Error('Submission rejected as too large. Your files may not have uploaded — please re-select the PDF and photos, then submit again.');
+                }
+                throw new Error('Unexpected server response. Please try again.');
+            }
             if (!res.ok) throw new Error(data.message || data.error || 'Submission failed');
             toast.success('Registration Submitted Successfully!', { id: toastId });
             setTimeout(() => router.push('/congratulations/poster-presentation'), 1500);
