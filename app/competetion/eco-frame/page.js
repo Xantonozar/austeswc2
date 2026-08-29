@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Frame, Calendar, Users, Camera, ArrowRight, Award, CreditCard, AlertTriangle, Clock, Phone, Leaf, Heart, Building2, Image as ImageIcon, ShieldX, Mic, Star, Globe } from "lucide-react";
+import { Calendar, Users, Camera, ArrowRight, Award, CreditCard, AlertTriangle, Clock, Phone, Leaf, Heart, Building2, Image as ImageIcon, ShieldX, Mic, Star, Globe } from "lucide-react";
 import Link from "next/link";
 
 const THEMES = [
@@ -18,14 +18,7 @@ export default function EcoFrameDetails() {
         <div className="min-h-screen pt-24 pb-16 bg-white font-sans">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl overflow-hidden shadow-md border border-gray-100 mb-8 bg-gray-50 flex justify-center p-3">
-                    <div className="w-full max-w-[480px] aspect-[4/3] rounded-2xl bg-gradient-to-br from-[#1B4B43] to-[#12332D] flex flex-col items-center justify-center text-center gap-3">
-                        <div className="w-20 h-20 rounded-2xl bg-white/10 border-2 border-white/30 flex items-center justify-center">
-                            <Frame className="w-10 h-10 text-[#B7E9FF]" />
-                        </div>
-                        <p className="text-[#B7E9FF] font-bold tracking-widest text-xs uppercase">Eco Champions 4.0</p>
-                        <p className="text-white font-bold text-2xl">Eco Frame</p>
-                        <p className="text-[#D9F2D6] text-xs italic px-6">"Capturing Nature, Inspiring Society: One frame. One truth. One planet worth saving."</p>
-                    </div>
+                    <img src="https://res.cloudinary.com/chirkut/image/upload/v1788013635/Segment_Announcement_Posts_eyslrh.svg" alt="Eco Frame Contest Poster" className="w-full max-w-[480px] h-auto object-contain rounded-2xl" />
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[#E8F9FF] rounded-3xl p-8 md:p-12 text-center mb-8 relative overflow-hidden">
                     <div className="w-96 h-96 absolute -bottom-20 -right-20 rounded-full border-[16px] border-white/40 bg-white/20 z-0"></div>

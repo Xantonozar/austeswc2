@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Camera, User, ArrowLeft, Loader2, Upload, CheckCircle2, FileText, GraduationCap, Star, Frame, Image as ImageIcon, Smartphone, Receipt, Plus, Trash2, Eye, X } from 'lucide-react';
+import { Camera, User, ArrowLeft, Loader2, Upload, CheckCircle2, FileText, GraduationCap, Star, Image as ImageIcon, Smartphone, Receipt, Plus, Trash2, Eye, X } from 'lucide-react';
 import Link from 'next/link';
 import imageCompression from 'browser-image-compression';
 
@@ -267,15 +267,8 @@ export default function EcoFrameRegister() {
                 </div>
             </div>
 
-            <div className="bg-[#1B4B43] text-[#F3F9F1] pt-8 pb-16 px-4 -mt-[1px] relative overflow-hidden">
-                <div className="w-64 h-64 absolute -top-20 -left-20 bg-[#F3F9F1]/10 rounded-full blur-3xl"></div>
-                <div className="w-64 h-64 absolute -bottom-20 -right-20 border-[8px] border-[#F3F9F1]/10 rounded-full"></div>
-                <div className="max-w-2xl mx-auto text-center relative z-10">
-                    <Frame className="w-12 h-12 mx-auto mb-4 text-[#B7E9FF]" />
-                    <h2 className="text-3xl font-bold mb-2">Eco Frame</h2>
-                    <p className="text-[#D9F2D6] text-sm opacity-90">Environmental Photography Contest</p>
-                    <p className="text-[#B7E9FF] text-xs mt-2 italic max-w-md mx-auto">"Capturing Nature, Inspiring Society: One frame. One truth. One planet worth saving."</p>
-                </div>
+            <div className="bg-[#1B4B43] px-4 -mt-[1px] relative overflow-hidden">
+                <img src="https://res.cloudinary.com/chirkut/image/upload/v1788013635/Segment_Announcement_Posts_eyslrh.svg" alt="Eco Frame Contest Poster" className="w-full max-w-2xl mx-auto block" />
             </div>
 
             <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="max-w-2xl mx-auto px-4 -mt-8 relative z-20">

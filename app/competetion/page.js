@@ -16,10 +16,10 @@ const competitions = [
   {
     slug: "eco-frame",
     title: "Eco Frame",
-    description: "Environmental Photography Contest. Submit 1–3 photos (JPEG/PNG), 100 BDT fee. Themes: Nature, Waste, Hope & more.",
+    description: "Environmental Photography Contest. Submit 1–3 photos (JPEG/PNG), 149 BDT fee. Themes: Nature, Waste, Hope & more.",
     icon: ImageIcon,
-    banner: null,
-    meta: ["100 BDT", "Individual", "Up to 3 Photos", "JPEG/PNG"],
+    banner: "https://res.cloudinary.com/chirkut/image/upload/v1788013635/Segment_Announcement_Posts_eyslrh.svg",
+    meta: ["149 BDT", "Individual", "Up to 3 Photos", "JPEG/PNG"],
   },
 ];
 
