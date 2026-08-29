@@ -6,7 +6,6 @@ import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Mic2, Users, ArrowLeft, Loader2, Plus, Trash2, FileText, Upload, CheckCircle2, CreditCard, Smartphone, GraduationCap, Star } from 'lucide-react';
 import Link from 'next/link';
-import { uploadFileToCloudinary } from '@/lib/cloudinaryUpload';
 
 export default function ThreePitchRegister() {
     const router = useRouter();
@@ -17,10 +16,7 @@ export default function ThreePitchRegister() {
         teamName: '',
         caReference: '',
         bkashTxId: '',
-        pdfUrl: '',
-        pdfPublicId: '',
-        pdfFileName: '',
-        uploadingPdf: false,
+        pdfBase64: '',
         agreeToTerms: false,
         paymentMethod: 'bkash'
     });
@@ -52,7 +48,7 @@ export default function ThreePitchRegister() {
         }
     };
 
-    const handleFileUpload = async (e) => {
+    const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -68,15 +64,13 @@ export default function ThreePitchRegister() {
             return;
         }
 
-        setForm(prev => ({ ...prev, uploadingPdf: true }));
-        try {
-            const result = await uploadFileToCloudinary(file, { folder: 'eswc_competition', resourceType: 'raw' });
-            setForm(prev => ({ ...prev, pdfUrl: result.url, pdfPublicId: result.publicId, pdfFileName: file.name, uploadingPdf: false }));
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            setForm(prev => ({ ...prev, pdfBase64: ev.target.result }));
             toast.success('Abstract attached successfully');
-        } catch (err) {
-            setForm(prev => ({ ...prev, uploadingPdf: false }));
-            toast.error(err.message || 'Failed to upload abstract');
-        }
+        };
+        reader.onerror = () => toast.error('Failed to read file');
+        reader.readAsDataURL(file);
     };
 
     const validate = () => {
@@ -94,7 +88,7 @@ export default function ThreePitchRegister() {
             toast.error('Transaction ID is required');
             return false;
         }
-        if (!form.pdfUrl) {
+        if (!form.pdfBase64) {
             toast.error('Please upload your abstract');
             return false;
         }
@@ -108,10 +102,6 @@ export default function ThreePitchRegister() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (loading) return;
-        if (form.uploadingPdf) {
-            toast.error('Abstract is still uploading, please wait...');
-            return;
-        }
         if (!validate()) return;
         setLoading(true);
         const toastId = toast.loading('Submitting proposal...');
@@ -124,8 +114,7 @@ export default function ThreePitchRegister() {
                 phone: members[0].phone.trim(),
                 bkashTxId: form.bkashTxId.trim().toUpperCase(),
                 paymentMethod: form.paymentMethod,
-                pdfUrl: form.pdfUrl,
-                pdfPublicId: form.pdfPublicId,
+                pdfBase64: form.pdfBase64,
                 members: members.map(m => ({
                     name: m.name.trim(),
                     email: m.email.trim().toLowerCase(),
@@ -133,25 +122,13 @@ export default function ThreePitchRegister() {
                     universityName: m.universityName.trim()
                 }))
             };
-            const serializedPayload = JSON.stringify(payload);
-            if (serializedPayload.length > 4000000) {
-                toast.error('Submission is too large — files were not uploaded to Cloudinary. Please re-select the PDF, then submit again.', { id: toastId });
-                setLoading(false);
-                return;
-            }
-            console.log('SUBMIT PAYLOAD SIZE (KB):', (new Blob([serializedPayload]).size / 1024).toFixed(2));
             const res = await fetch('/api/competition/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: serializedPayload
+                body: JSON.stringify(payload)
             });
-            const responseText = await res.text();
-            let data = null;
-            try { data = JSON.parse(responseText); } catch { /* not JSON */ }
-            if (res.status === 413 || /request entity too large/i.test(responseText)) {
-                throw new Error('Submission rejected as too large. Your files may not uploaded — please re-select the PDF, then submit again.');
-            }
-            if (!res.ok) throw new Error(data?.message || data?.error || 'Submission failed');
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || data.error || 'Submission failed');
             toast.success('Proposal Submitted Successfully!', { id: toastId });
             setTimeout(() => router.push('/congratulations/eco-pitch'), 1500);
         } catch (err) {
@@ -257,21 +234,13 @@ export default function ThreePitchRegister() {
                             <h3 className="font-bold text-[#1B4B43] text-lg">Upload Your Abstract</h3>
                         </div>
 
-                        <div onClick={() => fileInputRef.current?.click()} className={`w-full py-8 px-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center ${form.pdfUrl ? 'border-[#1B4B43] bg-[#E8F9FF]' : 'border-gray-300 hover:border-[#1B4B43] bg-white'}`}>
-                            {form.uploadingPdf ? (
-                                <>
-                                    <div className="w-12 h-12 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center mb-3">
-                                        <Loader2 className="w-5 h-5 text-[#1B4B43] animate-spin" />
-                                    </div>
-                                    <p className="font-medium text-gray-700">Uploading abstract...</p>
-                                    <p className="text-xs text-gray-400 mt-1">Please wait, do not close this page</p>
-                                </>
-                            ) : form.pdfUrl ? (
+                        <div onClick={() => fileInputRef.current?.click()} className={`w-full py-8 px-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center ${form.pdfBase64 ? 'border-[#1B4B43] bg-[#E8F9FF]' : 'border-gray-300 hover:border-[#1B4B43] bg-white'}`}>
+                            {form.pdfBase64 ? (
                                 <>
                                     <div className="w-12 h-12 rounded-full bg-[#1B4B43] flex items-center justify-center mb-3 text-white shadow-md">
                                         <CheckCircle2 className="w-6 h-6" />
                                     </div>
-                                    <p className="font-bold text-[#1B4B43] break-all">{form.pdfFileName}</p>
+                                    <p className="font-bold text-[#1B4B43]">File Attached</p>
                                     <p className="text-xs text-gray-500 mt-1 font-medium">Ready for submission</p>
                                 </>
                             ) : (
@@ -339,8 +308,8 @@ export default function ThreePitchRegister() {
                             <span className="text-sm text-gray-600 font-medium">We agree to the competition rules and confirm the payment details are accurate.</span>
                         </label>
 
-                        <button type="submit" disabled={loading || form.uploadingPdf} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
-                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (form.uploadingPdf ? 'Uploading abstract...' : 'Submit Abstract')}
+                        <button type="submit" disabled={loading} className="w-full bg-[#1B4B43] hover:bg-[#12332D] text-[#B7E9FF] font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
+                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Submit Abstract'}
                         </button>
                     </div>
 

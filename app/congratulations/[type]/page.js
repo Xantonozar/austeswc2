@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PartyPopper, ArrowRight, Camera, Zap, FileVideo, Mic2, ShieldCheck, Mail, FileText } from "lucide-react";
+import { PartyPopper, ArrowRight, Camera, Zap, FileVideo, Mic2, ShieldCheck, Mail, FileText, Frame } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 
@@ -55,6 +55,15 @@ export default function CongratulationsPage({ params }) {
                     message: "Your research thesis PDF and payment have been submitted.",
                     icon: Mic2,
                     nextSteps: "Your payment is under verification. Our experts will review your thesis. If you make the cut for the live pitch, we will notify you via email with Round 2 payment instructions.",
+                    bgClass: "bg-[#E8F9FF]",
+                    iconColor: "text-[#1B4B43]"
+                };
+            case "eco-frame":
+                return {
+                    title: "Eco Frame",
+                    message: "Your photography registration and photos have been submitted successfully.",
+                    icon: Frame,
+                    nextSteps: "Our team will review your photographs. If your frame is shortlisted, we will contact you via email with exhibition details.",
                     bgClass: "bg-[#E8F9FF]",
                     iconColor: "text-[#1B4B43]"
                 };

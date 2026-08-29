@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
-    FileText, Camera, Video, Zap, User, Users, Phone, Mail,
+    FileText, Camera, Video, Zap, User, Users, Phone, Mail, Frame,
     ChevronRight, X, Star, ArrowLeft, GraduationCap, ChevronDown, Calendar, LayoutGrid
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -175,7 +175,7 @@ export default function CompetitionAdmin() {
             "R2 Payment Verified": c.paymentVerifiedRound2 ? "YES" : "NO",
             "R2 Tx ID": c.bkashTxIdRound2 || "N/A",
             "R2 Sender Number": c.paymentSenderNumber || "N/A",
-            "R2 Amount": c.paymentAmount || (c.type === 'poster-presentation' && c.bkashTxIdRound2 ? (c.isClubMember ? 399 : 499) : "N/A"),
+            "R2 Amount": c.paymentAmount || ((c.type === 'poster-presentation' || c.type === 'eco-frame') && c.bkashTxIdRound2 ? (c.isClubMember ? 399 : 499) : "N/A"),
             "R2 Club Member": c.isClubMember ? `YES (${c.clubMemberId})` : "NO",
             "R2 Screenshot": c.paymentScreenshotUrl || "N/A",
             "R2 Team Photos": c.teamPhotos?.map(p => p.url).join(", ") || "N/A",
@@ -200,7 +200,7 @@ export default function CompetitionAdmin() {
         };
 
         // Initialize all competition types
-        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation'];
+        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame'];
         types.forEach(type => {
             groupedData.competitions[type] = {
                 count: 0,
@@ -236,10 +236,13 @@ export default function CompetitionAdmin() {
                     universityName: m.universityName || null
                 })) || [],
                 
-                // Eco Capture specific - photos with stories
-                photos: c.type === 'eco-capture' ? (c.photos?.map(p => ({
+                // Eco Capture / Eco Frame specific - photos
+                photos: (c.type === 'eco-capture' || c.type === 'eco-frame') ? (c.photos?.map(p => ({
                     url: p.url || null,
                     publicId: p.publicId || null,
+                    theme: p.theme || null,
+                    title: p.title || null,
+                    caption: p.caption || null,
                     story: p.story || null
                 })) || []) : undefined,
                 
@@ -247,8 +250,8 @@ export default function CompetitionAdmin() {
                 videoLink: c.type === 'green-story' ? (c.videoLink || null) : undefined,
                 
                 // Eco Pitch / Poster Presentation specific - PDF document
-                pdfUrl: (c.type === 'eco-pitch' || c.type === 'poster-presentation') ? (c.pdfUrl || null) : undefined,
-                pdfPublicId: (c.type === 'eco-pitch' || c.type === 'poster-presentation') ? (c.pdfPublicId || null) : undefined,
+                pdfUrl: (c.type === 'eco-pitch' || c.type === 'poster-presentation' || c.type === 'eco-frame') ? (c.pdfUrl || null) : undefined,
+                pdfPublicId: (c.type === 'eco-pitch' || c.type === 'poster-presentation' || c.type === 'eco-frame') ? (c.pdfPublicId || null) : undefined,
                 trackCategory: c.trackCategory || null,
                 posterTitle: c.posterTitle || null,
                 round2PosterTitle: c.round2PosterTitle || null,
@@ -331,7 +334,8 @@ export default function CompetitionAdmin() {
             'eco-buzzers': 'Green Buzzers Battle',
             'green-story': 'Green Story',
             'eco-pitch': 'Eco Pitch 180',
-            'poster-presentation': 'Poster Presentation'
+            'poster-presentation': 'Poster Presentation',
+            'eco-frame': 'Eco Frame'
         };
 
         const exportData = {
@@ -561,7 +565,8 @@ export default function CompetitionAdmin() {
             'eco-buzzers': { bg: "bg-amber-50", text: "text-amber-700", icon: Zap },
             'green-story': { bg: "bg-green-50", text: "text-green-700", icon: Video },
             'eco-pitch': { bg: "bg-pink-50", text: "text-pink-700", icon: FileText },
-            'poster-presentation': { bg: "bg-indigo-50", text: "text-indigo-700", icon: FileText }
+            'poster-presentation': { bg: "bg-indigo-50", text: "text-indigo-700", icon: FileText },
+            'eco-frame': { bg: "bg-teal-50", text: "text-teal-700", icon: Frame }
         };
         const config = styles[type] || { bg: "bg-slate-50", text: "text-slate-700", icon: User };
         const Icon = config.icon;
@@ -572,6 +577,7 @@ export default function CompetitionAdmin() {
             'green-story': 'Green Story',
             'eco-pitch': 'Eco Pitch 180',
             'poster-presentation': 'Poster Presentation',
+            'eco-frame': 'Eco Frame',
         };
 
         return (
@@ -627,6 +633,7 @@ export default function CompetitionAdmin() {
                             <option value="green-story">Green Story</option>
                             <option value="eco-pitch">Eco Pitch 180</option>
                             <option value="poster-presentation">Poster Presentation</option>
+                            <option value="eco-frame">Eco Frame</option>
                         </select>
 
                         <button onClick={handleExport} className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" disabled={loading || filteredCompetitors.length === 0}>
@@ -856,7 +863,23 @@ export default function CompetitionAdmin() {
                                                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">{comp.photos?.length} frames</span>
                                                 </div>
                                             )}
-                                            {['eco-pitch', 'green-story', 'eco-buzzers', 'poster-presentation'].includes(comp.type) && (
+                                            {comp.type === 'eco-frame' && (
+                                                <div className="inline-flex items-center gap-3">
+                                                    <div className="flex -space-x-3 overflow-hidden cursor-pointer hover:-space-x-1 transition-all" onClick={() => setSelectedEntry(comp)}>
+                                                        {comp.photos?.slice(0, 3).map((p, i) => {
+                                                            const thumbUrl = p.url.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/');
+                                                            return <img key={i} src={thumbUrl} className="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-md" alt="Submission Thumbnail" />
+                                                        })}
+                                                        {comp.photos?.length > 3 && (
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-md">
+                                                                +{comp.photos.length - 3}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">{comp.photos?.length} photos</span>
+                                                </div>
+                                            )}
+                                            {['eco-pitch', 'green-story', 'eco-buzzers', 'poster-presentation', 'eco-frame'].includes(comp.type) && (
                                                 <button
                                                     onClick={() => setSelectedEntry(comp)}
                                                     className="flex items-center gap-2.5 bg-white border border-slate-200 hover:border-emerald-500 hover:text-emerald-600 text-slate-600 font-black px-4 py-2 rounded-xl transition-all text-[10px] uppercase tracking-wider shadow-sm active:scale-95"
@@ -927,7 +950,7 @@ export default function CompetitionAdmin() {
                                                         <div className="flex flex-col">
                                                             <div className="flex items-center gap-1.5 mb-1">
                                                                 <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">Tx ID (R2)</span>
-                                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{comp.type === 'poster-presentation' ? (comp.paymentAmount ? `${comp.paymentAmount} TK` : comp.isClubMember ? '399 TK' : '499 TK') : comp.type === 'eco-pitch' ? '700 TK' : '100 TK'}</span>
+                                                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{comp.type === 'poster-presentation' ? (comp.paymentAmount ? `${comp.paymentAmount} TK` : comp.isClubMember ? '399 TK' : '499 TK') : comp.type === 'eco-frame' ? '149 TK' : comp.type === 'eco-pitch' ? '700 TK' : '100 TK'}</span>
                                                                 <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider shadow-sm border ${comp.paymentMethodRound2 === 'rocket' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-pink-100 text-pink-700 border-pink-200'}`}>
                                                                     {comp.paymentMethodRound2 || 'bkash'}
                                                                 </span>
@@ -1296,8 +1319,61 @@ export default function CompetitionAdmin() {
                                         </div>
                                     )}
 
+                                    {/* Eco Frame (Individual Photography Contest) */}
+                                    {selectedEntry.type === 'eco-frame' && (
+                                        <div className="max-w-4xl mx-auto space-y-16">
+                                            {/* Participant Identification */}
+                                            <section>
+                                                <div className="flex items-center gap-3 mb-6 px-2">
+                                                    <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-teal-200">
+                                                        <User className="w-4 h-4" />
+                                                    </div>
+                                                    <h3 className="text-[10px] font-black uppercase text-teal-600 tracking-[0.2em]">Participant</h3>
+                                                </div>
+                                                <div className="grid sm:grid-cols-2 gap-4">
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Name</p><p className="font-black text-slate-900">{selectedEntry.name}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Student ID</p><p className="font-black text-slate-900">{selectedEntry.studentId}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Email</p><p className="font-black text-slate-900">{selectedEntry.email}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Department / Semester</p><p className="font-black text-slate-900">{selectedEntry.department}{selectedEntry.semester ? ` • ${selectedEntry.semester}` : ''}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Phone</p><p className="font-black text-slate-900">{selectedEntry.phone}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Payment</p><p className="font-black text-slate-900">bKash • {selectedEntry.bkashTxId || 'N/A'}{selectedEntry.paymentVerified ? ' ✓' : ''}</p></div>
+                                                </div>
+                                                {selectedEntry.paymentScreenshotUrl && (
+                                                    <div className="mt-4 bg-white border border-slate-100 rounded-2xl p-4">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Payment Screenshot</p>
+                                                        <img src={selectedEntry.paymentScreenshotUrl} alt="Payment Screenshot" className="w-48 rounded-xl border border-slate-200 cursor-pointer" onClick={() => setFullscreenImage(selectedEntry.paymentScreenshotUrl)} />
+                                                    </div>
+                                                )}
+                                            </section>
+
+                                            {/* Photos */}
+                                            <section>
+                                                <div className="flex items-center gap-3 mb-6 px-2">
+                                                    <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-teal-200">
+                                                        <Camera className="w-4 h-4" />
+                                                    </div>
+                                                    <h3 className="text-[10px] font-black uppercase text-teal-600 tracking-[0.2em]">Submitted Photos</h3>
+                                                </div>
+                                                <div className="grid sm:grid-cols-2 gap-6">
+                                                    {selectedEntry.photos?.map((p, i) => (
+                                                        <div key={i} className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                                                            <div className="relative cursor-zoom-in" onClick={() => setFullscreenImage(p.url)}>
+                                                                <img src={p.url.replace('/upload/', '/upload/c_limit,w_1000,q_auto,f_auto/')} alt={p.title || `Photo ${i + 1}`} className="w-full object-contain bg-slate-50 max-h-[420px]" />
+                                                            </div>
+                                                            <div className="p-4 space-y-2">
+                                                                <span className="inline-block px-2.5 py-1 bg-teal-50 border border-teal-200 rounded-full text-[10px] font-black text-teal-700 uppercase">{p.theme}</span>
+                                                                <p className="font-bold text-slate-900 text-sm">{p.title}</p>
+                                                                <p className="text-xs text-slate-500 italic">{p.caption}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </section>
+                                        </div>
+                                    )}
+
                                     {/* Other Competitions (Top-Down Cinematic Layout) */}
-                                    {selectedEntry.type !== 'eco-capture' && (
+                                    {selectedEntry.type !== 'eco-capture' && selectedEntry.type !== 'eco-frame' && (
                                         <div className="max-w-4xl mx-auto space-y-16">
                                             {/* 1. Team Roster on Top */}
                                             {selectedEntry.members?.length > 0 && (
@@ -1354,7 +1430,7 @@ export default function CompetitionAdmin() {
                                             <section className="space-y-8">
                                                 <div className="flex items-center gap-3 px-2">
                                                     <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">
-                                                        {selectedEntry.type === 'eco-pitch' || selectedEntry.type === 'poster-presentation' ? <FileText className="w-4 h-4" /> :
+                                                        {selectedEntry.type === 'eco-pitch' || selectedEntry.type === 'poster-presentation' || selectedEntry.type === 'eco-frame' ? <FileText className="w-4 h-4" /> :
                                                             selectedEntry.type === 'green-story' ? <Video className="w-4 h-4" /> :
                                                                 <Zap className="w-4 h-4" />}
                                                     </div>
@@ -1363,7 +1439,7 @@ export default function CompetitionAdmin() {
 
                                                 <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-8 border-white bg-white">
                                                     {/* Eco Pitch / Poster Presentation Asset */}
-                                                    {(selectedEntry.type === 'eco-pitch' || selectedEntry.type === 'poster-presentation') && (() => {
+                                                    {(selectedEntry.type === 'eco-pitch' || selectedEntry.type === 'poster-presentation' || selectedEntry.type === 'eco-frame') && (() => {
                                                         const rawPdfUrl = selectedEntry.pdfUrl
                                                             ? selectedEntry.pdfUrl.replace('/image/upload/', '/raw/upload/')
                                                             : null;
@@ -1452,11 +1528,12 @@ export default function CompetitionAdmin() {
                                                 </div>
                                             </section>
 
-                                            {selectedEntry.type === 'poster-presentation' && (
+                                            {(selectedEntry.type === 'poster-presentation' || selectedEntry.type === 'eco-frame') && (
                                                 <section className="space-y-6 mt-8">
                                                     <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 flex flex-wrap gap-4 text-sm">
                                                         {selectedEntry.trackCategory && <span className="px-3 py-1.5 bg-white border border-indigo-200 rounded-xl font-bold text-indigo-800 text-xs">Track: {selectedEntry.trackCategory}</span>}
                                                         {selectedEntry.posterTitle && <span className="px-3 py-1.5 bg-white border border-indigo-200 rounded-xl font-bold text-slate-700 text-xs flex-1">Title: {selectedEntry.posterTitle}</span>}
+                                                        {selectedEntry.frameTitle && <span className="px-3 py-1.5 bg-white border border-teal-200 rounded-xl font-bold text-teal-700 text-xs flex-1">Frame Title: {selectedEntry.frameTitle}</span>}
                                                         {selectedEntry.confirmAi !== undefined && <span className={`px-3 py-1.5 rounded-xl font-bold text-xs border ${selectedEntry.confirmAi ? 'bg-green-50 border-green-200 text-green-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`}>{selectedEntry.confirmAi ? '✓ AI <30% confirmed' : '✗ AI not confirmed'}</span>}
                                                     </div>
 

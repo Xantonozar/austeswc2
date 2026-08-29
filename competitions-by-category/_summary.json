@@ -22,5 +22,11 @@
     "total": 1,
     "paid": 1,
     "amountPerEntry": 400
+  },
+  {
+    "category": "eco-frame",
+    "total": 0,
+    "paid": 0,
+    "amountPerEntry": 499
   }
 ]

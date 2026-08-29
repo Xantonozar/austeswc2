@@ -98,7 +98,7 @@ export default function CheckStatusPage() {
         }
     };
 
-    const formatType = (type) => type === 'eco-pitch' ? 'ECO PITCH 180' : type === 'poster-presentation' ? 'POSTER PRESENTATION' : type.replace("-", " ").toUpperCase();
+    const formatType = (type) => type === 'eco-pitch' ? 'ECO PITCH 180' : type === 'poster-presentation' ? 'POSTER PRESENTATION' : type === 'eco-frame' ? 'ECO FRAME' : type.replace("-", " ").toUpperCase();
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] pt-24 pb-20 font-sans">

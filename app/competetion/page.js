@@ -13,6 +13,14 @@ const competitions = [
     banner: "https://res.cloudinary.com/chirkut/image/upload/v1787581792/poster_presentaion_2_s4tsji.png",
     meta: ["Free R1", "1-3 Members", "300 words", "R2 499 BDT"],
   },
+  {
+    slug: "eco-frame",
+    title: "Eco Frame",
+    description: "Environmental Photography Contest. Submit 1–3 photos (JPEG/PNG), 100 BDT fee. Themes: Nature, Waste, Hope & more.",
+    icon: ImageIcon,
+    banner: null,
+    meta: ["100 BDT", "Individual", "Up to 3 Photos", "JPEG/PNG"],
+  },
 ];
 
 export default function CompetitionsPage() {

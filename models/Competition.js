@@ -8,6 +8,12 @@ const MemberSchema = new mongoose.Schema({
     // For team events
     teamName: { type: String },
     universityName: { type: String },
+
+    // For Eco Frame (individual photography contest)
+    studentId: { type: String },
+    department: { type: String },
+    semester: { type: String },
+
     members: [{
         name: { type: String },
         email: { type: String },
@@ -22,11 +28,14 @@ const MemberSchema = new mongoose.Schema({
         }
     }],
 
-    // For Eco Capture
+    // For Eco Capture & Eco Frame
     photos: [{
         url: { type: String },
         publicId: { type: String },
         story: { type: String },
+        theme: { type: String },
+        title: { type: String },
+        caption: { type: String },
         selected: { type: Boolean, default: false }
     }],
 
@@ -47,7 +56,7 @@ const MemberSchema = new mongoose.Schema({
     // Competition tracking
     type: {
         type: String,
-        enum: ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation'],
+        enum: ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame'],
         required: true
     },
     status: {
