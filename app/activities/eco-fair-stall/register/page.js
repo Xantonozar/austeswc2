@@ -231,7 +231,7 @@ export default function EcoFairStallRegister() {
                 <div className="max-w-2xl mx-auto text-center relative z-10">
                     <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-white" />
                     <h2 className="text-3xl font-bold mb-2 text-white">Register Your Stall</h2>
-                    <p className="text-emerald-100/90 text-sm opacity-90">Eco Champions 4.0 • Sept 20–21, 2026 • AUST Campus. 100% advance bKash registration.</p>
+                    <p className="text-emerald-100/90 text-sm opacity-90">Eco Champions 4.0 • Sept 20–21, 2026 • AUST Campus. bKash registration.</p>
                 </div>
             </div>
 
@@ -373,7 +373,7 @@ export default function EcoFairStallRegister() {
                             <Smartphone className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
                             <div>
                                 <p className="font-bold text-yellow-900 border-b border-yellow-200/50 pb-2 mb-2">Send Money (bKash)</p>
-                                <p className="font-medium text-yellow-800">100% advance registration fee — payable before submitting.</p>
+                                <p className="font-medium text-yellow-800">Registration fee — payable before submitting.</p>
                                 <p className="font-medium text-yellow-800 mt-1">To official Merchant/Personal Number: <span className="font-bold select-all">01639802823</span></p>
                             </div>
                         </div>
