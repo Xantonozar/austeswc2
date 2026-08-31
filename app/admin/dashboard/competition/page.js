@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Loader2, Search, Filter, Download, Trash2,
     CheckCircle2, XCircle, Eye, ExternalLink,
-    FileText, Camera, Video, Zap, User, Users, Phone, Mail, Frame,
+    FileText, Camera, Video, Zap, User, Users, Phone, Mail, Frame, Timer, ShoppingBag,
     ChevronRight, X, Star, ArrowLeft, GraduationCap, ChevronDown, Calendar, LayoutGrid
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -200,7 +200,7 @@ export default function CompetitionAdmin() {
         };
 
         // Initialize all competition types
-        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame'];
+        const types = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame', 'buzzer-battle', 'eco-fair-stall'];
         types.forEach(type => {
             groupedData.competitions[type] = {
                 count: 0,
@@ -335,7 +335,9 @@ export default function CompetitionAdmin() {
             'green-story': 'Green Story',
             'eco-pitch': 'Eco Pitch 180',
             'poster-presentation': 'Poster Presentation',
-            'eco-frame': 'Eco Frame'
+            'eco-frame': 'Eco Frame',
+            'buzzer-battle': 'Buzzer Battle',
+            'eco-fair-stall': 'Eco Fair Stall'
         };
 
         const exportData = {
@@ -378,7 +380,42 @@ export default function CompetitionAdmin() {
                             universityName: m.universityName
                         })) || []
                     } : {}),
-                    
+
+                    ...(type === 'buzzer-battle' ? {
+                        teamName: c.teamName,
+                        teamLeaderEmail: c.email,
+                        teamLeaderPhone: c.phone,
+                        caReference: c.caReference || null,
+                        paymentScreenshotUrl: c.paymentScreenshotUrl || null,
+                        declarations: c.declarations || null,
+                        teamMembers: c.members?.map((m, idx) => ({
+                            memberNumber: idx + 1,
+                            role: m.isLeader ? 'Team Leader' : `Member ${idx + 1}`,
+                            name: m.name,
+                            email: m.email,
+                            phone: m.phone,
+                            studentId: m.studentId,
+                            department: m.department,
+                            semester: m.semester
+                        })) || []
+                    } : {}),
+
+                    ...(type === 'eco-fair-stall' ? {
+                        brandName: c.details?.brandName || c.teamName,
+                        email: c.email,
+                        phone: c.phone,
+                        designation: c.details?.designation || null,
+                        logoUrl: c.details?.logoUrl || null,
+                        primaryRep: c.details?.primaryRep || null,
+                        secondaryRep: c.details?.secondaryRep || null,
+                        additionalReps: c.details?.additionalReps || null,
+                        stallSize: c.details?.stallSize || null,
+                        productCategories: c.details?.productCategories || [],
+                        productDescription: c.details?.productDescription || null,
+                        terms: c.details?.terms || null,
+                        paymentScreenshotUrl: c.paymentScreenshotUrl || null
+                    } : {}),
+
                     ...(type === 'green-story' ? {
                         // Green Story is team (1-3 members) with video
                         teamName: c.teamName,
@@ -566,7 +603,9 @@ export default function CompetitionAdmin() {
             'green-story': { bg: "bg-green-50", text: "text-green-700", icon: Video },
             'eco-pitch': { bg: "bg-pink-50", text: "text-pink-700", icon: FileText },
             'poster-presentation': { bg: "bg-indigo-50", text: "text-indigo-700", icon: FileText },
-            'eco-frame': { bg: "bg-teal-50", text: "text-teal-700", icon: Frame }
+            'eco-frame': { bg: "bg-teal-50", text: "text-teal-700", icon: Frame },
+            'buzzer-battle': { bg: "bg-violet-50", text: "text-violet-700", icon: Timer },
+            'eco-fair-stall': { bg: "bg-emerald-50", text: "text-emerald-700", icon: ShoppingBag }
         };
         const config = styles[type] || { bg: "bg-slate-50", text: "text-slate-700", icon: User };
         const Icon = config.icon;
@@ -578,6 +617,8 @@ export default function CompetitionAdmin() {
             'eco-pitch': 'Eco Pitch 180',
             'poster-presentation': 'Poster Presentation',
             'eco-frame': 'Eco Frame',
+            'buzzer-battle': 'Buzzer Battle',
+            'eco-fair-stall': 'Eco Fair Stall',
         };
 
         return (
@@ -634,6 +675,8 @@ export default function CompetitionAdmin() {
                             <option value="eco-pitch">Eco Pitch 180</option>
                             <option value="poster-presentation">Poster Presentation</option>
                             <option value="eco-frame">Eco Frame</option>
+                            <option value="buzzer-battle">Buzzer Battle</option>
+                            <option value="eco-fair-stall">Eco Fair Stall</option>
                         </select>
 
                         <button onClick={handleExport} className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-all text-sm shadow-lg active:scale-95" disabled={loading || filteredCompetitors.length === 0}>
@@ -741,6 +784,34 @@ export default function CompetitionAdmin() {
                                             <div>
                                                 <p className="text-sm font-bold text-slate-800">Poster Presentation</p>
                                                 <p className="text-[10px] text-slate-400">Abstract PDF URLs, team info</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Buzzer Battle */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('buzzer-battle')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-violet-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                                                <Timer className="w-4 h-4 text-violet-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Buzzer Battle</p>
+                                                <p className="text-[10px] text-slate-400">Team info, members, payment screenshot</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Eco Fair Stall */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('eco-fair-stall')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-emerald-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                                <ShoppingBag className="w-4 h-4 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Eco Fair Stall</p>
+                                                <p className="text-[10px] text-slate-400">Brand, reps, stall size, payments</p>
                                             </div>
                                         </button>
                                     </div>
@@ -879,7 +950,7 @@ export default function CompetitionAdmin() {
                                                     <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">{comp.photos?.length} photos</span>
                                                 </div>
                                             )}
-                                            {['eco-pitch', 'green-story', 'eco-buzzers', 'poster-presentation', 'eco-frame'].includes(comp.type) && (
+                                            {['eco-pitch', 'green-story', 'eco-buzzers', 'poster-presentation', 'eco-frame', 'buzzer-battle'].includes(comp.type) && (
                                                 <button
                                                     onClick={() => setSelectedEntry(comp)}
                                                     className="flex items-center gap-2.5 bg-white border border-slate-200 hover:border-emerald-500 hover:text-emerald-600 text-slate-600 font-black px-4 py-2 rounded-xl transition-all text-[10px] uppercase tracking-wider shadow-sm active:scale-95"
@@ -1067,7 +1138,7 @@ export default function CompetitionAdmin() {
                                                     selectedEntry.type === 'green-story' ? 'bg-green-50 text-green-600' :
                                                         'bg-pink-50 text-pink-600'
                                                 }`}>
-                                                {selectedEntry.type === 'eco-buzzers' ? 'Green Buzzers Battle' : selectedEntry.type.replace('-', ' ')}
+                                                {selectedEntry.type === 'eco-buzzers' ? 'Green Buzzers Battle' : selectedEntry.type === 'buzzer-battle' ? 'Buzzer Battle' : selectedEntry.type === 'eco-fair-stall' ? 'Eco Fair Stall' : selectedEntry.type.replace('-', ' ')}
                                             </div>
                                             <div className="w-1 h-1 rounded-full bg-slate-300"></div>
                                             <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Round {selectedEntry.round || 1}</span>
@@ -1372,8 +1443,76 @@ export default function CompetitionAdmin() {
                                         </div>
                                     )}
 
+                                    {/* Eco Fair Stall */}
+                                    {selectedEntry.type === 'eco-fair-stall' && (
+                                        <div className="max-w-4xl mx-auto space-y-16">
+                                            <section>
+                                                <div className="flex items-center gap-3 mb-6 px-2">
+                                                    <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-black shadow-lg shadow-emerald-200">
+                                                        <ShoppingBag className="w-4 h-4" />
+                                                    </div>
+                                                    <h3 className="text-[10px] font-black uppercase text-emerald-600 tracking-[0.2em]">Stall Registration</h3>
+                                                </div>
+                                                <div className="grid sm:grid-cols-2 gap-4">
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Brand / Vendor</p><p className="font-black text-slate-900">{selectedEntry.details?.brandName || selectedEntry.teamName}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Designation / Role</p><p className="font-black text-slate-900">{selectedEntry.details?.designation || 'N/A'}</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Stall Size</p><p className="font-black text-slate-900">{selectedEntry.details?.stallSize} Sq. Ft.</p></div>
+                                                    <div className="bg-white border border-slate-100 rounded-2xl p-4"><p className="text-[10px] font-bold text-slate-400 uppercase">Payment</p><p className="font-black text-slate-900">bKash • {selectedEntry.bkashTxId || 'N/A'}{selectedEntry.paymentVerified ? ' ✓' : ''}</p></div>
+                                                </div>
+                                                {selectedEntry.details?.logoUrl && (
+                                                    <div className="mt-4 bg-white border border-slate-100 rounded-2xl p-4">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Brand Logo</p>
+                                                        <img src={selectedEntry.details.logoUrl} alt="Brand Logo" className="h-32 rounded-xl border border-slate-200 cursor-pointer" onClick={() => setFullscreenImage(selectedEntry.details.logoUrl)} />
+                                                    </div>
+                                                )}
+                                                {selectedEntry.details?.primaryRep && (
+                                                    <div className="mt-4 bg-white border border-slate-100 rounded-2xl p-4">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Representatives</p>
+                                                        <p className="text-sm font-semibold text-slate-700">Primary: {selectedEntry.details.primaryRep.name} <span className="text-slate-400">({selectedEntry.details.primaryRep.phone})</span></p>
+                                                        {selectedEntry.details.secondaryRep && <p className="text-sm font-semibold text-slate-700 mt-1">Secondary: {selectedEntry.details.secondaryRep.name} <span className="text-slate-400">({selectedEntry.details.secondaryRep.phone})</span></p>}
+                                                        {selectedEntry.details.additionalReps && <p className="text-sm text-slate-500 mt-1 whitespace-pre-line">Additional: {selectedEntry.details.additionalReps}</p>}
+                                                    </div>
+                                                )}
+                                                {selectedEntry.details?.productCategories?.length > 0 && (
+                                                    <div className="mt-4 bg-white border border-slate-100 rounded-2xl p-4">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Declared Product Categories</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {selectedEntry.details.productCategories.map((c, i) => (
+                                                                <span key={i} className="text-xs font-semibold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full">{c}</span>
+                                                            ))}
+                                                        </div>
+                                                        {selectedEntry.details.productDescription && <p className="text-sm text-slate-600 mt-3 italic">"{selectedEntry.details.productDescription}"</p>}
+                                                    </div>
+                                                )}
+                                                {selectedEntry.paymentScreenshotUrl && (
+                                                    <div className="mt-4 bg-white border border-slate-100 rounded-2xl p-4">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Payment Screenshot</p>
+                                                        <img src={selectedEntry.paymentScreenshotUrl} alt="Payment Screenshot" className="max-w-sm w-full rounded-xl border-4 border-white shadow-md cursor-pointer hover:scale-[1.02] transition" onClick={() => setFullscreenImage(selectedEntry.paymentScreenshotUrl)} />
+                                                    </div>
+                                                )}
+                                                {selectedEntry.details?.terms && (
+                                                    <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-2">
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-3">Terms & Conditions</p>
+                                                        {[
+                                                            { label: 'Single-Use Plastic Ban', val: selectedEntry.details.terms.plasticBan },
+                                                            { label: 'Advance Payment & Non-Refundable', val: selectedEntry.details.terms.advancePayment },
+                                                            { label: 'Approved Merchandise & Prohibited Items', val: selectedEntry.details.terms.approvedMerch },
+                                                            { label: 'Setup Schedule & Property Safety', val: selectedEntry.details.terms.setupSchedule },
+                                                            { label: 'Campus Decorum & Final Authority', val: selectedEntry.details.terms.decorum }
+                                                        ].map((d, i) => (
+                                                            <div key={i} className="flex items-center justify-between text-sm">
+                                                                <span className="text-slate-600 font-medium">{d.label}</span>
+                                                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${d.val ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>{d.val ? 'Agreed' : 'Not Agreed'}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </section>
+                                        </div>
+                                    )}
+
                                     {/* Other Competitions (Top-Down Cinematic Layout) */}
-                                    {selectedEntry.type !== 'eco-capture' && selectedEntry.type !== 'eco-frame' && (
+                                    {selectedEntry.type !== 'eco-capture' && selectedEntry.type !== 'eco-frame' && selectedEntry.type !== 'eco-fair-stall' && (
                                         <div className="max-w-4xl mx-auto space-y-16">
                                             {/* 1. Team Roster on Top */}
                                             {selectedEntry.members?.length > 0 && (
@@ -1395,7 +1534,7 @@ export default function CompetitionAdmin() {
                                                                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">N/A</div>
                                                                     )}
                                                                     <span className="text-sm font-black text-slate-900">{m.name}</span>
-                                                                    <span className="ml-auto text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Member 0{i + 1}</span>
+                                                                    <span className="ml-auto text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">{m.isLeader ? 'Team Leader' : `Member 0${i + 1}`}</span>
                                                                 </div>
                                                                 <div className="space-y-2">
                                                                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
@@ -1527,6 +1666,44 @@ export default function CompetitionAdmin() {
                                                     )}
                                                 </div>
                                             </section>
+
+                                            {/* Buzzer Battle — Declarations & Payment Screenshot */}
+                                            {selectedEntry.type === 'buzzer-battle' && (
+                                                <section className="space-y-6 mt-8">
+                                                    {selectedEntry.declarations && (
+                                                        <div className="bg-violet-50 border border-violet-100 rounded-2xl p-5 space-y-2">
+                                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-600 mb-3">Declarations & Policy Agreement</p>
+                                                            {[
+                                                                { label: 'Team Verification (AUST students)', val: selectedEntry.declarations.teamVerification },
+                                                                { label: 'Single Entry Policy', val: selectedEntry.declarations.singleEntry },
+                                                                { label: 'Electronic Device & Conduct Policy', val: selectedEntry.declarations.conduct },
+                                                                { label: 'Rulebook Compliance', val: selectedEntry.declarations.rulebook }
+                                                            ].map((d, i) => (
+                                                                <div key={i} className="flex items-center justify-between text-sm">
+                                                                    <span className="text-slate-600 font-medium">{d.label}</span>
+                                                                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${d.val ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>{d.val ? 'Agreed' : 'Not Agreed'}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    {(selectedEntry.bkashTxId || selectedEntry.paymentSenderNumber || selectedEntry.paymentScreenshotUrl) && (
+                                                        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
+                                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-pink-600 flex items-center gap-2">Payment Details (499 BDT)</h3>
+                                                            <div className="grid sm:grid-cols-2 gap-4 text-sm">
+                                                                {selectedEntry.bkashTxId && <div className="bg-pink-50 border border-pink-100 rounded-xl p-3"><p className="text-[10px] font-black uppercase text-pink-500">TrxID</p><p className="font-mono font-black">{selectedEntry.bkashTxId} <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border">{selectedEntry.paymentMethod}</span></p></div>}
+                                                                {selectedEntry.paymentSenderNumber && <div className="bg-slate-50 border border-slate-100 rounded-xl p-3"><p className="text-[10px] font-black uppercase text-slate-400">Sender Number</p><p className="font-bold">{selectedEntry.paymentSenderNumber}</p></div>}
+                                                            </div>
+                                                            {selectedEntry.paymentScreenshotUrl && (
+                                                                <div>
+                                                                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Payment Screenshot</p>
+                                                                    <img src={selectedEntry.paymentScreenshotUrl} alt="Payment Screenshot" className="max-w-sm w-full rounded-xl border-4 border-white shadow-md cursor-pointer hover:scale-[1.02] transition" onClick={() => setFullscreenImage(selectedEntry.paymentScreenshotUrl)} />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </section>
+                                            )}
 
                                             {(selectedEntry.type === 'poster-presentation' || selectedEntry.type === 'eco-frame') && (
                                                 <section className="space-y-6 mt-8">

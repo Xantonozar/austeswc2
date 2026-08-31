@@ -8,7 +8,7 @@ export async function POST(req) {
         const body = await req.json();
 
         // Type checking
-        const validTypes = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame'];
+        const validTypes = ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame', 'buzzer-battle', 'eco-fair-stall'];
         if (!validTypes.includes(body.type)) {
             return new Response(JSON.stringify({ error: 'invalid_type', message: 'Invalid competition type' }), { status: 400 });
         }
@@ -59,6 +59,14 @@ export async function POST(req) {
                 processedMembers.push({ ...rest, photo });
             }
             processedData.members = processedMembers;
+        }
+
+        // Process Buzzer Battle / Eco Fair Stall payment screenshot (paid) — Cloudinary
+        if ((body.type === 'buzzer-battle' || body.type === 'eco-fair-stall') && body.paymentScreenshot && body.paymentScreenshot.url) {
+            processedData.paymentScreenshotUrl = body.paymentScreenshot.url;
+            processedData.paymentScreenshotPublicId = body.paymentScreenshot.publicId;
+            delete processedData.paymentScreenshot;
+            processedData.status = 'registered';
         }
 
         // Process Eco Frame photos + payment screenshot (paid photo contest) — Cloudinary
@@ -133,8 +141,8 @@ export async function POST(req) {
         const registration = await Competition.create(processedData);
 
         const recipientName = processedData.name || processedData.teamName || 'Participant';
-        const PAID_TYPES = ['eco-buzzers', 'eco-pitch', 'green-story', 'eco-frame'];
-        const FEE_MAP = { 'eco-buzzers': '100', 'eco-pitch': '300', 'green-story': '700', 'eco-frame': '149' };
+        const PAID_TYPES = ['eco-buzzers', 'eco-pitch', 'green-story', 'eco-frame', 'buzzer-battle', 'eco-fair-stall'];
+        const FEE_MAP = { 'eco-buzzers': '100', 'eco-pitch': '300', 'green-story': '700', 'eco-frame': '149', 'buzzer-battle': '499', 'eco-fair-stall': 'Stall Fee' };
         const isPaid = PAID_TYPES.includes(body.type);
 
         try {

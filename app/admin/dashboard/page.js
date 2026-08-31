@@ -6,7 +6,7 @@ import {
     Users, Trophy, ArrowRight, TrendingUp,
     PieChart, Activity, Zap, Camera, Video, FileText, ChevronRight,
     Loader2, LogOut, Calendar, Building2, Check, AlertTriangle, Shield, Database, Clock,
-    Crown, Flame
+    Crown, Flame, ShoppingBag
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -219,6 +219,12 @@ export default function AdminDashboardOverview() {
                         href="/admin/dashboard/applications"
                         icon={FileText}
                         color="bg-sky-600"
+                    />
+                    <NavCard
+                        title="Stall Apps"
+                        href="/admin/dashboard/stall"
+                        icon={ShoppingBag}
+                        color="bg-teal-600"
                     />
                     <NavCard
                         title="Data Collection"

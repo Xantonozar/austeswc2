@@ -221,6 +221,11 @@ export default function EcoFairStallArticle() {
             environmentally conscious choices in your daily life. Every small change makes a big difference!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/activities/eco-fair-stall/register">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3">
+                Register Your Stall
+              </Button>
+            </Link>
             <Link href="/coming">
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3">
                 Visit Stall

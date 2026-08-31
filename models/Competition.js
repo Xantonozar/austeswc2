@@ -14,15 +14,16 @@ const MemberSchema = new mongoose.Schema({
     department: { type: String },
     semester: { type: String },
 
-    members: [{
-        name: { type: String },
-        email: { type: String },
-        phone: { type: String },
-        studentId: { type: String },
-        universityName: { type: String },
-        department: { type: String },
-        semester: { type: String },
-        photo: {
+        members: [{
+            name: { type: String },
+            email: { type: String },
+            phone: { type: String },
+            studentId: { type: String },
+            universityName: { type: String },
+            department: { type: String },
+            semester: { type: String },
+            isLeader: { type: Boolean, default: false },
+            photo: {
             url: { type: String },
             publicId: { type: String }
         }
@@ -53,10 +54,21 @@ const MemberSchema = new mongoose.Schema({
     // Campus Ambassador Reference
     caReference: { type: String, default: '' },
 
+    // Buzzer Battle declarations (policy agreements)
+    declarations: {
+        teamVerification: { type: Boolean, default: false },
+        singleEntry: { type: Boolean, default: false },
+        conduct: { type: Boolean, default: false },
+        rulebook: { type: Boolean, default: false }
+    },
+
+    // Eco Fair Stall — arbitrary structured registration data
+    details: { type: mongoose.Schema.Types.Mixed },
+
     // Competition tracking
     type: {
         type: String,
-        enum: ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame'],
+        enum: ['eco-capture', 'eco-buzzers', 'green-story', 'eco-pitch', 'poster-presentation', 'eco-frame', 'buzzer-battle', 'eco-fair-stall'],
         required: true
     },
     status: {

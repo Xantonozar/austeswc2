@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Image as ImageIcon, Users, FileText, ArrowRight } from "lucide-react";
+import { Image as ImageIcon, Users, FileText, Zap, ArrowRight } from "lucide-react";
 
 const competitions = [
   {
@@ -20,6 +20,14 @@ const competitions = [
     icon: ImageIcon,
     banner: "https://res.cloudinary.com/chirkut/image/upload/v1788013635/Segment_Announcement_Posts_eyslrh.svg",
     meta: ["149 BDT", "Individual", "Up to 3 Photos", "JPEG/PNG"],
+  },
+  {
+    slug: "buzzer-battle",
+    title: "Buzzer Battle",
+    description: "Environmental Quiz Showdown. Rapid-fire quiz on ecology, climate & sustainability. Teams of 1–3 AUST students. 499 BDT fee.",
+    icon: Zap,
+    banner: "https://res.cloudinary.com/chirkut/image/upload/v1788180163/5_20260831_093151_0000_xk44jz.png",
+    meta: ["499 BDT", "1-3 Members", "AUST Only", "bKash/Nagad"],
   },
 ];
 

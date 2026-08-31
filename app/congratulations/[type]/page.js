@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PartyPopper, ArrowRight, Camera, Zap, FileVideo, Mic2, ShieldCheck, Mail, FileText, Frame } from "lucide-react";
+import { PartyPopper, ArrowRight, Camera, Zap, FileVideo, Mic2, ShieldCheck, Mail, FileText, Frame, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 
@@ -30,6 +30,24 @@ export default function CongratulationsPage({ params }) {
                     nextSteps: "We're verifying your bKash payment. You will receive a confirmation email shortly with the buzzer round schedule and rules.",
                     bgClass: "bg-[#E8F9FF]",
                     iconColor: "text-[#1B4B43]"
+                };
+            case "buzzer-battle":
+                return {
+                    title: "Buzzer Battle",
+                    message: "Your team registration is complete and payment is pending verification.",
+                    icon: Zap,
+                    nextSteps: "We're verifying your bKash payment of 499 BDT. You will receive a confirmation email shortly with the quiz schedule, venue, and rules.",
+                    bgClass: "bg-[#F5F0FF]",
+                    iconColor: "text-[#A855F7]"
+                };
+            case "eco-fair-stall":
+                return {
+                    title: "Eco Fair Stall",
+                    message: "Your stall registration is complete and payment is pending verification.",
+                    icon: ShoppingBag,
+                    nextSteps: "We're verifying your bKash advance payment. Once confirmed, you will receive a confirmation email with stall allocation and setup details for Sept 20–21, 2026.",
+                    bgClass: "bg-[#F0FDF4]",
+                    iconColor: "text-emerald-600"
                 };
             case "green-story":
                 return {

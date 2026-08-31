@@ -322,7 +322,7 @@ export default function EcoFrameRegister() {
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
-                                    <Star className="w-4 h-4 text-amber-500" /> Campus Ambassador Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
+                                    <Star className="w-4 h-4 text-amber-500" /> Reference <span className="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                                 </label>
                                 <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#1B4B43] outline-none" placeholder="Name of referrer" />
                             </div>

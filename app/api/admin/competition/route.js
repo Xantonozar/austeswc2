@@ -71,7 +71,7 @@ export async function PATCH(req) {
 
         if (status === 'selected' && competitor.status !== 'selected') {
             try {
-                const feeMap = { 'poster-presentation': '499', 'eco-pitch': '700', 'eco-buzzers': '100', 'eco-capture': '300', 'green-story': '499' };
+                const feeMap = { 'poster-presentation': '499', 'eco-pitch': '700', 'eco-buzzers': '100', 'eco-capture': '300', 'green-story': '499', 'buzzer-battle': '499', 'eco-fair-stall': 'Stall Fee' };
                 await sendSelectionEmail(updated.email, participantName, updated.type, { teamName: updated.teamName || participantName, amount: feeMap[updated.type] || '499', members: updated.members || [] });
             } catch (emailError) {
                 console.error('Failed to send selection email:', emailError);
