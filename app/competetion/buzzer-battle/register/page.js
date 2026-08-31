@@ -6,7 +6,10 @@ import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Users, ArrowLeft, Loader2, CreditCard, Smartphone, Plus, Trash2, GraduationCap, Star, Check, CheckCircle2, Upload, Receipt, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import imageCompression from 'browser-image-compression';
+
+const BUZZER_BATTLE_IMAGE = "https://res.cloudinary.com/chirkut/image/upload/v1788183640/6102763479962948768_121_xarflx.jpg";
 
 const DEPARTMENTS = ['CSE', 'EEE', 'CE', 'ME', 'IPE', 'TE', 'Architecture', 'BBA'];
 const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
@@ -232,19 +235,26 @@ export default function BuzzerBattleRegister() {
             <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
                 <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
                     <Link href="/competetion/buzzer-battle" className="p-2 -ml-2 rounded-full hover:bg-gray-50 transition-colors">
-                        <ArrowLeft className="w-6 h-6 text-[#A855F7]" />
+                        <ArrowLeft className="w-6 h-6 text-[#22C55E]" />
                     </Link>
-                    <h1 className="text-lg font-bold text-[#1B1230]">Team Registration</h1>
+                    <h1 className="text-lg font-bold text-[#1B4B43]">Team Registration</h1>
                     <div className="w-10"></div>
                 </div>
             </div>
 
-            <div className="bg-[#1B1230] text-violet-100 pt-8 pb-16 px-4 -mt-[1px] relative overflow-hidden">
-                <div className="w-64 h-64 absolute -top-20 -left-20 bg-[#A855F7]/20 rounded-full blur-3xl"></div>
+            <div className="bg-[#1B4B43] text-green-100 pt-8 pb-4 px-4 -mt-[1px] relative overflow-hidden">
+                <div className="w-64 h-64 absolute -top-20 -left-20 bg-[#22C55E]/20 rounded-full blur-3xl"></div>
                 <div className="max-w-xl mx-auto text-center relative z-10">
-                    <Zap className="w-12 h-12 mx-auto mb-4 text-[#D8B4FE]" />
+                    <Image
+                        src={BUZZER_BATTLE_IMAGE}
+                        alt="Buzzer Battle"
+                        width={800}
+                        height={200}
+                        className="w-full max-w-md mx-auto h-auto object-cover rounded-2xl mb-6"
+                        priority
+                    />
                     <h2 className="text-3xl font-bold mb-2 text-white">Register for Buzzer Battle</h2>
-                    <p className="text-violet-200/90 text-sm opacity-90">Form your team (1–3 members) and pay 499 BDT via bKash to enter the quiz showdown.</p>
+                    <p className="text-green-200/90 text-sm opacity-90">Form your team (1–3 members) and pay 499 BDT via bKash to enter the quiz showdown.</p>
                 </div>
             </div>
 
@@ -254,18 +264,18 @@ export default function BuzzerBattleRegister() {
                     {/* Team Details */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-6">
-                            <div className="p-2 bg-violet-50 rounded-lg"><Users className="w-5 h-5 text-[#A855F7]" /></div>
-                            <h3 className="font-bold text-[#1B1230] text-lg">Team Details</h3>
+                            <div className="p-2 bg-green-50 rounded-lg"><Users className="w-5 h-5 text-[#22C55E]" /></div>
+                            <h3 className="font-bold text-[#1B4B43] text-lg">Team Details</h3>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1">Team Name <span className="text-red-500">*</span></label>
-                            <input name="teamName" value={form.teamName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#A855F7] outline-none transition-all" placeholder="e.g. Planet Saviors" />
+                            <input name="teamName" value={form.teamName} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#22C55E] outline-none transition-all" placeholder="e.g. Planet Saviors" />
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
                                 <Star className="w-4 h-4 text-amber-500" /> Reference
                             </label>
-                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#A855F7] outline-none transition-all" placeholder="Optional" />
+                            <input name="caReference" value={form.caReference} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#22C55E] outline-none transition-all" placeholder="Optional" />
                         </div>
                     </div>
 
@@ -273,22 +283,22 @@ export default function BuzzerBattleRegister() {
                     <hr className="border-gray-100" />
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 bg-violet-50 rounded-lg"><GraduationCap className="w-5 h-5 text-[#A855F7]" /></div>
-                            <h3 className="font-bold text-[#1B1230] text-lg">Team Leader <span className="text-red-500">*</span></h3>
+                            <div className="p-2 bg-green-50 rounded-lg"><GraduationCap className="w-5 h-5 text-[#22C55E]" /></div>
+                            <h3 className="font-bold text-[#1B4B43] text-lg">Team Leader <span className="text-red-500">*</span></h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input value={leader.name} onChange={(e) => handleLeaderChange('name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Full Name" />
-                            <input value={leader.studentId} onChange={(e) => handleLeaderChange('studentId', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Student ID" />
-                            <input type="email" value={leader.email} onChange={(e) => handleLeaderChange('email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Active Email Address" />
-                            <input value={leader.phone} onChange={(e) => handleLeaderChange('phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Contact Number" />
+                            <input value={leader.name} onChange={(e) => handleLeaderChange('name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Full Name" />
+                            <input value={leader.studentId} onChange={(e) => handleLeaderChange('studentId', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Student ID" />
+                            <input type="email" value={leader.email} onChange={(e) => handleLeaderChange('email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Active Email Address" />
+                            <input value={leader.phone} onChange={(e) => handleLeaderChange('phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Contact Number" />
                             <div className="relative">
-                                <select value={leader.department} onChange={(e) => handleLeaderChange('department', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm appearance-none pr-8">
+                                <select value={leader.department} onChange={(e) => handleLeaderChange('department', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm appearance-none pr-8">
                                     <option value="">Department *</option>
                                     {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                                 </select>
                             </div>
                             <div className="relative">
-                                <select value={leader.semester} onChange={(e) => handleLeaderChange('semester', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm appearance-none pr-8">
+                                <select value={leader.semester} onChange={(e) => handleLeaderChange('semester', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm appearance-none pr-8">
                                     <option value="">Semester / Year *</option>
                                     {YEARS.map(y => SEMESTERS.map(s => {
                                         const val = `${y} - ${s}`;
@@ -304,32 +314,32 @@ export default function BuzzerBattleRegister() {
                         <button
                             type="button"
                             onClick={addMember}
-                            className="w-full py-4 border-2 border-dashed border-[#A855F7]/20 rounded-2xl flex items-center justify-center gap-2 text-[#A855F7] font-bold hover:border-[#A855F7] hover:bg-violet-50 transition-all active:scale-[0.98]"
+                            className="w-full py-4 border-2 border-dashed border-[#22C55E]/20 rounded-2xl flex items-center justify-center gap-2 text-[#22C55E] font-bold hover:border-[#22C55E] hover:bg-green-50 transition-all active:scale-[0.98]"
                         >
                             <Plus className="w-5 h-5" /> Add Team Member ({members.length + 2} of 3)
                         </button>
                     )}
 
                     {members.map((member, idx) => (
-                        <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-violet-200 transition-colors shadow-sm">
+                        <div key={idx} className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 relative group hover:border-green-200 transition-colors shadow-sm">
                             <button type="button" onClick={() => removeMember(idx)} className="absolute top-3 right-3 text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors">
                                 <Trash2 className="w-4 h-4" />
                             </button>
-                            <h4 className="text-xs font-bold text-[#A855F7]/60 uppercase tracking-wider mb-3">Member {idx + 2} <span className="text-gray-400 font-normal">(Optional)</span></h4>
+                            <h4 className="text-xs font-bold text-[#22C55E]/60 uppercase tracking-wider mb-3">Member {idx + 2} <span className="text-gray-400 font-normal">(Optional)</span></h4>
                             <div className="space-y-3">
-                                <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Full Name" />
-                                <input value={member.studentId} onChange={(e) => handleMemberChange(idx, 'studentId', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Student ID" />
-                                <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Active Email Address" />
-                                <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm" placeholder="Contact Number" />
+                                <input value={member.name} onChange={(e) => handleMemberChange(idx, 'name', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Full Name" />
+                                <input value={member.studentId} onChange={(e) => handleMemberChange(idx, 'studentId', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Student ID" />
+                                <input type="email" value={member.email} onChange={(e) => handleMemberChange(idx, 'email', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Active Email Address" />
+                                <input value={member.phone} onChange={(e) => handleMemberChange(idx, 'phone', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm" placeholder="Contact Number" />
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="relative">
-                                        <select value={member.department} onChange={(e) => handleMemberChange(idx, 'department', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm appearance-none pr-8">
+                                        <select value={member.department} onChange={(e) => handleMemberChange(idx, 'department', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm appearance-none pr-8">
                                             <option value="">Department *</option>
                                             {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                                         </select>
                                     </div>
                                     <div className="relative">
-                                        <select value={member.semester} onChange={(e) => handleMemberChange(idx, 'semester', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#A855F7] outline-none text-sm appearance-none pr-8">
+                                        <select value={member.semester} onChange={(e) => handleMemberChange(idx, 'semester', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-[#22C55E] outline-none text-sm appearance-none pr-8">
                                             <option value="">Semester / Year *</option>
                                             {YEARS.map(y => SEMESTERS.map(s => {
                                                 const val = `${y} - ${s}`;
@@ -348,7 +358,7 @@ export default function BuzzerBattleRegister() {
                     <div className="space-y-4 text-sm">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-2 bg-gray-100 rounded-lg"><CreditCard className="w-5 h-5 text-gray-600" /></div>
-                            <h3 className="font-bold text-[#1B1230] text-lg">Payment Details (499 BDT)</h3>
+                            <h3 className="font-bold text-[#1B4B43] text-lg">Payment Details (499 BDT)</h3>
                         </div>
 
                         <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl">
@@ -357,7 +367,7 @@ export default function BuzzerBattleRegister() {
                                     key={method}
                                     type="button"
                                     onClick={() => setForm(prev => ({ ...prev, paymentMethod: method }))}
-                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold capitalize transition-all ${form.paymentMethod === method ? 'bg-white text-[#1B1230] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold capitalize transition-all ${form.paymentMethod === method ? 'bg-white text-[#1B4B43] shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     {form.paymentMethod === method && <Check className="w-4 h-4" />}
                                     {method}
@@ -379,7 +389,7 @@ export default function BuzzerBattleRegister() {
                                         Send Money ({form.paymentMethod})
                                     </p>
                                     <p className="text-gray-700 font-medium mb-1">Number: <span className="font-bold select-all">01639802823</span></p>
-                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B1230]">499 BDT</span></p>
+                                    <p className="text-gray-700 font-medium">Total: <span className="font-bold text-xl text-[#1B4B43]">499 BDT</span></p>
                                 </div>
                             </motion.div>
                         </AnimatePresence>
@@ -387,23 +397,23 @@ export default function BuzzerBattleRegister() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label className="block font-semibold text-gray-700 mb-1.5 ml-1">Sender Mobile Number <span className="text-red-500">*</span></label>
-                                <input name="paymentSenderNumber" value={form.paymentSenderNumber} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#A855F7] outline-none transition-all" placeholder="01XXXXXXXXX" />
+                                <input name="paymentSenderNumber" value={form.paymentSenderNumber} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#22C55E] outline-none transition-all" placeholder="01XXXXXXXXX" />
                             </div>
                             <div>
                                 <label className="block font-semibold text-gray-700 mb-1.5 ml-1 capitalize">{form.paymentMethod} Transaction ID <span className="text-red-500">*</span></label>
-                                <input name="bkashTxId" value={form.bkashTxId} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#A855F7] outline-none font-mono uppercase transition-all" placeholder="TRX123456" />
+                                <input name="bkashTxId" value={form.bkashTxId} onChange={handleFormChange} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#22C55E] outline-none font-mono uppercase transition-all" placeholder="TRX123456" />
                             </div>
                         </div>
 
                         <div>
                             <label className="block font-semibold text-gray-700 mb-1.5 ml-1 flex items-center gap-2">
-                                <Receipt className="w-4 h-4 text-[#A855F7]" /> Payment Screenshot <span className="text-red-500">*</span>
+                                <Receipt className="w-4 h-4 text-[#22C55E]" /> Payment Screenshot <span className="text-red-500">*</span>
                             </label>
-                            <div onClick={() => screenshotInputRef.current?.click()} className={`w-full py-6 px-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex items-center justify-center gap-3 text-center ${form.paymentScreenshotUrl ? 'border-[#A855F7] bg-violet-50' : 'border-gray-300 hover:border-[#A855F7] bg-white'}`}>
+                            <div onClick={() => screenshotInputRef.current?.click()} className={`w-full py-6 px-4 rounded-xl border-2 border-dashed transition-all cursor-pointer flex items-center justify-center gap-3 text-center ${form.paymentScreenshotUrl ? 'border-[#22C55E] bg-green-50' : 'border-gray-300 hover:border-[#22C55E] bg-white'}`}>
                                 {screenshotUploading ? (
-                                    <><Loader2 className="w-5 h-5 text-[#A855F7] animate-spin" /><span className="text-sm text-[#A855F7] font-semibold">Uploading...</span></>
+                                    <><Loader2 className="w-5 h-5 text-[#22C55E] animate-spin" /><span className="text-sm text-[#22C55E] font-semibold">Uploading...</span></>
                                 ) : form.paymentScreenshotUrl ? (
-                                    <><CheckCircle2 className="w-5 h-5 text-[#A855F7]" /><span className="font-semibold text-[#1B1230] text-sm">Screenshot ready</span></>
+                                    <><CheckCircle2 className="w-5 h-5 text-[#22C55E]" /><span className="font-semibold text-[#1B4B43] text-sm">Screenshot ready</span></>
                                 ) : (
                                     <><Upload className="w-5 h-5 text-gray-400" /><span className="text-sm text-gray-500">Tap to upload (JPG/PNG, Max 5MB)</span></>
                                 )}
@@ -416,16 +426,16 @@ export default function BuzzerBattleRegister() {
 
                     {/* Declarations */}
                     <div className="space-y-3">
-                        <h3 className="font-bold text-[#1B1230] text-lg flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-[#A855F7]" /> Declarations & Policy Agreement</h3>
+                        <h3 className="font-bold text-[#1B4B43] text-lg flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-[#22C55E]" /> Declarations & Policy Agreement</h3>
                         {declarations.map(d => (
                             <label key={d.key} className="flex items-start gap-3 cursor-pointer p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                                <input type="checkbox" name={d.key} checked={form[d.key]} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#A855F7] focus:ring-[#A855F7] border-gray-300" />
+                                <input type="checkbox" name={d.key} checked={form[d.key]} onChange={handleFormChange} className="mt-1 w-4 h-4 rounded text-[#22C55E] focus:ring-[#22C55E] border-gray-300" />
                                 <span className="text-sm text-gray-600 font-medium">{d.label} <span className="text-red-500">*</span></span>
                             </label>
                         ))}
                     </div>
 
-                    <button type="submit" disabled={loading} className="w-full bg-[#A855F7] hover:bg-[#9333EA] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
+                    <button type="submit" disabled={loading} className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98] disabled:opacity-70">
                         {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Confirm Registration (499 BDT)'}
                     </button>
                 </form>

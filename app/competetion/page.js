@@ -26,7 +26,7 @@ const competitions = [
     title: "Buzzer Battle",
     description: "Environmental Quiz Showdown. Rapid-fire quiz on ecology, climate & sustainability. Teams of 1–3 AUST students. 499 BDT fee.",
     icon: Zap,
-    banner: "https://res.cloudinary.com/chirkut/image/upload/v1788180163/5_20260831_093151_0000_xk44jz.png",
+    banner: "https://res.cloudinary.com/chirkut/image/upload/v1788183640/6102763479962948768_121_xarflx.jpg",
     meta: ["499 BDT", "1-3 Members", "AUST Only", "bKash/Nagad"],
   },
 ];
