@@ -5,7 +5,7 @@ import { Zap, Calendar, Users, FileText, ArrowRight, ExternalLink } from "lucide
 import Link from "next/link";
 
 export default function EcoBuzzersDetails() {
-    const rulebookUrl = "https://drive.google.com/file/d/1bWe7r0FEO5JD2lxlb9zdqdqL1I14_5SY/view?fbclid=IwZXh0bgNhZW0DMTAwAHNydGMGYXBwX2lkDzI3NTI1NDY5MjU5ODI3OQABHosuEzfomwNyGfSiatOt4zbNxe5QReimms-rVBM0Bd-1knn9QKfvR0WB6JLh_aem_4Q0kPkQJODh0jzCrvsX36Q";
+    const rulebookUrl = "https://drive.google.com/file/d/1IcakIVWCyuf7SzyXXvQkDghpcjePdoB9/view";
 
     return (
         <div className="min-h-screen pt-24 pb-16 bg-white font-sans">

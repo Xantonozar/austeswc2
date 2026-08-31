@@ -5,6 +5,7 @@ import { FileText, Calendar, Users, Image as ImageIcon, ArrowRight, Award, Credi
 import Link from "next/link";
 
 const BANNER = "https://res.cloudinary.com/chirkut/image/upload/v1787581792/poster_presentaion_2_s4tsji.png";
+const rulebookUrl = "https://drive.google.com/file/d/1H8d_jGiNt5EacJlzmdujYpf_-CFQrykd/view";
 
 export default function PosterPresentationDetails() {
     return (
@@ -149,6 +150,11 @@ export default function PosterPresentationDetails() {
                                 Register Now <ArrowRight className="w-5 h-5" />
                             </button>
                         </Link>
+                        <a href={rulebookUrl} target="_blank" rel="noopener noreferrer" className="block w-full">
+                            <button className="w-full bg-white border-2 border-[#1B4B43] text-[#1B4B43] hover:bg-[#1B4B43] hover:text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm mt-3">
+                                <FileText className="w-5 h-5" /> View Rulebook
+                            </button>
+                        </a>
                     </motion.div>
                 </div>
             </div>

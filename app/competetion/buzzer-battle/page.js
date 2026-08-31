@@ -8,7 +8,7 @@ import Image from "next/image";
 const BUZZER_BATTLE_IMAGE = "https://res.cloudinary.com/chirkut/image/upload/v1788183640/6102763479962948768_121_xarflx.jpg";
 
 export default function BuzzerBattleDetails() {
-    const rulebookUrl = "https://drive.google.com/file/d/1bWe7r0FEO5JD2lxlb9zdqdqL1I14_5SY/view";
+    const rulebookUrl = "https://drive.google.com/file/d/1TGVDg_IHZbmo_JSYmGFnDX_9Nbyzv8QL/view";
 
     const timeline = [
         { milestone: "Registration Opens", date: "31 August 2026" },
