@@ -85,10 +85,12 @@ export default function CheckStatusPage() {
         reader.readAsDataURL(file);
     };
 
-    const getStatusBadge = (status) => {
+    const getStatusBadge = (status, type) => {
         switch (status) {
             case "registered": return <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Registration Under Review</span>;
-            case "selected": return <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold"><AlertCircle className="w-3.5 h-3.5" /> Selected for Round 2 (Payment Required)</span>;
+            case "selected":
+                if (type === 'eco-frame') return <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> Shortlisted for Main Event</span>;
+                return <span className="flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold"><AlertCircle className="w-3.5 h-3.5" /> Selected for Round 2 (Payment Required)</span>;
             case "paid": return <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold"><CheckCircle2 className="w-3.5 h-3.5" /> Round 2 Payment Received</span>;
             case "eliminated": return <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold"><XCircle className="w-3.5 h-3.5" /> Not Selected</span>;
             case "rejected": return <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold"><XCircle className="w-3.5 h-3.5" /> Payment Rejected</span>;
@@ -139,12 +141,29 @@ export default function CheckStatusPage() {
                                             <p className="text-xs md:text-sm text-gray-600 mt-1">Registered as: <span className="font-semibold">{comp.teamName || comp.name}</span></p>
                                             {comp.type === 'poster-presentation' && comp.posterTitle && <p className="text-xs text-gray-500 mt-1 flex items-center gap-1"><FileText className="w-3 h-3" /> {comp.posterTitle} {comp.trackCategory ? `• ${comp.trackCategory}` : ''}</p>}
                                         </div>
-                                        <div className="order-1 md:order-2 self-start md:self-auto">{getStatusBadge(comp.status === 'paid' && comp.paymentVerifiedRound2 ? 'verified' : comp.status)}</div>
+                                        <div className="order-1 md:order-2 self-start md:self-auto">{getStatusBadge(comp.status === 'paid' && comp.paymentVerifiedRound2 ? 'verified' : comp.status, comp.type)}</div>
                                     </div>
 
                                     {(comp.status === "selected" || comp.status === "rejected") && (
                                         <div className="mt-6">
-                                            {comp.type === 'poster-presentation' ? (
+                                            {comp.type === 'eco-frame' && comp.status === 'selected' ? (
+                                                <div className="p-5 md:p-6 rounded-xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] shadow-lg">
+                                                    <div className="flex flex-col items-center gap-4 text-center">
+                                                        <div className="p-3 bg-white rounded-2xl shadow"><CheckCircle2 className="w-7 h-7 text-emerald-600" /></div>
+                                                        <h5 className="font-black text-[#1B4B43] text-lg">Shortlisted for Main Event!</h5>
+                                                        <p className="text-sm text-gray-700 max-w-md">Congratulations! Your entry has been shortlisted. You are now invited to the <strong>Eco Champions 4.0 main event</strong>, where the final results will be announced.</p>
+                                                        <div className="bg-white/80 rounded-xl px-5 py-4 border border-emerald-200 w-full max-w-md">
+                                                            <p className="text-xs text-gray-500 uppercase font-bold mb-1">What's Next?</p>
+                                                            <p className="text-sm text-gray-700">The event date and time will be communicated to you shortly via email. No additional payment is required.</p>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500">Your entry will be showcased on our Facebook page. Audience engagement will influence the final evaluation.</p>
+                                                    </div>
+                                                </div>
+                                            ) : comp.type === 'eco-frame' && comp.status === 'rejected' ? (
+                                                <div className="p-5 rounded-xl bg-red-50 border border-red-200 text-center">
+                                                    <p className="text-sm text-red-700 font-semibold">Unfortunately, your entry was not shortlisted this time. Thank you for participating!</p>
+                                                </div>
+                                            ) : comp.type === 'poster-presentation' ? (
                                                 <div className="rounded-2xl bg-gradient-to-br from-[#F3F9F1] to-[#E8F9FF] border-2 border-[#1B4B43] p-5 md:p-6 space-y-5">
                                                     <div className="flex items-center gap-3">
                                                         <div className="p-3 bg-white rounded-xl shadow"><Wallet className="w-6 h-6 text-[#1B4B43]" /></div>
