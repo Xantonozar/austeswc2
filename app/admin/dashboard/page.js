@@ -6,7 +6,7 @@ import {
     Users, Trophy, ArrowRight, TrendingUp,
     PieChart, Activity, Zap, Camera, Video, FileText, ChevronRight,
     Loader2, LogOut, Calendar, Building2, Check, AlertTriangle, Shield, Database, Clock,
-    Crown, Flame, ShoppingBag
+    Crown, Flame, ShoppingBag, Mail
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ export default function AdminDashboardOverview() {
     const [adminRole, setAdminRole] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(getSemesterFromDate(new Date()));
+    const [sendingEmail, setSendingEmail] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -71,6 +72,25 @@ export default function AdminDashboardOverview() {
     const handleLogout = async () => {
         await fetch('/api/auth/logout', { method: 'POST' });
         router.push('/admin/login');
+    };
+
+    const handleSendEcoFrameEmail = async () => {
+        if (!confirm("Send photo posted email to ALL eco-frame participants?")) return;
+        setSendingEmail(true);
+        const loadingToast = toast.loading("Sending emails...");
+        try {
+            const res = await fetch('/api/admin/competition/send-eco-frame-email', { method: 'POST' });
+            const data = await res.json();
+            if (data.result === 'success') {
+                toast.success(`Done! Sent: ${data.sent}, Failed: ${data.failed}`, { id: loadingToast });
+            } else {
+                throw new Error(data.error || 'Failed');
+            }
+        } catch {
+            toast.error("Failed to send emails", { id: loadingToast });
+        } finally {
+            setSendingEmail(false);
+        }
     };
 
     const semesters = getSemestersFromItems(members);
@@ -246,6 +266,13 @@ export default function AdminDashboardOverview() {
                             color="bg-violet-600"
                         />
                     )}
+                    <ActionCard
+                        title="Send Eco Frame Email"
+                        icon={Mail}
+                        color="bg-rose-600"
+                        onClick={handleSendEcoFrameEmail}
+                        loading={sendingEmail}
+                    />
                 </section>
 
                 {/* Bottom Grid: Dept Breakdown + Competition Mix */}
@@ -414,6 +441,18 @@ function NavCard({ title, href, icon: Icon, color }) {
             </div>
             <span className="text-xs font-bold text-slate-700 text-center group-hover:text-slate-900 transition-colors">{title}</span>
         </Link>
+    );
+}
+
+function ActionCard({ title, icon: Icon, color, onClick, loading }) {
+    return (
+        <button onClick={onClick} disabled={loading}
+            className="flex flex-col items-center gap-3 bg-white rounded-2xl p-5 shadow-md shadow-slate-200/50 border border-slate-100 hover:border-slate-300 hover:shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed">
+            <div className={`w-12 h-12 rounded-xl ${color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Icon className="w-6 h-6" />}
+            </div>
+            <span className="text-xs font-bold text-slate-700 text-center group-hover:text-slate-900 transition-colors">{title}</span>
+        </button>
     );
 }
 
