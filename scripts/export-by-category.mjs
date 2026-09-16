@@ -8,10 +8,13 @@ const CompetitionSchema = new mongoose.Schema({
     name: String,
     email: String,
     phone: String,
+    studentId: String,
+    department: String,
+    semester: String,
     teamName: String,
     universityName: String,
     members: [{ name: String, email: String, phone: String, studentId: String, universityName: String }],
-    photos: [{ url: String, publicId: String, story: String, selected: Boolean }],
+    photos: [{ url: String, publicId: String, story: String, theme: String, title: String, caption: String, selected: Boolean }],
     videoLink: String,
     pdfUrl: String,
     type: String,
@@ -29,7 +32,7 @@ const CompetitionSchema = new mongoose.Schema({
 
 const Competition = mongoose.models.Competition || mongoose.model('Competition', CompetitionSchema);
 
-const FEE_MAP = { 'eco-capture': 300, 'eco-buzzers': 720, 'green-story': 400, 'eco-pitch': 300 };
+const FEE_MAP = { 'eco-capture': 300, 'eco-buzzers': 720, 'green-story': 400, 'eco-pitch': 300, 'eco-frame': 149 };
 
 async function exportByCategory() {
     await mongoose.connect(MONGODB_URI, { dbName: 'austeswc' });
@@ -73,6 +76,12 @@ async function exportByCategory() {
                     txId = c.bkashTxId;
                     const selectedCount = (c.photos || []).filter(p => p.selected).length;
                     payAmount = selectedCount * baseFee;
+                }
+            } else if (type === 'eco-frame') {
+                // eco-frame: paid at registration
+                if (c.bkashTxId) {
+                    paidRound = 1;
+                    txId = c.bkashTxId;
                 }
             } else {
                 // eco-buzzers, green-story, eco-pitch: paid at registration (Round 1)
@@ -120,6 +129,21 @@ async function exportByCategory() {
                     entry.round2PaymentAmount = entry.selectedPhotoCount * baseFee;
                     entry.round2PaymentMethod = (c.paymentMethodRound2 || '').toUpperCase();
                 }
+            }
+
+            if (type === 'eco-frame') {
+                const semParts = (c.semester || '').split('-');
+                entry.studentId = c.studentId || '';
+                entry.department = c.department || '';
+                entry.year = semParts[0]?.trim() || '';
+                entry.semester = semParts[1]?.trim() || c.semester || '';
+                entry.paymentVerified = c.paymentVerified || false;
+                entry.photos = (c.photos || []).map(p => ({
+                    url: p.url,
+                    theme: p.theme || '',
+                    title: p.title || '',
+                    caption: p.caption || '',
+                }));
             }
 
             entry.status = c.status;

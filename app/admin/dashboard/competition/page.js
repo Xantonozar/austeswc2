@@ -320,6 +320,184 @@ export default function CompetitionAdmin() {
         setExportDropdownOpen(false);
     };
 
+    // Eco Frame Excel export - minimal with enough space
+    const handleExportEcoFrameExcel = () => {
+        const typeData = filteredCompetitors.filter(c => c.type === 'eco-frame');
+
+        if (typeData.length === 0) {
+            toast.error("No Eco Frame entries found");
+            return;
+        }
+
+        // Main participants sheet
+        const mainRows = typeData.map((d, i) => {
+            const semParts = (d.semester || '').split('-');
+            return {
+                '#': i + 1,
+                'Name': d.name || '',
+                'Student ID': d.studentId || '',
+                'Email': d.email || '',
+                'Phone': d.phone || '',
+                'Department': d.department || '',
+                'Year': semParts[0]?.trim() || '',
+                'Semester': semParts[1]?.trim() || d.semester || '',
+                'Tx ID': d.bkashTxId || '',
+                'Payment Method': d.paymentMethod || 'bkash',
+                'Payment Verified': d.paymentVerified ? 'YES' : 'NO',
+                'Status': d.status || '',
+                'Registered At': d.createdAt ? new Date(d.createdAt).toLocaleString() : '',
+            };
+        });
+
+        const ws = XLSX.utils.json_to_sheet(mainRows, { header: Object.keys(mainRows[0]) });
+
+        // Set column widths for minimal but spacious layout
+        ws['!cols'] = [
+            { wch: 5 },   // #
+            { wch: 22 },  // Name
+            { wch: 15 },  // Student ID
+            { wch: 28 },  // Email
+            { wch: 16 },  // Phone
+            { wch: 12 },  // Department
+            { wch: 18 },  // Semester
+            { wch: 10 },  // Year
+            { wch: 18 },  // Tx ID
+            { wch: 14 },  // Payment Method
+            { wch: 16 },  // Payment Verified
+            { wch: 12 },  // Status
+            { wch: 20 },  // Registered At
+        ];
+
+        // Header style
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let C = range.s.c; C <= range.e.c; C++) {
+            const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+            const cell = ws[addr];
+            if (!cell) continue;
+            cell.s = {
+                fill: { fgColor: { rgb: '145A3C' } },
+                font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11, name: 'Calibri' },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                border: [
+                    { top: { style: 'medium', color: { rgb: 'FFFFFF' } } },
+                    { bottom: { style: 'medium', color: { rgb: 'FFFFFF' } } },
+                    { left: { style: 'thin', color: { rgb: '145A3C' } } },
+                    { right: { style: 'thin', color: { rgb: '145A3C' } } },
+                ],
+            };
+        }
+        ws['!rows'] = [{ hpt: 28 }];
+
+        // Data row styles
+        for (let R = 1; R <= range.e.r; R++) {
+            const isEven = R % 2 === 0;
+            for (let C = range.s.c; C <= range.e.c; C++) {
+                const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                const cell = ws[addr];
+                if (!cell) continue;
+                cell.s = {
+                    fill: { fgColor: { rgb: isEven ? 'EAF7E8' : 'FFFFFF' } },
+                    font: { color: { rgb: '1A1A1A' }, sz: 10, name: 'Calibri' },
+                    alignment: { vertical: 'center', wrapText: true },
+                    border: [{ bottom: { style: 'thin', color: { rgb: 'C8E6C9' } } }],
+                };
+            }
+        }
+
+        // Color Payment Verified column
+        const verifiedCol = 10;
+        for (let R = 1; R <= range.e.r; R++) {
+            const addr = XLSX.utils.encode_cell({ r: R, c: verifiedCol });
+            const cell = ws[addr];
+            if (cell) {
+                const val = String(cell.v);
+                cell.s = { ...cell.s, font: { ...cell.s?.font, bold: true, color: { rgb: val === 'YES' ? '16A34A' : 'DC2626' } } };
+            }
+        }
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Participants');
+
+        // Photos sheet
+        const photoRows = [];
+        typeData.forEach((d, idx) => {
+            (d.photos || []).forEach((p, pidx) => {
+                photoRows.push({
+                    '#': idx + 1,
+                    'Name': d.name || '',
+                    'Student ID': d.studentId || '',
+                    'Photo #': pidx + 1,
+                    'Theme': p.theme || '',
+                    'Title': p.title || '',
+                    'Description': p.caption || '',
+                    'Image URL': p.url || '',
+                });
+            });
+        });
+        if (photoRows.length) {
+            const ws2 = XLSX.utils.json_to_sheet(photoRows, { header: Object.keys(photoRows[0]) });
+            ws2['!cols'] = [
+                { wch: 5 },   // #
+                { wch: 22 },  // Name
+                { wch: 15 },  // Student ID
+                { wch: 9 },   // Photo #
+                { wch: 20 },  // Theme
+                { wch: 30 },  // Title
+                { wch: 45 },  // Description
+                { wch: 55 },  // Image URL
+            ];
+            // Header style
+            const r2 = XLSX.utils.decode_range(ws2['!ref']);
+            for (let C = r2.s.c; C <= r2.e.c; C++) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                const cell = ws2[addr];
+                if (!cell) continue;
+                cell.s = {
+                    fill: { fgColor: { rgb: '145A3C' } },
+                    font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11, name: 'Calibri' },
+                    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                    border: [
+                        { top: { style: 'medium', color: { rgb: 'FFFFFF' } } },
+                        { bottom: { style: 'medium', color: { rgb: 'FFFFFF' } } },
+                        { left: { style: 'thin', color: { rgb: '145A3C' } } },
+                        { right: { style: 'thin', color: { rgb: '145A3C' } } },
+                    ],
+                };
+            }
+            ws2['!rows'] = [{ hpt: 28 }];
+            for (let R = 1; R <= r2.e.r; R++) {
+                const isEven = R % 2 === 0;
+                for (let C = r2.s.c; C <= r2.e.c; C++) {
+                    const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                    const cell = ws2[addr];
+                    if (!cell) continue;
+                    cell.s = {
+                        fill: { fgColor: { rgb: isEven ? 'EAF7E8' : 'FFFFFF' } },
+                        font: { color: { rgb: '1A1A1A' }, sz: 10, name: 'Calibri' },
+                        alignment: { vertical: 'center', wrapText: true },
+                        border: [{ bottom: { style: 'thin', color: { rgb: 'C8E6C9' } } }],
+                    };
+                }
+            }
+            XLSX.utils.book_append_sheet(wb, ws2, 'Photo Details');
+        }
+
+        // Download
+        const wbOut = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbOut], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Eco_Frame_${Date.now()}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        toast.success(`Exported ${typeData.length} Eco Frame entries to Excel`);
+        setExportDropdownOpen(false);
+    };
+
     // Export single competition type with all data
     const handleExportSingleTypeJSON = (type) => {
         const typeData = filteredCompetitors.filter(c => c.type === type);
@@ -362,6 +540,29 @@ export default function CompetitionAdmin() {
                             cloudinaryPublicId: p.publicId,
                             story: p.story
                         })) || []
+                    } : {}),
+                    
+                    ...(type === 'eco-frame' ? {
+                        // Eco Frame is individual photography
+                        participantName: c.name,
+                        studentId: c.studentId || null,
+                        email: c.email,
+                        phone: c.phone,
+                        department: c.department || null,
+                        year: (c.semester || '').split('-')[0]?.trim() || null,
+                        semester: (c.semester || '').split('-')[1]?.trim() || c.semester || null,
+                        paymentMethod: c.paymentMethod || 'bkash',
+                        bkashTxId: c.bkashTxId || null,
+                        paymentVerified: c.paymentVerified || false,
+                        paymentScreenshotUrl: c.paymentScreenshotUrl || null,
+                        photos: c.photos?.map(p => ({
+                            imageUrl: p.url,
+                            cloudinaryPublicId: p.publicId,
+                            theme: p.theme || null,
+                            title: p.title || null,
+                            caption: p.caption || null
+                        })) || [],
+                        pdfUrl: c.pdfUrl || null
                     } : {}),
                     
                     ...(type === 'eco-buzzers' ? {
@@ -715,6 +916,23 @@ export default function CompetitionAdmin() {
                                         </button>
 
                                         <div className="h-px bg-slate-100 my-2"></div>
+                                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Quick Excel Export</p>
+
+                                        {/* Eco Frame Excel */}
+                                        <button
+                                            onClick={handleExportEcoFrameExcel}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-teal-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                                                <Download className="w-4 h-4 text-teal-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Eco Frame (Excel)</p>
+                                                <p className="text-[10px] text-slate-400">Minimal Excel with photos & details</p>
+                                            </div>
+                                        </button>
+
+                                        <div className="h-px bg-slate-100 my-2"></div>
                                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">By Competition Type</p>
 
                                         {/* Eco Capture */}
@@ -812,6 +1030,20 @@ export default function CompetitionAdmin() {
                                             <div>
                                                 <p className="text-sm font-bold text-slate-800">Eco Fair Stall</p>
                                                 <p className="text-[10px] text-slate-400">Brand, reps, stall size, payments</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Eco Frame */}
+                                        <button
+                                            onClick={() => handleExportSingleTypeJSON('eco-frame')}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-teal-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                                                <Frame className="w-4 h-4 text-teal-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Eco Frame</p>
+                                                <p className="text-[10px] text-slate-400">Photos, titles, descriptions, payments</p>
                                             </div>
                                         </button>
                                     </div>

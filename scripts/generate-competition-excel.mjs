@@ -385,9 +385,83 @@ function createGreenStory() {
     console.log(`✓ Green_Story.xlsx — ${data.length} teams, ${memberRows.length} members`);
 }
 
+// ── Eco Frame ──
+function createEcoFrame() {
+    const data = JSON.parse(readFileSync(resolve('competitions-by-category/eco-frame.json'), 'utf8'));
+    const wb = XLSX.utils.book_new();
+
+    const mainRows = data.map((d, i) => ({
+        '#': i + 1,
+        'Name': d.name,
+        'Student ID': d.studentId || '-',
+        'Email': d.email,
+        'Phone': d.phone || '-',
+        'Department': d.department || '-',
+        'Semester': d.semester || '-',
+        'Tx ID': d.transactionId || '-',
+        'Payment Status': d.paymentStatus || '-',
+        'Payment Verified': d.paymentVerified ? 'YES' : 'NO',
+        'Photos': d.photos?.length || 0,
+        'Status': d.status,
+    }));
+    const ws = XLSX.utils.json_to_sheet(mainRows, { header: Object.keys(mainRows[0]) });
+    styleHeader(ws, '145A3C');
+    styleDataRows(ws);
+    autoWidth(ws);
+
+    const range = XLSX.utils.decode_range(ws['!ref']);
+
+    // Payment Status color
+    const payCol = 8;
+    for (let R = 1; R <= range.e.r; R++) {
+        const addr = XLSX.utils.encode_cell({ r: R, c: payCol });
+        const cell = ws[addr];
+        if (cell) {
+            const val = String(cell.v);
+            cell.s = {
+                ...cell.s,
+                font: {
+                    ...cell.s?.font,
+                    bold: true,
+                    color: { rgb: val === 'YES' ? BRAND.green : BRAND.red },
+                },
+            };
+        }
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Participants');
+
+    // Photos detail sheet
+    const photoRows = [];
+    data.forEach(d => {
+        (d.photos || []).forEach((p, idx) => {
+            photoRows.push({
+                'Name': d.name,
+                'Student ID': d.studentId || '-',
+                'Photo #': idx + 1,
+                'Theme': p.theme || '-',
+                'Title': p.title || '-',
+                'Description': p.caption || '-',
+                'Image URL': p.url || '-',
+            });
+        });
+    });
+    if (photoRows.length) {
+        const ws2 = XLSX.utils.json_to_sheet(photoRows, { header: Object.keys(photoRows[0]) });
+        styleHeader(ws2, '145A3C');
+        styleDataRows(ws2);
+        autoWidth(ws2);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Photo Details');
+    }
+
+    XLSX.writeFile(wb, 'Eco_Frame.xlsx');
+    console.log(`✓ Eco_Frame.xlsx — ${data.length} participants, ${photoRows.length} photos`);
+}
+
 // ── Run All ──
 createEcoBuzzers();
 createEcoCapture();
+createEcoFrame();
 createEcoPitch();
 createGreenStory();
 console.log('\nAll competition Excel files generated!');
