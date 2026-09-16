@@ -498,6 +498,268 @@ export default function CompetitionAdmin() {
         setExportDropdownOpen(false);
     };
 
+    // Poster Presentation Excel export - minimal with enough space
+    const handleExportPosterExcel = () => {
+        const typeData = filteredCompetitors.filter(c => c.type === 'poster-presentation');
+
+        if (typeData.length === 0) {
+            toast.error("No Poster Presentation entries found");
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+
+        // Teams sheet
+        const teamRows = typeData.map((d, i) => ({
+            '#': i + 1,
+            'Team Name': d.teamName || '',
+            'Track': d.trackCategory || '',
+            'Poster Title': d.posterTitle || '',
+            'Leader Email': d.email || '',
+            'Leader Phone': d.phone || '',
+            'CA Reference': d.caReference || '',
+            'Abstract': d.pdfUrl ? '✓ Uploaded' : '✗ Missing',
+            'Members': d.members?.length || 0,
+            'AI Confirmed': d.confirmAi ? 'YES' : 'NO',
+            'R2 Tx ID': d.bkashTxIdRound2 || '',
+            'R2 Amount': d.paymentAmount || '',
+            'R2 Verified': d.paymentVerifiedRound2 ? 'YES' : 'NO',
+            'Status': d.status || '',
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(teamRows, { header: Object.keys(teamRows[0]) });
+
+        // Column widths
+        ws['!cols'] = [
+            { wch: 5 },   // #
+            { wch: 22 },  // Team Name
+            { wch: 18 },  // Track
+            { wch: 35 },  // Poster Title
+            { wch: 28 },  // Leader Email
+            { wch: 16 },  // Leader Phone
+            { wch: 14 },  // CA Reference
+            { wch: 12 },  // Abstract
+            { wch: 9 },   // Members
+            { wch: 13 },  // AI Confirmed
+            { wch: 18 },  // R2 Tx ID
+            { wch: 10 },  // R2 Amount
+            { wch: 12 },  // R2 Verified
+            { wch: 12 },  // Status
+        ];
+
+        // Header style - purple theme
+        const range = XLSX.utils.decode_range(ws['!ref']);
+        for (let C = range.s.c; C <= range.e.c; C++) {
+            const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+            const cell = ws[addr];
+            if (!cell) continue;
+            cell.s = {
+                fill: { fgColor: { rgb: '4A148C' } },
+                font: { bold: true, color: { rgb: BRAND.white }, sz: 11, name: 'Calibri' },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                border: [
+                    { top: { style: 'medium', color: { rgb: BRAND.white } } },
+                    { bottom: { style: 'medium', color: { rgb: BRAND.white } } },
+                    { left: { style: 'thin', color: { rgb: '4A148C' } } },
+                    { right: { style: 'thin', color: { rgb: '4A148C' } } },
+                ],
+            };
+        }
+        ws['!rows'] = [{ hpt: 28 }];
+
+        // Data row styles
+        for (let R = 1; R <= range.e.r; R++) {
+            const isEven = R % 2 === 0;
+            for (let C = range.s.c; C <= range.e.c; C++) {
+                const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                const cell = ws[addr];
+                if (!cell) continue;
+                cell.s = {
+                    fill: { fgColor: { rgb: isEven ? 'F3E5F5' : BRAND.white } },
+                    font: { color: { rgb: BRAND.textDark }, sz: 10, name: 'Calibri' },
+                    alignment: { vertical: 'center', wrapText: true },
+                    border: [{ bottom: { style: 'thin', color: { rgb: 'E1BEE7' } } }],
+                };
+            }
+        }
+
+        // Color R2 Verified column
+        const verifiedCol = 12;
+        for (let R = 1; R <= range.e.r; R++) {
+            const addr = XLSX.utils.encode_cell({ r: R, c: verifiedCol });
+            const cell = ws[addr];
+            if (cell) {
+                const val = String(cell.v);
+                cell.s = { ...cell.s, font: { ...cell.s?.font, bold: true, color: { rgb: val === 'YES' ? BRAND.green : BRAND.red } } };
+            }
+        }
+
+        // Abstract status color
+        const abstractCol = 7;
+        for (let R = 1; R <= range.e.r; R++) {
+            const addr = XLSX.utils.encode_cell({ r: R, c: abstractCol });
+            const cell = ws[addr];
+            if (cell) {
+                const ok = String(cell.v).includes('Uploaded');
+                cell.s = { ...cell.s, font: { ...cell.s?.font, bold: true, color: { rgb: ok ? BRAND.green : BRAND.red } } };
+            }
+        }
+
+        XLSX.utils.book_append_sheet(wb, ws, 'Teams');
+
+        // Members sheet
+        const memberRows = [];
+        typeData.forEach((d, idx) => {
+            (d.members || []).forEach((m, mIdx) => {
+                const semParts = (m.semester || '').split('-');
+                memberRows.push({
+                    '#': idx + 1,
+                    'Team Name': d.teamName || '',
+                    'Role': m.isLeader ? 'Leader' : `Member ${mIdx + 1}`,
+                    'Name': m.name || '',
+                    'Student ID': m.studentId || '',
+                    'Email': m.email || '',
+                    'Phone': m.phone || '',
+                    'Department': m.department || '',
+                    'Year': semParts[0]?.trim() || '',
+                    'Semester': semParts[1]?.trim() || m.semester || '',
+                    'Profile Photo': m.photo?.url || '',
+                });
+            });
+        });
+        if (memberRows.length) {
+            const ws2 = XLSX.utils.json_to_sheet(memberRows, { header: Object.keys(memberRows[0]) });
+            ws2['!cols'] = [
+                { wch: 5 },   // #
+                { wch: 22 },  // Team Name
+                { wch: 10 },  // Role
+                { wch: 22 },  // Name
+                { wch: 15 },  // Student ID
+                { wch: 28 },  // Email
+                { wch: 16 },  // Phone
+                { wch: 12 },  // Department
+                { wch: 12 },  // Year
+                { wch: 18 },  // Semester
+                { wch: 55 },  // Profile Photo URL
+            ];
+            const r2 = XLSX.utils.decode_range(ws2['!ref']);
+            for (let C = r2.s.c; C <= r2.e.c; C++) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                const cell = ws2[addr];
+                if (!cell) continue;
+                cell.s = {
+                    fill: { fgColor: { rgb: '4A148C' } },
+                    font: { bold: true, color: { rgb: BRAND.white }, sz: 11, name: 'Calibri' },
+                    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                    border: [
+                        { top: { style: 'medium', color: { rgb: BRAND.white } } },
+                        { bottom: { style: 'medium', color: { rgb: BRAND.white } } },
+                        { left: { style: 'thin', color: { rgb: '4A148C' } } },
+                        { right: { style: 'thin', color: { rgb: '4A148C' } } },
+                    ],
+                };
+            }
+            ws2['!rows'] = [{ hpt: 28 }];
+            for (let R = 1; R <= r2.e.r; R++) {
+                const isEven = R % 2 === 0;
+                for (let C = r2.s.c; C <= r2.e.c; C++) {
+                    const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                    const cell = ws2[addr];
+                    if (!cell) continue;
+                    cell.s = {
+                        fill: { fgColor: { rgb: isEven ? 'F3E5F5' : BRAND.white } },
+                        font: { color: { rgb: BRAND.textDark }, sz: 10, name: 'Calibri' },
+                        alignment: { vertical: 'center', wrapText: true },
+                        border: [{ bottom: { style: 'thin', color: { rgb: 'E1BEE7' } } }],
+                    };
+                }
+            }
+            XLSX.utils.book_append_sheet(wb, ws2, 'Team Members');
+        }
+
+        // Round 2 Payment sheet
+        const r2Rows = [];
+        typeData.forEach(d => {
+            if (d.bkashTxIdRound2) {
+                r2Rows.push({
+                    'Team Name': d.teamName || '',
+                    'Tx ID': d.bkashTxIdRound2,
+                    'Method': d.paymentMethodRound2 || 'bkash',
+                    'Amount': d.paymentAmount || 0,
+                    'Verified': d.paymentVerifiedRound2 ? 'YES' : 'NO',
+                    'Sender Number': d.paymentSenderNumber || '',
+                    'Club Member': d.isClubMember ? 'YES' : 'NO',
+                    'Club Member ID': d.clubMemberId || '',
+                    'Screenshot': d.paymentScreenshotUrl || '',
+                    'Team Photos': d.teamPhotos?.map(p => p.url).join(', ') || '',
+                });
+            }
+        });
+        if (r2Rows.length) {
+            const ws3 = XLSX.utils.json_to_sheet(r2Rows, { header: Object.keys(r2Rows[0]) });
+            ws3['!cols'] = [
+                { wch: 22 },  // Team Name
+                { wch: 18 },  // Tx ID
+                { wch: 10 },  // Method
+                { wch: 10 },  // Amount
+                { wch: 10 },  // Verified
+                { wch: 16 },  // Sender Number
+                { wch: 13 },  // Club Member
+                { wch: 15 },  // Club Member ID
+                { wch: 55 },  // Screenshot
+                { wch: 60 },  // Team Photos
+            ];
+            const r3 = XLSX.utils.decode_range(ws3['!ref']);
+            for (let C = r3.s.c; C <= r3.e.c; C++) {
+                const addr = XLSX.utils.encode_cell({ r: 0, c: C });
+                const cell = ws3[addr];
+                if (!cell) continue;
+                cell.s = {
+                    fill: { fgColor: { rgb: '4A148C' } },
+                    font: { bold: true, color: { rgb: BRAND.white }, sz: 11, name: 'Calibri' },
+                    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                    border: [
+                        { top: { style: 'medium', color: { rgb: BRAND.white } } },
+                        { bottom: { style: 'medium', color: { rgb: BRAND.white } } },
+                        { left: { style: 'thin', color: { rgb: '4A148C' } } },
+                        { right: { style: 'thin', color: { rgb: '4A148C' } } },
+                    ],
+                };
+            }
+            ws3['!rows'] = [{ hpt: 28 }];
+            for (let R = 1; R <= r3.e.r; R++) {
+                const isEven = R % 2 === 0;
+                for (let C = r3.s.c; C <= r3.e.c; C++) {
+                    const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                    const cell = ws3[addr];
+                    if (!cell) continue;
+                    cell.s = {
+                        fill: { fgColor: { rgb: isEven ? 'F3E5F5' : BRAND.white } },
+                        font: { color: { rgb: BRAND.textDark }, sz: 10, name: 'Calibri' },
+                        alignment: { vertical: 'center', wrapText: true },
+                        border: [{ bottom: { style: 'thin', color: { rgb: 'E1BEE7' } } }],
+                    };
+                }
+            }
+            XLSX.utils.book_append_sheet(wb, ws3, 'R2 Payments');
+        }
+
+        // Download
+        const wbOut = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbOut], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Poster_Presentation_${Date.now()}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        toast.success(`Exported ${typeData.length} Poster Presentation teams to Excel`);
+        setExportDropdownOpen(false);
+    };
+
     // Export single competition type with all data
     const handleExportSingleTypeJSON = (type) => {
         const typeData = filteredCompetitors.filter(c => c.type === type);
@@ -663,16 +925,24 @@ export default function CompetitionAdmin() {
                         round2PosterTitle: c.round2PosterTitle || null,
                         abstractDocumentUrl: c.pdfUrl,
                         abstractDocumentPublicId: c.pdfPublicId,
-                        teamMembers: c.members?.map((m, idx) => ({
-                            memberNumber: idx + 1,
-                            name: m.name,
-                            email: m.email,
-                            phone: m.phone,
-                            studentId: m.studentId,
-                            universityName: m.universityName,
-                            department: m.department,
-                            semester: m.semester
-                        })) || [],
+                        confirmAi: c.confirmAi || false,
+                        confirmRules: c.confirmRules || false,
+                        teamMembers: c.members?.map((m, idx) => {
+                            const semParts = (m.semester || '').split('-');
+                            return {
+                                memberNumber: idx + 1,
+                                isLeader: m.isLeader || false,
+                                name: m.name,
+                                email: m.email,
+                                phone: m.phone,
+                                studentId: m.studentId,
+                                universityName: m.universityName,
+                                department: m.department,
+                                year: semParts[0]?.trim() || null,
+                                semester: semParts[1]?.trim() || m.semester || null,
+                                profilePhotoUrl: m.photo?.url || null,
+                            };
+                        }) || [],
                         round2Payment: {
                             transactionId: c.bkashTxIdRound2 || null,
                             paymentMethod: c.paymentMethodRound2 || 'bkash',
@@ -929,6 +1199,20 @@ export default function CompetitionAdmin() {
                                             <div>
                                                 <p className="text-sm font-bold text-slate-800">Eco Frame (Excel)</p>
                                                 <p className="text-[10px] text-slate-400">Minimal Excel with photos & details</p>
+                                            </div>
+                                        </button>
+
+                                        {/* Poster Presentation Excel */}
+                                        <button
+                                            onClick={handleExportPosterExcel}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-indigo-50 rounded-lg transition-colors group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                                                <Download className="w-4 h-4 text-indigo-600" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">Poster Presentation (Excel)</p>
+                                                <p className="text-[10px] text-slate-400">Teams, members, abstracts, R2 payments</p>
                                             </div>
                                         </button>
 

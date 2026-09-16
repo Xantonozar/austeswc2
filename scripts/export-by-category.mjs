@@ -13,19 +13,31 @@ const CompetitionSchema = new mongoose.Schema({
     semester: String,
     teamName: String,
     universityName: String,
-    members: [{ name: String, email: String, phone: String, studentId: String, universityName: String }],
+    members: [{ name: String, email: String, phone: String, studentId: String, universityName: String, department: String, semester: String, isLeader: Boolean, photo: { url: String, publicId: String } }],
     photos: [{ url: String, publicId: String, story: String, theme: String, title: String, caption: String, selected: Boolean }],
     videoLink: String,
     pdfUrl: String,
+    pdfPublicId: String,
     type: String,
     status: String,
     round: Number,
+    trackCategory: String,
+    posterTitle: String,
+    round2PosterTitle: String,
+    confirmAi: Boolean,
+    confirmRules: Boolean,
     bkashTxId: String,
     paymentMethod: String,
     paymentVerified: Boolean,
     bkashTxIdRound2: String,
     paymentMethodRound2: String,
     paymentVerifiedRound2: Boolean,
+    paymentSenderNumber: String,
+    paymentScreenshotUrl: String,
+    paymentAmount: Number,
+    isClubMember: Boolean,
+    clubMemberId: String,
+    teamPhotos: [{ url: String, publicId: String }],
     caReference: String,
     createdAt: Date,
 });
@@ -144,6 +156,44 @@ async function exportByCategory() {
                     title: p.title || '',
                     caption: p.caption || '',
                 }));
+            }
+
+            if (type === 'poster-presentation') {
+                entry.teamName = c.teamName || '';
+                entry.trackCategory = c.trackCategory || '';
+                entry.posterTitle = c.posterTitle || '';
+                entry.round2PosterTitle = c.round2PosterTitle || '';
+                entry.abstractUrl = c.pdfUrl || '';
+                entry.confirmAi = c.confirmAi || false;
+                entry.confirmRules = c.confirmRules || false;
+                entry.caReference = c.caReference || '';
+                entry.members = (c.members || []).map(m => {
+                    const semParts = (m.semester || '').split('-');
+                    return {
+                        name: m.name || '',
+                        email: m.email || '',
+                        phone: m.phone || '',
+                        studentId: m.studentId || '',
+                        department: m.department || '',
+                        year: semParts[0]?.trim() || '',
+                        semester: semParts[1]?.trim() || m.semester || '',
+                        isLeader: m.isLeader || false,
+                        photoUrl: m.photo?.url || '',
+                    };
+                });
+                if (c.bkashTxIdRound2) {
+                    entry.round2Payment = {
+                        transactionId: c.bkashTxIdRound2,
+                        paymentMethod: (c.paymentMethodRound2 || '').toUpperCase(),
+                        verified: c.paymentVerifiedRound2 || false,
+                        senderNumber: c.paymentSenderNumber || '',
+                        amount: c.paymentAmount || 0,
+                        isClubMember: c.isClubMember || false,
+                        clubMemberId: c.clubMemberId || '',
+                        screenshotUrl: c.paymentScreenshotUrl || '',
+                        teamPhotos: (c.teamPhotos || []).map(p => p.url),
+                    };
+                }
             }
 
             entry.status = c.status;
